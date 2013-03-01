@@ -1,4 +1,5 @@
 ---
+author: SeanTAllen
 comments: true
 date: 2013-02-01 11:34:00
 layout: post
@@ -8,18 +9,12 @@ wordpress_id: 807
 categories:
 - How we work
 ---
-
-# ****“Begin, be bold, and venture to be wise.”
-****
-
-
+{% blockquote --Horace %}
+"Begin, be bold, and venture to be wise."
+{% endblockquote %}
 
 
-# -- Horace
-
-
-****
-****All things have a beginning, some cosmologists may disagree, but for our purposes we will assume the universe had a start. How things start sets the tone for how they will continue and ultimately how they will end. So it is with employment at TheLadders.
+All things have a beginning, some cosmologists may disagree, but for our purposes we will assume the universe had a start. How things start sets the tone for how they will continue and ultimately how they will end. So it is with employment at TheLadders.
 
 If you ask the most recent developers to join TheLadders, [@johnconnolly](http://twitter.com/johnconnolly) and [@casio_juarez](http://twitter.com/casio_juarez), they probably can point to more than a few bumps in the road. But learn, iterate, repeat. Starting today, we are introducing a new onboarding plan...
 
@@ -29,8 +24,8 @@ If you ask the most recent developers to join TheLadders, [@johnconnolly](http:/
 
 Once the usual HR paperwork is out of the way, get this:
 
-****
-![](https://lh6.googleusercontent.com/csOLUTMh-ff8OHrmU3ukU-48OPfLz5X5tZoEXLxAmDfIgaRNd2kRXcKzPrOJ4_Hmt4mCvY7Dus3RS68NCkBj1Ycumj4BIk2SrAoLDj8NSsxUY8gh7wsWU2DE4g)****
+
+![15 inch retina macbook](/images/floating_flaming_retina_imac_15_inch.JPG)
 
 
 
