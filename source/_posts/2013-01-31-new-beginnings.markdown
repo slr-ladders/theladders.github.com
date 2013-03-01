@@ -1,4 +1,5 @@
 ---
+author: Kyri Sarantakos
 comments: true
 date: 2013-01-31 11:59:09
 layout: post
@@ -8,11 +9,12 @@ wordpress_id: 773
 categories:
 - Engineering
 ---
+{% blockquote --Ghandi %}
+"You must be the change you wish to see..." 
+{% endblockquote %}
 
-# **“You must be the change you wish to see...” -Gandhi**
 
-
-[![blinking_main](http://dev.theladders.com/wp-content/uploads/2013/01/blinking_main.gif)](http://dev.theladders.com/wp-content/uploads/2013/01/blinking_main.gif)
+[![blinking_main](/images/blinking_main.gif)](/images/blinking_main.gif)
 
 Eight years ago today, I joined TheLadders.
 
