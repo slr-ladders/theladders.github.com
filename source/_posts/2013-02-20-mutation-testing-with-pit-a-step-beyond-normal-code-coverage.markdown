@@ -24,12 +24,10 @@ Our interest in mutation testing stemmed from a talk about how occasionally we s
 # 
 
 
-
-
 # But first, what is mutation testing?
 
 
-For those unfamiliar with how mutation testing works, I'll offer a brief summary.  After your sources and tests are compiled and run, a mutation test framework like PIT will alter the program code and insert ‘mutations’, such as changing != to == or completely removing a line.  It will then run the tests that exercise that chunk of code again, with the expectation that at least one of them should now fail.  If your tests are well written, or more importantly, _complete_, then at least one assertion should have been broken by PIT’s change.  (For more, [Jeremy Jarrell’s introduction](http://www.simple-talk.com/dotnet/.net-tools/mutation-testing/) (first 2 sections) sums it up pretty well)****
+For those unfamiliar with how mutation testing works, I'll offer a brief summary.  After your sources and tests are compiled and run, a mutation test framework like PIT will alter the program code and insert ‘mutations’, such as changing != to == or completely removing a line.  It will then run the tests that exercise that chunk of code again, with the expectation that at least one of them should now fail.  If your tests are well written, or more importantly, _complete_, then at least one assertion should have been broken by PIT’s change.  (For more, [Jeremy Jarrell’s introduction](http://www.simple-talk.com/dotnet/.net-tools/mutation-testing/) (first 2 sections) sums it up pretty well)
 
 
 # 
@@ -72,7 +70,8 @@ Depending on how far you believe in test coverage in general and mutation testin
 
 To illustrate an example of what PIT does, consider the below (very basic) class and test:
 
-[sourcecode language="java"]
+
+``` java PersonFactory https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/PersonFactory.java Source
 public class PersonFactory
 {
   public Person createPerson()
@@ -83,7 +82,8 @@ public class PersonFactory
     return person;
   }
 }
-
+```
+``` java Person https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/Person.java Source
 public class Person
 {
   private String firstName;
@@ -109,7 +109,8 @@ public class Person
     this.lastName = lastName;
   }
 }
-
+```
+``` java PersonFactoryTest https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java Source
 public class PersonFactoryTest
 {
   @Test
@@ -122,9 +123,9 @@ public class PersonFactoryTest
     // forgot test for last name
   }
 }
-[/sourcecode]
+```
 
-Clover (and PIT) will say that the _**line**_ coverage is 100%.  But at a close glance - how many untested pieces of code do you see?  PIT _**mutation**_ coverage will point out that there are 2 - the call to person.setLastName("Last") and the getLastName() method.  Both were executed as part of the test, but neither are actually verified for correctness.********
+Clover (and PIT) will say that the _**line**_ coverage is 100%.  But at a close glance - how many untested pieces of code do you see?  PIT _**mutation**_ coverage will point out that there are 2 - the call to person.setLastName("Last") and the getLastName() method.  Both were executed as part of the test, but neither are actually verified for correctness.
 
 
 ## Clover Results:
@@ -159,7 +160,7 @@ What this means is that PIT altered the code and removed the call to setLastName
 
 Once we add a test for last name, we’ll see that PIT will now report that all mutations are killed.  Essentially what it means, is that PIT couldn’t find a way to screw with the code without breaking a test.
 
-[sourcecode language="java"]
+``` java PersonFactoryTest https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java Source
 public class PersonFactoryTest
 {
   @Test
@@ -172,7 +173,7 @@ public class PersonFactoryTest
     assertEquals("Last", lastName);
   }
 }
-[/sourcecode]
+```
 
 
 ## PIT Results afterwards:
@@ -180,7 +181,7 @@ public class PersonFactoryTest
 
 
 
-## ![](/images/pit-success.png)
+## ![Pit success](/images/pit-success.png)
 
 
 This was a very trivial example, and PIT supports much more than what I've shown you here.  As you may have noticed, I skipped over one of the killed mutations: if (x != null) null else throw new RuntimeException.  This is another type of fault that PIT will try to introduce for return objects.  The full list of mutations can be found [here](http://pitest.org/quickstart/mutators/).
