@@ -7,8 +7,8 @@ slug: mutation-testing-with-pit-a-step-beyond-normal-code-coverage
 title: 'Mutation testing with PIT: A step beyond normal code coverage'
 wordpress_id: 844
 categories:
-- Engineering
-- How we work
+- Testing
+- PIT
 ---
 {% blockquote --Edsger W. Dijkstra %}
 "Program testing can be used to show the presence of bugs, but never to show their absence!"
