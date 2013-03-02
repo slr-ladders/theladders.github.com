@@ -19,7 +19,7 @@ When we started out building our [Signature program](http://www.cenedella.com/jo
 
 Our interest in mutation testing stemmed from a talk about how occasionally we see bad/ineffective tests, ones that give the impression of testing the code but in reality don't do a great job.  [Sean T Allen](https://twitter.com/SeanTAllen) and I had apparently both already been looking into a new tool, because once the discussion came up we were already on the same page.  Enter [PIT](http://pitest.org/), a mutation testing tool under active development.  We decided to try it out in combination with Clover, and the results were:
 
-![tim_and_eric_mind_blown](/images/tim_and_eric_mind_blown.gif)
+{% img center /images/tim_and_eric_mind_blown.gif 'Tim and Eric Mind Blown gif') %}
 
 
 # 
