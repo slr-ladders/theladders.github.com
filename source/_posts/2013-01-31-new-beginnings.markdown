@@ -7,7 +7,7 @@ slug: new-beginnings
 title: New Beginnings
 wordpress_id: 773
 categories:
-- Engineering
+- Who we are
 ---
 {% blockquote --Ghandi %}
 "You must be the change you wish to see..." 
