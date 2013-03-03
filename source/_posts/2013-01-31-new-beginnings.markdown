@@ -9,7 +9,7 @@ wordpress_id: 773
 categories:
 - Who we are
 ---
-{% blockquote --Ghandi %}
+{% blockquote --Gandhi %}
 "You must be the change you wish to see..." 
 {% endblockquote %}
 
