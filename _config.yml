@@ -61,8 +61,8 @@ sidebar: collapse
 # ----------------------- #
 
 # Github repositories
-github_user:
-github_repo_count: 0
+github_user: TheLadders
+github_repo_count: 3
 github_show_profile_link: true
 github_skip_forks: true
 
