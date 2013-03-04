@@ -65,3 +65,5 @@ Finally, we are plan on expanding our topologies to be more than simple queue-to
 Hopefully this blog gave you a nice overview of how Storm can be used by a company.  I think one of the take-aways can be how easy Storm is to use.  Storm served us for over a year with very little intervention and minimal knowledge on our part; I believe this speaks volumes of Storm’s ease-of-use and reliability.
 
 Stay tuned for some more detailed technical blogs on some of the things we did to improve our Storm usage. 
+
+Join the discussion over at [reddit](http://www.reddit.com/r/programming/comments/19noko/how_we_use_twitters_storm_part_one/).
