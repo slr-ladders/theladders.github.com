@@ -1,0 +1,16 @@
+---
+layout: page
+title: "404"
+footer: false
+---
+<div class="message">
+  <p>It looks like you have requested a file which, like me, doesn't exist.</p>
+  <p>Here is a list of recently published posts.</p>
+</div>       
+<div id="blog-archives" class="missing">
+	{% for post in site.posts limit: 10 %}
+	<article>
+		  {% include archive_post.html %}
+	  </article>
+	  {% endfor %}
+</div>
