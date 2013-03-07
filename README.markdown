@@ -58,7 +58,7 @@ gem install bundler
 Install octopress's dependencies:
 
 ```
-bundler install
+bundle install
 ```
 
 Now you're ready to start writing up your blogpost.
