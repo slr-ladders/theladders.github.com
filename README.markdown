@@ -162,7 +162,7 @@ git add source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown
 and any other resources your post depends on:
 
 ```
-git add /images/bob_loblaw.gif
+git add source/images/bob_loblaw.gif
 ```
 
 Still not sure if you've added everything?  
