@@ -2,11 +2,11 @@
 
 ### Prereqs
 
-First!  Ask [@seantallen](https://github.com/seantallen) or [@jconnolly](https://github.com/jconnolly) for to add you to the blog team with write access.
-
 If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
 
 And obviously make sure you've got git installed.
+
+I've not tried any of this on windows.  This is kid tested OSX and Linux approved.
 
 ### Overview
 
