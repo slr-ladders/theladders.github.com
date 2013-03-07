@@ -2,18 +2,25 @@
 
 ### Prereqs
 
-First!  Ask Sean or John for to add you to the blog team with write access.
+First!  Ask @seantallen or @jconnolly for to add you to the blog team with write access.
 
 If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
 
 And obviously make sure you've got git installed.
 
+### Overview
+
+We publish your posts after we merge the a pull request.  @johnconnolly or @seantallen will deploy it.  
+
 ### Initial setup
 
-Clone this repo.
+Fork this repo.
 
+https://github.com/TheLadders/theladders.github.com
+
+After it's forked, clone your fork:
 ```
-git clone git@github.com:TheLadders/theladders.github.com.git
+git clone git@github.com:YourGithubName/theladders.github.com.git
 ```
 
 cd into the source directory.
@@ -34,7 +41,7 @@ If you see this:
 ==============================================================================
 ```
 
-It's okay.  I'm not hacking you.  You'll be okay.
+It's okay.  I'm not hacking you.  You'll be okay.  If you don't see it and this is your first time cding into that directory, you haven't installed rvm.  I'm not kidding, install rvm.  https://rvm.io/
 
 Switch to the source branch.
 
@@ -54,12 +61,6 @@ Install octopress's dependencies:
 bundler install
 ```
 
-Do some initial repo naming/git configuration and directory creation.  When prompted, give it the repo url you used to clone it, git@github.com:TheLadders/theladders.github.com.git
-
-```
-rake setup_github_pages
-```
-
 Now you're ready to start writing up your blogpost.
 
 ### Creating a blog post.
@@ -67,30 +68,29 @@ Now you're ready to start writing up your blogpost.
 Create a new post and give it your desired title
 
 ```
-rake new_post["I think OOP is awesome and so can you"]
+rake new_post["I think jconnolly is awesome and you can too"]
 ```
 
 You'll see this:
 
 ```
-To eliminate this warning, please install libyaml and reinstall your ruby.
 mkdir -p source/_posts
-Creating new post: source/_posts/2013-03-07-i-think-oop-is-awesome-and-so-can-you.markdown
+Creating new post: source/_posts/2013-03-07-i-think-jconnolly-is-awesome-and-you-can-too.markdown
 ```
 
-Open up your favorite text editor and edit source/_posts/2013-03-07-i-think-oop-is-awesome-and-so-can-you.markdown.  You will see:
+Open up your favorite text editor and edit source/_posts/2013-03-07-i-think-jconnolly-is-awesome-and-you-can-too.markdown.  You will see:
 
 ```
 ---                                                                                                                                                                                                                                     
 layout: post
-title: "I think OOP is awesome and so can you"
+title: "I think jconnolly is awesome and you can too"
 date: 2013-03-07 11:05
 comments: true
 categories: 
 ---
 ```
 
-If you plan to post this at a later date, do yourself a kindness and rename the file now to that date, and modify the date in the markdown.  Also, give it a 
+If you plan to post this at a later date, do yourself a kindness and rename the file now to that date, and modify the date in the markdown.  Also, give it an author and category while you're at it. 
 
 ```
 author: My Name
@@ -99,7 +99,7 @@ published: false
 ```
 
 Make sure My Name is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
-Take a look at the existing categories of other posts and see if yours fits.  If not, ask Sean or John about approriate categorization.
+Take a look at the existing categories of other posts and see if yours fits.  If not, ask @seantallen or @johnconnolly about approriate categorization.
 Lastly, put it in published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
 
 Got that?  Good, moving on to content.
@@ -108,19 +108,19 @@ Got that?  Good, moving on to content.
 ### Adding content to your post
 Start adding all your fabulous content, start with an image if it's appropriate, and a quote as is our custom:
 ```
----
-author: Matt Jankowski
-layout: post                                                                                                                                                                                                                            
-title: "Riders on the Storm: Take a long holiday, Let your children play"
-date: 2013-03-04 13:52
+---         
+author: My Name
+layout: post
+title: "I think jconnolly is awesome and you can too"
+date: 2013-03-07 11:05
 comments: true
-categories: Storm
+categories: Category1, Category2, Category3
 published: false
 ---
-{% img center /images/lightning_storm.gif 'Lightning Storm' %}
+{% img center /images/jconnolly_is_charming.gif 'Wow what a guy!' %}
 
-{% blockquote --Charles Dickens %}
-It was the age of wisdom, it was the age of foolishness
+{% blockquote --Everyone Ever %}
+If you want to be in a good mood, go over and talk to jconnolly.  That guy is pure sunshine.
 {% endblockquote %}
 ```
 
@@ -150,6 +150,9 @@ That's about it.  You're off and running.
 Work locally.  run
 ```rake preview```
 and it'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render published: false pages, so don't freak out.
+
+### It's all ready to go
+Issue a pull request.  If you're new to doing pull requests, ask @jconnolly.  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
 
 ### Protips
 
