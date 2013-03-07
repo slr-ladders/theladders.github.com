@@ -68,23 +68,23 @@ Now you're ready to start writing up your blogpost.
 Create a new post and give it your desired title
 
 ```
-rake new_post["I think jconnolly is awesome and you can too"]
+rake new_post["Bob Loblaws Law Blog Post"]
 ```
 
 You'll see this:
 
 ```
 mkdir -p source/_posts
-Creating new post: source/_posts/2013-03-07-i-think-jconnolly-is-awesome-and-you-can-too.markdown
+Creating new post: source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown
 ```
 
-Open up your favorite text editor and edit source/_posts/2013-03-07-i-think-jconnolly-is-awesome-and-you-can-too.markdown.  You will see:
+Open up your favorite text editor and edit source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown.  You will see:
 
 ```
 ---                                                                                                                                                                                                                                     
 author:
 layout: post
-title: "I think jconnolly is awesome and you can too"
+title: "Bob Loblaws Law Blog Post"
 date: 2013-03-07 11:05
 comments: true
 categories: 
@@ -95,12 +95,12 @@ published: false
 If you plan to post this at a later date, do yourself a kindness and rename the file now to that date, and modify the date in the markdown.  Also, give it an author and category while you're at it. 
 
 ```
-author: My Name
+author: Bob Loblaw
 categories: Category1, Category2, Category3
 published: false
 ```
 
-Make sure My Name is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
+Make sure Bob Loblaw is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
 Take a look at the existing categories of other posts and see if yours fits.  If not, ask [@seantallen](https://github.com/seantallen) or [@jconnolly](https://github.com/jconnolly) about approriate categorization.
 Lastly, leave the published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
 
@@ -111,18 +111,18 @@ Got that?  Good, moving on to content.
 Start adding all your fabulous content, start with an image if it's appropriate, and a quote as is our custom:
 ```
 ---         
-author: My Name
+author: Bob Loblaw
 layout: post
-title: "I think jconnolly is awesome and you can too"
+title: "Bob Loblaws Law Blog Post"
 date: 2013-03-07 11:05
 comments: true
 categories: Category1, Category2, Category3
 published: false
 ---
-{% img center /images/jconnolly_is_charming.gif 'Wow what a guy!' %}
+{% img center /images/bob_loblaw.gif 'Law Blog' %}
 
-{% blockquote --Everyone Ever %}
-If you want to be in a good mood, go over and talk to jconnolly.  That guy is pure sunshine.
+{% blockquote --Bob Loblaw %}
+I thought that maybe I would stay in and work on my law blog.
 {% endblockquote %}
 ```
 
@@ -157,12 +157,12 @@ and it'll watch for changes and update every time you save.  Very handy.  When i
 Make sure you've added the new file to be tracked by git:
 
 ```
-git add source/_posts/2013-03-07-i-think-jconnolly-is-awesome-and-you-can-too.markdown
+git add source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown
 ```
 and any other resources your post depends on:
 
 ```
-git add /images/jconnolly_is_charming.gif
+git add /images/bob_loblaw.gif
 ```
 
 Still not sure if you've added everything?  
@@ -173,7 +173,7 @@ git status
 
 Commit it.
 ```
-git commit -m "new post about my favorite person"
+git commit -m "new post on bob loblaws law blog"
 ```
 
 Push it.
