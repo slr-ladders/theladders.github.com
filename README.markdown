@@ -2,7 +2,7 @@
 
 ### Prereqs
 
-First!  Ask @seantallen or @jconnolly for to add you to the blog team with write access.
+First!  Ask [https://github.com/seantallen](@seantallen) or [https://github.com/jconnolly](@jconnolly) for to add you to the blog team with write access.
 
 If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
 
@@ -10,7 +10,7 @@ And obviously make sure you've got git installed.
 
 ### Overview
 
-We publish your posts after we merge the a pull request.  @johnconnolly or @seantallen will deploy it.  
+We publish your posts after we merge the a pull request.  [https://github.com/jconnolly](@jconnolly) or [https://github.com/seantallen](@seantallen) will deploy it.  
 
 ### Initial setup
 
@@ -101,7 +101,7 @@ published: false
 ```
 
 Make sure My Name is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
-Take a look at the existing categories of other posts and see if yours fits.  If not, ask @seantallen or @johnconnolly about approriate categorization.
+Take a look at the existing categories of other posts and see if yours fits.  If not, ask [https://github.com/seantallen](@seantallen) or [https://github.com/jconnolly](@jconnolly) about approriate categorization.
 Lastly, leave the published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
 
 Got that?  Good, moving on to content.
@@ -184,7 +184,7 @@ git push origin source
 
 Remember to specify source.  Everything we're doing here is in the source branch.  *Not master.*
 
-Now you're ready to issue a pull request.  If you're new to doing pull requests, ask @jconnolly.  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
+Now you're ready to issue a pull request.  If you're new to doing pull requests, ask [https://github.com/jconnolly](@jconnolly).  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
 
 ### Protips
 
