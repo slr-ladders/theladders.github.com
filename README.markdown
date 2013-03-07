@@ -111,5 +111,6 @@ That's about it.  You're off and running.
 
 ### Protips
 
-#Make the first sentence count.  Shocking statistic, bombastic claim, etc.  
-use # for h2, ## for h3.  Mostly stick to h2s.  Separate your sections with a ****.  It gives it a nice horizontal rule that segments the page.
+1.Make the first sentence count.  Shocking statistic, bombastic claim, etc.  
+2.use # for h2, ## for h3.  Mostly stick to h2s.  
+3.Separate your sections with a ****.  It gives it a nice horizontal rule that segments the page.
