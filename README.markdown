@@ -10,7 +10,7 @@ I've not tried any of this on windows.  This is kid tested OSX and Linux approve
 
 ## Overview
 
-We publish your posts after we merge the a pull request.  [@jconnolly](https://github.com/jconnolly) or [@seantallen](https://github.com/seantallen) will deploy it.  
+We publish your posts after we merge your pull request.  [@jconnolly](https://github.com/jconnolly) or [@seantallen](https://github.com/seantallen) will deploy it.  
 
 ## Initial setup
 
