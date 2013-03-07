@@ -82,11 +82,13 @@ Open up your favorite text editor and edit source/_posts/2013-03-07-i-think-jcon
 
 ```
 ---                                                                                                                                                                                                                                     
+author:
 layout: post
 title: "I think jconnolly is awesome and you can too"
 date: 2013-03-07 11:05
 comments: true
 categories: 
+published: false
 ---
 ```
 
