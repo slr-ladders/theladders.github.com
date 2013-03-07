@@ -173,7 +173,7 @@ git status
 
 Commit it.
 ```
-git commit -m "new post on bob loblaws law blog"
+git commit -m source/images/bob_loblaw.gif source/_posts/2013-03-07-bob-loblaws-law-blog.post.markdown "new post on bob loblaws law blog"
 ```
 
 Push it.
