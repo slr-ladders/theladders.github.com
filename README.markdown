@@ -1,6 +1,6 @@
-## How to write a blog post
+# How to write a blog post
 
-### Prereqs
+## Prereqs
 
 If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
 
@@ -8,11 +8,11 @@ And obviously make sure you've got git installed.
 
 I've not tried any of this on windows.  This is kid tested OSX and Linux approved.
 
-### Overview
+## Overview
 
 We publish your posts after we merge the a pull request.  [@jconnolly](https://github.com/jconnolly) or [@seantallen](https://github.com/seantallen) will deploy it.  
 
-### Initial setup
+## Initial setup
 
 Fork this repo.
 
@@ -63,7 +63,7 @@ bundler install
 
 Now you're ready to start writing up your blogpost.
 
-### Creating a blog post.
+## Creating a blog post.
 
 Create a new post and give it your desired title
 
@@ -107,7 +107,7 @@ Lastly, leave the published: false.  You'll still be able to see it in preview m
 Got that?  Good, moving on to content.
 
 
-### Adding content to your post
+## Adding content to your post
 Start adding all your fabulous content, start with an image if it's appropriate, and a quote as is our custom:
 ```
 ---         
@@ -147,13 +147,13 @@ class Fixnum
 </pre>
 That's about it.  You're off and running.  
 
-### Preview mode
+## Preview mode
 
 Work locally.  run
 ```rake preview```
 and it'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render published: false pages, so don't freak out.
 
-### It's all ready to go
+## It's all ready to go
 Make sure you've added the new file to be tracked by git:
 
 ```
@@ -186,7 +186,7 @@ Remember to specify source.  Everything we're doing here is in the source branch
 
 Now you're ready to issue a pull request.  If you're new to doing pull requests, ask [@jconnolly](https://github.com/jconnolly).  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
 
-### Protips
+## Protips
 
 1. Make the first sentence count.  Shocking statistic, bombastic claim, etc.  
 2. Use # for h2, ## for h3.  Mostly stick to h2s.  
