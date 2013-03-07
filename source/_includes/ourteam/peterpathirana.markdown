@@ -3,6 +3,6 @@
     {% gravatar ppathirana@theladders.com %}
   </div>
   <div class="profile-content">
-    Peter does not have a lastname or a bio.
+    <strong>Peter</strong> does not have a lastname or a bio.
   </div>
 </div>
