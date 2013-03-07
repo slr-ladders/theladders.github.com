@@ -33,3 +33,4 @@ footer: false
 ****
 {% include ourteam/danielwislocki.markdown %}
 ****
+{% include ourteam/kathleenyanolatos.markdown %}
