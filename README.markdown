@@ -152,7 +152,37 @@ Work locally.  run
 and it'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render published: false pages, so don't freak out.
 
 ### It's all ready to go
-Issue a pull request.  If you're new to doing pull requests, ask @jconnolly.  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
+Make sure you've added the new file to be tracked by git:
+
+```
+git add source/_posts/2013-03-07-i-think-jconnolly-is-awesome-and-you-can-too.markdown
+```
+and any other resources your post depends on:
+
+```
+git add /images/jconnolly_is_charming.gif
+```
+
+Still not sure if you've added everything?  
+
+```
+git status
+```
+
+Commit it.
+```
+git commit -m "new post about my favorite person"
+```
+
+Push it.
+
+```
+git push origin source
+```
+
+Remember to specify source.  Everything we're doing here is in the source branch.  *Not master.*
+
+Now you're ready to issue a pull request.  If you're new to doing pull requests, ask @jconnolly.  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
 
 ### Protips
 
