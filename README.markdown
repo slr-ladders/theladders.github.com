@@ -1,38 +1,115 @@
-## What is Octopress?
+## How to write a blog post
 
-Octopress is [Jekyll](https://github.com/mojombo/jekyll) blogging at its finest.
+### Prereqs
 
-1. **Octopress sports a clean responsive theme** written in semantic HTML5, focused on readability and friendliness toward mobile devices.
-2. **Code blogging is easy and beautiful.** Embed code (with [Solarized](http://ethanschoonover.com/solarized) styling) in your posts from gists, jsFiddle or from your filesystem.
-3. **Third party integration is simple** with built-in support for Twitter, Pinboard, Delicious, GitHub Repositories, Disqus Comments and Google Analytics.
-4. **It's easy to use.** A collection of rake tasks simplifies development and makes deploying a cinch.
-5. **Ships with great plug-ins** some original and others from the Jekyll community &mdash; tested and improved.
+First!  Ask Sean or John for to add you to the blog team with write access.
+
+If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
+
+And obviously make sure you've got git installed.
+
+### Initial setup
+
+Clone this repo.
+
+```
+git clone git@github.com:TheLadders/theladders.github.com.git
+```
+
+cd into the source directory.
+```
+cd theladders.github.com
+```
+
+Switch to the source branch.
+```
+git checkout source
+```
+
+Install bundler
+
+```
+gem install bundler
+```
+
+Install octopress's dependencies:
+
+```
+bundler install
+```
+
+Do some initial repo naming/git configuration and directory creation.  When prompted, give it the repo url you used to clone it, git@github.com:TheLadders/theladders.github.com.git
+```
+rake setup_github_pages
+```
+
+Now you're ready to start writing up your blogpost.
+
+### Creating a blog post.
+
+Create a new post and give it your desired title
+
+```
+rake new_post["I think OOP is awesome and so can you"]
+```
+
+You'll see this:
+
+```
+To eliminate this warning, please install libyaml and reinstall your ruby.
+mkdir -p source/_posts
+Creating new post: source/_posts/2013-03-07-i-think-oop-is-awesome-and-so-can-you.markdown
+```
+
+Open up your favorite text editor and edit source/_posts/2013-03-07-i-think-oop-is-awesome-and-so-can-you.markdown.  You will see:
+```
+---                                                                                                                                                                                                                                     
+layout: post
+title: "I think OOP is awesome and so can you"
+date: 2013-03-07 11:05
+comments: true
+categories: 
+---
+```
+
+If you plan to post this at a later date, do yourself a kindness and rename the file now to that date, and modify the date in the markdown.  Also, give it a 
+```
+author: My Name
+categories: Category1, Category2, Category3
+published: false
+```
+
+Make sure My Name is *exactly* the name you have in your /ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
+Take a look at the existing categories of other posts and see if yours fits.  If not, ask Sean or John about approriate categorization.
+Lastly, put it in published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
+
+Got that?  Good, moving on to content.
 
 
-## Documentation
+### Adding content to your post
+Start adding all your fabulous content, start with an image if it's appropriate, and a quote as is our custom:
+```
+---
+author: Matt Jankowski
+layout: post                                                                                                                                                                                                                            
+title: "Riders on the Storm: Take a long holiday, Let your children play"
+date: 2013-03-04 13:52
+comments: true
+categories: Storm
+published: false
+---
+{% img center /images/lightning_storm.gif 'Lightning Storm' %}
 
-Check out [Octopress.org](http://octopress.org/docs) for guides and documentation.
+{% blockquote --Charles Dickens %}
+It was the age of wisdom, it was the age of foolishness
+{% endblockquote %}
+```
 
+Note that you'll want to drop your image into /source/images for this to work.
 
-## Contributing
+That's about it.  You're off and running.  
 
-[![Build Status](https://travis-ci.org/imathis/octopress.png?branch=master)](https://travis-ci.org/imathis/octopress)
+### Protips
 
-We love to see people contributing to Octopress, whether it's a bug report, feature suggestion or a pull request. At the moment, we try to keep the core slick and lean, focusing on basic blogging needs, so some of your suggestions might not find their way into Octopress. For those ideas, we started a [list of 3rd party plug-ins](https://github.com/imathis/octopress/wiki/3rd-party-plugins), where you can link your own Octopress plug-in repositories. For the future, we're thinking about ways to easier add them them into our main releases.
-
-
-## License
-(The MIT License)
-
-Copyright © 2009-2013 Brandon Mathis
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ‘Software’), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED ‘AS IS’, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-#### If you want to be awesome.
-- Proudly display the 'Powered by Octopress' credit in the footer.
-- Add your site to the Wiki so we can watch the community grow.
+#Make the first sentence count.  Shocking statistic, bombastic claim, etc.  
+use # for h2, ## for h3.  Mostly stick to h2s.  Separate your sections with a ****.  It gives it a nice horizontal rule that segments the page.
