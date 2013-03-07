@@ -186,6 +186,10 @@ Remember to specify source.  Everything we're doing here is in the source branch
 
 Now you're ready to issue a pull request.  If you're new to doing pull requests, ask [@jconnolly](https://github.com/jconnolly).  You'll do it once and never forget.  It's like riding a bike.  But I'm not documenting how to ride a bike here.
 
+## Social
+
+After it's live, put a link to your post up over on http://news.ycombinator.com/ and http://reddit.com/r/programming if appropriate.  After it's up, let [@jconnolly](https://github.com/jconnolly) know and he'll add it to your post for further discussion.
+
 ## Protips
 
 1. Make the first sentence count.  Shocking statistic, bombastic claim, etc.  
