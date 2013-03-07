@@ -102,7 +102,7 @@ published: false
 
 Make sure My Name is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
 Take a look at the existing categories of other posts and see if yours fits.  If not, ask @seantallen or @johnconnolly about approriate categorization.
-Lastly, put it in published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
+Lastly, leave the published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
 
 Got that?  Good, moving on to content.
 
