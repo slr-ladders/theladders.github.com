@@ -68,3 +68,30 @@
 //              left:.75em;
 //      }
 //}
+
+.profile-thumb{
+	position: relative;
+	@media only screen and (min-width: 432px) {
+ 		position: relative;
+	}
+	@media only screen and (min-width: 768px) {
+		float: left;
+	}
+	@media only screen and (min-with: 992px) {
+		float: left;
+	}
+}
+
+.profile-container {
+    margin: 20px 20px 0 0;  
+    overflow: hidden;
+}
+.profile-thumb img {
+    display: block
+}
+.profile-content {
+    left: .75em;
+	overflow: hidden;
+	position: relative;
+	width: 80%;
+}
