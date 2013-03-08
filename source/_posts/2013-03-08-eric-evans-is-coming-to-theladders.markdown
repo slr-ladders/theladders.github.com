@@ -2,7 +2,7 @@
 author: Daniel Wislocki
 layout: post
 title: "Eric Evans Is Coming to TheLadders"
-date: 2013-03-07 14:03
+date: 2013-03-08 10:09
 comments: true
 categories: DDD, Legacy
 published: false
@@ -179,3 +179,5 @@ study and practice have been well worth the effort so far.
 
 We hope you’ll join us in April for an illuminating evening of
 presentation and discussion.
+
+[RSVP for this meetup](http://www.dddnyc.org/events/80390502/).
