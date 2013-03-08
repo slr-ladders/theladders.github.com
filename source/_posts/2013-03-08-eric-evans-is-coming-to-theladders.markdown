@@ -177,7 +177,6 @@ this post barely scratches the surface. And as a team we know we still
 have much farther to go in its mastery, but the time we’ve spent in
 study and practice have been well worth the effort so far.
 
-We hope you’ll join us in April for an illuminating evening of
+[We hope you’ll join us April 10th](http://www.dddnyc.org/events/80390502/) for an illuminating evening of
 presentation and discussion.
 
-[RSVP for this meetup](http://www.dddnyc.org/events/80390502/).
