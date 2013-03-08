@@ -11,7 +11,7 @@ published: true
 ... when the Man comes around.
 {% endblockquote %}
 
-We are happy to announce that this April TheLadders will be hosting
+We are happy to announce that on April 10th, TheLadders will be hosting
 [Eric Evans](http://domainlanguage.com/about/), the codifier of
 [Domain Driven Design](http://domainlanguage.com/ddd/), for the New
 York City DDD Meetup group. Engineers at TheLadders have long been
