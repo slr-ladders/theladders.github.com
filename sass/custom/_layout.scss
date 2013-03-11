@@ -72,7 +72,7 @@
 .profile-thumb{
 	//position: relative;
 	@media only screen and (min-width: 432px) {
- 		position: relative;
+		float: none
 	}
 	@media only screen and (min-width: 768px) {
 		float: left;
@@ -87,11 +87,19 @@
     overflow: hidden;
 }
 .profile-thumb img {
-    display: inline-block
+	@media only screen and (min-width: 432px) {
+		float: none;
+	}
+	@media only screen and (min-width: 768px){
+		float: left;
+	}
+	@media only screen and (min-width: 992px){
+		float: left;
+	}
 }
 .profile-content {
+    width: 80%;
     left: .75em;
 	overflow: hidden;
 	position: relative;
-	width: 80%;
 }
