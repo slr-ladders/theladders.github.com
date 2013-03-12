@@ -1,9 +1,9 @@
 ---
 author: Daniel Wislocki
 comments: true
-date: 2013-02-11 09:30:10
+date: 2013-03-12 10:10:10
 layout: post
-published: false
+published: true
 slug: trouble-with-googles-immutableset
 title: Trouble with Google's ImmutableSet
 wordpress_id: 634
@@ -11,7 +11,9 @@ categories:
 - Engineering
 ---
 
-_Note: this post was originally published March, 19, 2012.  We're bringing it back from the dead because we felt it was just that good._
+_Note: this post was originally published March, 19, 2012.  We're bringing it back from the dead because we love zombies and happen to really like it._
+
+[Join the discussion on reddit](http://www.reddit.com/r/programming/comments/1a5by8/trouble_with_googles_immutableset/).
 
 One feature we offer here at TheLadders is the ability for job seekers to "follow" recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, &c., to their followers.
 
