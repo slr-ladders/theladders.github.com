@@ -8,12 +8,14 @@ slug: trouble-with-googles-immutableset
 title: Trouble with Google's ImmutableSet
 wordpress_id: 634
 categories:
-- Engineering
+- Debugging
 ---
 
 _Note: this post was originally published March, 19, 2012.  We're bringing it back from the dead because we love zombies and happen to really like it._
 
-[Join the discussion on reddit](http://www.reddit.com/r/programming/comments/1a5by8/trouble_with_googles_immutableset/).
+{% blockquote --Hunter S. Thompson %}
+When the going gets weird, the weird turn pro.
+{% endblockquote %}
 
 One feature we offer here at TheLadders is the ability for job seekers to "follow" recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, &c., to their followers.
 
@@ -123,4 +125,4 @@ Whereas the array produced for production data looks like this:
 The same algorithm is used to implement the set's contains() method, so operations such as intersections are also extremely slow with this data. A simple change to Java's built-in HashSet fixes the problem.
 
 
-
+[Join the discussion on reddit](http://www.reddit.com/r/programming/comments/1a5by8/trouble_wi    th_googles_immutableset/).
