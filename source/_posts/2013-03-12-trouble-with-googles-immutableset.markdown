@@ -11,7 +11,7 @@ categories:
 - Debugging
 ---
 
-_Note: this post was originally published March, 19, 2012.  We're bringing it back from the dead because we love zombies and happen to really like it._
+_Note: this post was originally published March, 12, 2012.  We're bringing it back from the dead because we love zombies and happen to really like it._
 
 {% blockquote --Hunter S. Thompson %}
 When the going gets weird, the weird turn pro.
