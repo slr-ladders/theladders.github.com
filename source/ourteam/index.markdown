@@ -37,4 +37,6 @@ footer: false
 ****
 {% include ourteam/danielwislocki.markdown %}
 ****
+{% include ourteam/garywong.markdown %}
+****
 {% include ourteam/kathleenyanolatos.markdown %}
