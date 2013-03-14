@@ -17,7 +17,7 @@ _Note: this post was originally published March, 12, 2012.  We're bringing it b
 When the going gets weird, the weird turn pro.
 {% endblockquote %}
 
-One feature we offer here at TheLadders is the ability for job seekers to "follow" recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, &c., to their followers.
+One feature we offer here at TheLadders is the ability for job seekers to "follow" recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.
 
 At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
 Recently we noticed that the time to create one of these caches was gradually increasing. There's a cache that maps recruiters to job seekers, called the "followers cache," which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn't immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.
