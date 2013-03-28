@@ -4,7 +4,8 @@ layout: post
 title: "TheLadders Onboarding: A Retrospective"
 date: 2013-03-28 12:00
 comments: true
-categories: How we work
+categories: 
+- How we work
 published: true
 ---
 
