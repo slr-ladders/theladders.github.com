@@ -5,7 +5,7 @@ title: "Getting Some Clojure: nREPL in a Spring App"
 date: 2013-04-02 16:04
 comments: true
 categories: Clojure Spring
-published: false
+published: true
 ---
 {% blockquote --Zig Ziglar %}
 You don't have to be great to start, but you have to start to be great.
