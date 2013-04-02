@@ -170,3 +170,5 @@ The additions to the `pom.xml` file that enable nREPL support are below:
 ```
 
 I hope you found this brief write-up useful. I plan on continuing my stumbling exploration, so look for other Clojure-related posts soon.
+
+Join the discussion over on [reddit](http://www.reddit.com/r/programming/comments/1bjh69/getting_some_clojure_nrepl_in_a_spring_app/).
