@@ -29,6 +29,7 @@ article {
     }
   }
   h2 {
+    clear: left;
     padding-top: 0.8em;
     background: $img-border top left repeat-x;
   }
@@ -42,10 +43,46 @@ article {
     font-size: 2.0em; font-style: italic;
     line-height: 1.3em;
   }
-  img, video, .flash-video {
-    @extend .flex-content;
-    @extend .basic-alignment;
-    @include shadow-box;
+img, video, .flash-video, .caption-wrapper {
+     @extend .flex-content;
+     @extend .basic-alignment;
+     @include shadow-box;
+    &.caption {
+      @include reset-shadow-box;
+    }
+  }
+  .caption-wrapper {
+    display: inline-block;
+    margin-bottom: 10px;
+    
+    &.center {
+      display: block;
+      margin: auto;
+    }
+    &.medium {
+      max-width: 600px;
+    }
+    &.small {
+      max-width: 500px;
+    }
+    &.extra-small {
+      max-width:350px;
+    }
+    &.left {
+      float: left;
+    }
+    &.right {
+      float: right;
+    }
+
+    .caption-text {
+      background: #fff;
+      text-align: center;
+      font-size: .8em;
+      color: #666;
+      display: block;
+      line-height: 1em;
+    }
   }
   video, .flash-video { margin: 0 auto 1.5em; }
   video { display: block; width: 100%; }
