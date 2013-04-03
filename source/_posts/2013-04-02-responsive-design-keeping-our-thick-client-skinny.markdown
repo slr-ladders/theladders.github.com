@@ -10,7 +10,7 @@ published: false
 
 _An article describing TheLadders approach to responsive design._
 
-You may or may not have noticed, but TheLadders.com frontend just got a huge make over. We rewrote the website in six months, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.    
+You may or may not have noticed, but TheLadders.com just got a huge make over. We rewrote the website in six months, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.    
 iPhone? Check. iPad? Check. MacBook Air? Check. Ginormous iMac screen? Check. 
 
 Making TheLadders.com responsive is a driving practice to keep our thick client light and looking good.
@@ -21,7 +21,7 @@ Making TheLadders.com responsive is a driving practice to keep our thick client 
 
   
 ##Adapt to survive
-<p style="color:#666666; font-size:.85em">>> A lot of times you hear “adaptive design” instead of “responsive design” because the screen actually adapts to the screen size and magnification level and has nothing to do with browser performance.</p>
+<p style="color:#666666; font-size:.85em">>> A lot of times you hear “adaptive design” instead of “responsive design” because the screen actually adapts to the screen size and magnification level. It has nothing to do with browser performance.</p>
 
 {% imgcap left small /images/responsive/messy-windows.jpg Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.%} 
 Mobile is here, and has been for years. It is only a matter of time before we are forced to adapt the frontend code design in order to survive on all screens. To me, responsive design is not an option; it’s mandatory.
