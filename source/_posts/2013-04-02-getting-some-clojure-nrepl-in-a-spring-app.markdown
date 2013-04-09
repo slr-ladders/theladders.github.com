@@ -78,11 +78,9 @@ public class NReplConfig
   @PostConstruct
   public void initializeRepl()
   {
-    // Initialize the Clojure runtime. While this method doesn't actually do anything, due to a
-    // circular dependency between RT and Compiler, the call to Compiler.load() will fail with a
-    // NullPointerException if a static method of RT isn't called.
+    // Load the Clojure Runtime class so that the Compiler can properly use it.
 
-    RT.init();
+    Class.forName("clojure.lang.RT");
 
     // Start the nREPL server.
 
@@ -95,11 +93,11 @@ public class NReplConfig
 }
 ```
 
-(As you can see from the comments in the code, one unexpected
-difficulty I ran into was making a direct call to `Compiler.load()`
-before calling `RT.init()`, despite the fact that `RT.init()` itself
-doesn’t actually do anything. If you happen to know of another way
-around this issue, please let me know.)
+(Thanks to [Laurent Petit](https://twitter.com/petitlaurent) of
+[counterclockwise](https://code.google.com/p/counterclockwise/)-fame
+for recommending the above class-loading strategy, as well as the the
+suggestion to replace the use of `(ns lw)` with `(in-ns 'lw)` in the
+REPL example below.)
 
 With this file in place, running `mvn jetty:run` starts up both the
 web server and nREPL. While I could have used
@@ -115,8 +113,8 @@ nrepl`, I can interact with the running server like so:
 
 ```
 ; nREPL 0.1.7-preview
-user> (ns lw)
-nil
+user> (in-ns 'lw)
+#<Namespace lw>
 lw> *context*
 #<AnnotationConfigWebApplicationContext Root WebApplicationContext: startup date [Thu Mar 28 16:25:12 EDT 2013]; root of context hierarchy>
 lw> (def jss (.getBean *context* getBean "jobseekerService"))
@@ -170,3 +168,5 @@ The additions to the `pom.xml` file that enable nREPL support are below:
 ```
 
 I hope you found this brief write-up useful. I plan on continuing my stumbling exploration, so look for other Clojure-related posts soon.
+
+*April 8th, 2013: Edited in response to suggestions from Laurent Petit.*
