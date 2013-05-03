@@ -5,4 +5,4 @@ comments: false
 sharing: false
 footer: false
 ---
-{% include ourteam/seanallen.markdown %}
+{% include ourteam/seantallen.markdown %}

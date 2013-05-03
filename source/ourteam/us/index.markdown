@@ -7,7 +7,7 @@ footer: false
 ---
 {% include ourteam/susanneabdelrahman.markdown %}
 ****
-{% include ourteam/seanallen.markdown %}
+{% include ourteam/seantallen.markdown %}
 ****
 {% include ourteam/johnconnolly.markdown %}
 ****
