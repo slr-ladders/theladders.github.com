@@ -1,5 +1,5 @@
 ---
-author: SeanTAllen
+author: Sean T Allen
 comments: true
 date: 2013-02-01 11:34:00
 layout: post
