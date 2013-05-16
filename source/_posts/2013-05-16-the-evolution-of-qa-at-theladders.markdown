@@ -4,7 +4,7 @@ layout: post
 title: "The Evolution of QA at TheLadders"
 date: 2013-05-16 09:04
 comments: true
-categories: How we work
+categories: [How we work] 
 published: false
 ---
 
