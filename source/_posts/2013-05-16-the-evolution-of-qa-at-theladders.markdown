@@ -3,9 +3,8 @@ author: Susanne Abdelrahman
 layout: post
 title: "The Evolution of QA at TheLadders"
 date: 2013-05-16 09:04
-comments: true
 categories: [How we work] 
-published: false
+published: true
 ---
 
 {% blockquote --Esther Dyson%}
@@ -60,7 +59,4 @@ We've come a long way! But that doesn't mean that we can't get better. As a wise
 
 *Bernard Berenson
 
-
-
-
-
+Join the discussion over at [Software Testing Club](http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved).
