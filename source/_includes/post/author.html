@@ -5,7 +5,18 @@
 {% else %}
   {% assign author = site.author %}
 {% endif %}
-{% if author %}<span class="byline author vcard">Posted by <span class="fn">
+{% if author %}
+  {% if author == 'Christina Kung' %}
+    <span class="byline author vcard">Posted by <span class="fn">
+			        
+			        
+	    {{ author }}</span></span>
+  {% else %}
+     
+    <span class="byline author vcard">Posted by <span class="fn">
 		
 		
 		<a href="{{ author | replace: ' ', '' | downcase | prepend: '/ourteam/' | prepend: root_url }}">{{ author }}</a></span></span>{% endif %}
+  
+  {% endif %}
+

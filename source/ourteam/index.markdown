@@ -7,7 +7,7 @@ footer: false
 ---
 {% include ourteam/susanneabdelrahman.markdown %}
 ****
-{% include ourteam/seanallen.markdown %}
+{% include ourteam/seantallen.markdown %}
 ****
 {% include ourteam/jeremyblock.markdown %}
 ****
@@ -21,20 +21,26 @@ footer: false
 ****
 {% include ourteam/laurakang.markdown %}
 ****
-{% include ourteam/christinakung.markdown %}
+{% include ourteam/hailin.markdown %}
 ****
 {% include ourteam/frankmadrie.markdown %}
 ****
-{% include ourteam/peterpathirana.markdown %}
+{% include ourteam/drewnichols.markdown %}
+****
+{% include ourteam/peter.markdown %}
 ****
 {% include ourteam/kyrisarantakos.markdown %}
 ****
 {% include ourteam/thomassymborski.markdown %}
+****
+{% include ourteam/dextertaylor.markdown %}
 ****
 {% include ourteam/andrewturley.markdown %}
 ****
 {% include ourteam/kylewinter.markdown %}
 ****
 {% include ourteam/danielwislocki.markdown %}
+****
+{% include ourteam/garywong.markdown %}
 ****
 {% include ourteam/kathleenyanolatos.markdown %}
