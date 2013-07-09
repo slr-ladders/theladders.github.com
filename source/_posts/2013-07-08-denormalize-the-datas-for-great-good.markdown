@@ -81,7 +81,7 @@ The workflow includes multiple objects serializing and deserializing, HTTP trans
 -----------
 ##Scout reads go fast
 
-Principal Architect [Sean T Allen](http://twitter.com/SeanTAllen) set [Andy Turley](http://twitter.com/casio_juarez) and me to improving Scout’s performance. The architecture was surprisingly simple: stick the data in Couchbase and have the iPhone app backend query that instead. How would we keep this data up to date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  [Storm](http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/) topology would be listening for that message. The RabbitMQ message would be the entry point into the spout. 
+Principal Architect [Sean T Allen](http://twitter.com/SeanTAllen) set [Andy Turley](http://twitter.com/casio_juarez) and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in Couchbase and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  [Storm](http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/) topology would be listening for that message. The RabbitMQ message would be the entry point into the spout. 
 
 
 The message contains a link to the job seeker who applied to the job, as well as the ID for the job to which she applied.   The message isn’t actually encoded as JSON and transmitted over the wire, but for clarity I’ve displayed the RabbitMQ message as JSON.
@@ -96,7 +96,7 @@ This third step is responsible for persisting the applicant information to a Cou
 
 {%img center /images/denormalize-the-datas-for-great-good/rabbitmq-storm-couchbase.png The final step is that the topology persists the relevant job %}
 
-That last diagram is a bit of a simplification. We had hoped that since Couchbase is not just a key-value store, but a key-document store, JSON-aware, that it would have a sophisticated append (put item at the back of the Array). Alas, we weren’t so fortunate and had to implement our own append operation by reading the document (if it exists), adding an item to a list if it’s not already there, and then writing the document.  So it’s more like two operations than one.
+That last diagram is a bit of a simplification. Although Couchbase is "JSON-aware", it lacks the ability to perform certain operations on the JSON documents it stores.  For example, if the document being stored is an Array, and the client's append method is called, we hoped that Couchbase would add that element to the end of the Array. Instead, it's just a blind String.append, resulting in an invalid JSON document. As a result, we had to implement our own append operation by reading the document (if it exists), adding an item to a list if it’s not already there, and then writing the document.  So it’s more like two operations than one.
 
 _Now_ when TheLadders mobile service gets a request for Scout information for a job, all it does is a lookup in Couchbase with that job ID and returns the applicants associated with that key. 
 
