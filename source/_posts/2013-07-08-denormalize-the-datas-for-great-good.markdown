@@ -110,4 +110,4 @@ Dramatically faster, even at the 95th percentile.
 
 SOA is no panacea. There are many instances where querying a number of backend servers to assemble and aggregate data returned from a database simply doesn't make sense. In those cases, you may do well to denormalize that data and put it in a store that's more efficient for retrieval.  
 
-If you find this post interesting, join the dicussion over on Hacker News. 
+If you find this post interesting, join the dicussion over on [Hacker News](https://news.ycombinator.com/item?id=6015123). 
