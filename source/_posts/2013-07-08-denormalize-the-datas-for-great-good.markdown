@@ -20,13 +20,13 @@ A few weeks ago, as we were about to launch our [iPhone app](http://app.appsflye
 
 For a little background as to what Scout is, at TheLadders one of our missions is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.
 
-Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve _one_ Scout view request).  In cases of higher load, sometimes request times well over that.
+Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve _one_ Scout view request).  In cases of higher load, sometimes request times take well over that.
 
 <center>
 {% imgcap small /images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png Scout view of a job with many applicants %} 
 </center>
 
-That brings Scout into unusably slow country, as the graphite chart below indicates:
+That brings Scout into unusably slow country, as the Graphite chart below indicates:
 
 <center>
 {% imgcap medium /images/denormalize-the-datas-for-great-good/before-graphite.png 95th percentile of response times for Scout in seconds %}
@@ -64,7 +64,7 @@ The backend server iterates over those links, requesting the job applications th
 
 {%img center medium /images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request2.png backend retrieves each application %}
 
-Finally with that result set, the orchestration service then issues a number of requests to the job seeker service for information about the job seekers who have applied to the job being viewed.  In its initial implementation all of the requests were synchronous and in series as I mentioned earlier. We eventually parallelized them, as you can see in the graphite chart where the big spikes left diminish towards the right.  
+Finally with that result set, the orchestration service then issues a number of requests to the job seeker service for information about the job seekers who have applied to the job being viewed.  In its initial implementation all of the requests were synchronous and in series as I mentioned earlier. We eventually parallelized them, as you can see in the Graphite chart where the big spikes left diminish towards the right.  
 
 {%img center medium /images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request3.png backend retrieves each application %}
 
