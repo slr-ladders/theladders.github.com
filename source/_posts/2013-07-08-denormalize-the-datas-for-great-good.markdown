@@ -2,9 +2,9 @@
 author: John Connolly 
 layout: post
 title: "Denormalize the Datas for Great Good"
-date: 2013-07-08 10:00 
-categories: 
-published: false
+date: 2013-07-08 16:02 
+categories: Storm Scaling 
+published: true
 ---
 {% blockquote --Jodie Foster %}
 Normal is not something to aspire to, it's something to get away from.
