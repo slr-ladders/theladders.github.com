@@ -1,15 +1,68 @@
 // This File is imported last, and will override other styles in the cascade
 // Add styles here to make changes without digging in too much
 
+html,
+body {
+	width: $max-width;
+	margin: 0;
+	background: #fff;
+}
+
+.container {
+  width: $container-width;
+}
+
+.main-navigation {
+  border: none;
+  background: $nav-bg;
+
+  a {
+    color: #fff;
+  }
+
+  .search {
+    @include border-radius(.25em);
+    background: #fff;
+  }
+}
+
+.main-header {
+	background: image-url("bg-theladders.png");
+
+  .title,
+  .subtitle {
+    font-family: $sans;
+  }
+
+  .title {
+    font-weight: bold;
+  }
+
+  .subtitle {
+
+  }
+}
+
+.main {
+  @extend .container;
+  display: block;
+}
+
+.footer {
+  margin-bottom: 0;
+}
+
+
+
 article {
   ol, ul {
     padding-left: 3em;
-	padding-right: 3em;
+    padding-right: 3em;
   }
 }
 
 .message {
-    background-image: url("/images/404/skippy-unicorn.png");
+  background-image: url("/images/404/skippy-unicorn.png");
 	height: 256px;
 	padding-left: 316px;
 	display: inline-block;
