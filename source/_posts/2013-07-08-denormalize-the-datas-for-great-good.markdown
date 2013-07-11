@@ -41,9 +41,9 @@ We managed to bring those seconds down to milliseconds, with about a 1000x decre
 ##Architecture
 
 In its initial implementation, Scout’s applicant information was gathered and assembled on the fly for each and every request. Driving the iPhone app, we have a backend app server, which is essentially just a number of RESTful endpoints against which our iPhone app issues requests.  Below is a quick rundown of the architecture before I trace a request through our architecture.
-
-{%imgcap center medium /images/denormalize-the-datas-for-great-good/front-end-orchestration.png iPhone app talks to the backend app server %}
-
+<center>
+{%imgcap medium /images/denormalize-the-datas-for-great-good/front-end-orchestration.png iPhone app talks to the backend app server %}
+</center>
 Below this backend server there are a number of RESTful entity servers with which the app server is interacting via HTTP. 
 
 {%imgcap center medium /images/denormalize-the-datas-for-great-good/front-end-orchestration-entity.png Backend app server relies on entity servers %}
