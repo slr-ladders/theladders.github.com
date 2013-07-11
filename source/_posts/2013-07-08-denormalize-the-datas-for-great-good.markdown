@@ -18,7 +18,7 @@ A few weeks ago, as we were about to launch our [iPhone app](http://app.appsflye
 {% imgcap small /images/denormalize-the-datas-for-great-good/scout-screenshot.png Scout %} 
 </center>
 
-For a little background as to what Scout is, at TheLadders one of our missions is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.
+For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.
 
 Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve _one_ Scout view request).  In cases of higher load, sometimes request times take well over that.
 
