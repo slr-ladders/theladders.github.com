@@ -1,6 +1,22 @@
 // This File is imported last, and will override other styles in the cascade
 // Add styles here to make changes without digging in too much
 
+$break-small: 480px;
+$break-medium: 768px;
+$break-large: 1024px;
+
+@mixin respond-to($media) {
+  @if $media == handhelds {
+    @media only screen and (max-width: $break-small) { @content; }
+  }
+  @else if $media == tablet {
+    @media only screen and (max-width: $break-large) { @content; }
+  }
+  @else if $media == wide-screens {
+    @media only screen and (min-width: $break-medium) { @content; }
+  }
+}
+
 $base-font-size: 18px;
 $base-line-height: 27px;
 $pad-wide: $base-font-size;
@@ -21,6 +37,12 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
   @extend .group;
   width: $container-width;
   margin: 0 auto;
+  @include respond-to(handhelds) {
+    width: $max-width;
+  }
+  @include respond-to(tablet) {
+    width: $max-width;
+  }  
 }
 
 .main-navigation {
@@ -93,6 +115,7 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
 
 .main {
   display: block;
+  padding: 2em 1em;
 }
 
 .content {
@@ -101,7 +124,7 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
 }
 
 .article {
-  padding: 2em 0 0;
+  padding: 0;
   font-size: $base-font-size;
 
   .entry-title {
