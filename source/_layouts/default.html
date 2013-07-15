@@ -8,10 +8,17 @@
 	</nav>
 	<header class="main-header" role="banner">{% include header.html %}</header>
 	<main id="main" class="main">
-		<div id="content" class="content">
+		<div class="content">
 		  {{ content | expand_urls: root_url }}
 		</div>
 	</main>
+	<aside class="sidebar">
+		{% if site.blog_index_asides.size %}
+		{% include_array blog_index_asides %}
+		{% else %}
+		{% include_array default_asides %}
+		{% endif %}
+	</aside>
 	<footer class="footer" role="contentinfo">{% include footer.html %}</footer>
 	{% include after_footer.html %}
 </body>

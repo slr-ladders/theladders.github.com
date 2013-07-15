@@ -1,23 +1,41 @@
 // This File is imported last, and will override other styles in the cascade
 // Add styles here to make changes without digging in too much
 
+$base-font-size: 18px;
+$base-line-height: 27px;
+$pad-wide: $base-font-size;
+@include establish-baseline;
+
 html,
 body {
 	width: $max-width;
 	margin: 0;
 	background: #fff;
+  font-size: $base-font-size;
+  line-height: $base-line-height;
 }
 
+body, h1, h2, h3, h4, h5 { font-family: $sans; }
+
 .container {
+  @extend .group;
   width: $container-width;
+  margin: 0 auto;
 }
 
 .main-navigation {
+  padding: {
+    left: $pad-wide;
+    right: $pad-wide;
+  }
   border: none;
   background: $nav-bg;
 
   a {
     color: #fff;
+    &:hover {
+      color: $link-color;
+    }
   }
 
   .search {
@@ -27,29 +45,88 @@ body {
 }
 
 .main-header {
+  @extend .group;
+  padding: $pad-wide;
 	background: image-url("bg-theladders.png");
+  font-size: $base-font-size;
+  line-height: $base-line-height;
+
+  .logo {
+    @include float-left;
+    border: 2px solid #598cae;
+    @include border-radius(60px);
+    box-shadow: -9px 1px 1px #598cae;
+    margin-right: 18px;
+    background: #fff;
+
+    img {
+      width: 119px;
+      height: 108px;
+    }
+  }
+
+  hgroup {
+    @include float-left;
+  }
 
   .title,
   .subtitle {
+    display: block;
+    width: auto;
     font-family: $sans;
   }
 
   .title {
     font-weight: bold;
+    @include adjust-font-size-to(54px);
+    //font-size: 2em;
+  }
+
+  .title:before {
+
   }
 
   .subtitle {
-
+    float: left;
   }
 }
 
 .main {
-  @extend .container;
   display: block;
 }
 
+.content {
+  @extend .container;
+  padding: 0;
+}
+
+.article {
+  padding: 2em 0 0;
+  font-size: $base-font-size;
+
+  .entry-title {
+    font-family: $sans;
+    @include adjust-font-size-to(40px);
+
+    a:visited {
+      color: $link-color;
+    }
+  }
+
+  h2 { @include adjust-font-size-to(32px); }
+  h3 { @include adjust-font-size-to(28px); }
+  h4 { @include adjust-font-size-to(24px); }
+  h5 { @include adjust-font-size-to(20px); }
+}
+
 .footer {
+  padding: {
+    right: $pad-wide;
+    left: $pad-wide;
+  }
+  @include border-radius(0);
   margin-bottom: 0;
+  background: $footer-bg;
 }
 
 
