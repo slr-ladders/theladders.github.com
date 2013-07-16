@@ -5,12 +5,15 @@ $break-small: 480px;
 $break-medium: 768px;
 $break-large: 1024px;
 
+$logo-width: 119px;
+$logo-height: $logo-width * .9076;
+
 @mixin respond-to($media) {
   @if $media == handhelds {
     @media only screen and (max-width: $break-small) { @content; }
   }
   @else if $media == tablet {
-    @media only screen and (max-width: $break-large) { @content; }
+    @media only screen and (max-width: $break-large - 1) { @content; }
   }
   @else if $media == wide-screens {
     @media only screen and (min-width: $break-medium) { @content; }
@@ -75,15 +78,29 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
 
   .logo {
     @include float-left;
+    width: $logo-width;
+    height: $logo-height;
     border: 2px solid #598cae;
     @include border-radius(60px);
     box-shadow: -9px 1px 1px #598cae;
     margin-right: 18px;
+    margin-left: 9px;
     background: #fff;
 
     img {
-      width: 119px;
-      height: 108px;
+      width: 100%;
+      height: auto;
+    }
+    
+    @include respond-to(tablet) {
+      width: $logo-width * ($break-medium/$break-large);
+      height: $logo-height * ($break-medium/$break-large);
+    }  
+    
+    @include respond-to(handhelds) {
+      display: none;
+      //width: $logo-width * ($break-small/$break-large);
+      //height: $logo-height * ($break-small/$break-large);
     }
   }
 
@@ -102,10 +119,13 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
     font-weight: bold;
     @include adjust-font-size-to(54px);
     //font-size: 2em;
-  }
+    @include respond-to(tablet) {
+      @include adjust-font-size-to(40px);
+    }
 
-  .title:before {
-
+    @include respond-to(handhelds) {
+      @include adjust-font-size-to(32px);
+    }
   }
 
   .subtitle {
@@ -113,7 +133,7 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
   }
 }
 
-.main {
+#main.main {
   display: block;
   padding: 2em 1em;
 }
