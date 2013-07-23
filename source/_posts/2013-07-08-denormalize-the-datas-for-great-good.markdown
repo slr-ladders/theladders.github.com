@@ -18,7 +18,7 @@ A few weeks ago, as we were about to launch our [iPhone app](http://app.appsflye
 {% imgcap small /images/denormalize-the-datas-for-great-good/scout-screenshot.png Scout %} 
 </center>
 
-For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.
+For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.
 
 Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve _one_ Scout view request).  In cases of higher load, sometimes request times take well over that.
 
@@ -81,7 +81,7 @@ The workflow includes multiple objects serializing and deserializing, HTTP trans
 -----------
 ##Scout reads go fast
 
-Principal Architect [Sean T Allen](http://twitter.com/SeanTAllen) set [Andy Turley](http://twitter.com/casio_juarez) and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in [Couchbase](http://www.couchbase.com/) and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  [Storm](http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/) topology would be listening for that message. The RabbitMQ message would be the entry point into the spout. 
+Principal Architect [Sean T Allen](http://twitter.com/SeanTAllen) set [Andy Turley](http://twitter.com/casio_juarez) and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in [Couchbase](http://www.couchbase.com/) and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  [Storm](http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/) topology that should listen for that message. The RabbitMQ message would be the entry point into the spout. 
 
 
 The message contains a link to the job seeker who applied to the job, as well as the ID for the job to which she applied.   The message isn’t actually encoded as JSON and transmitted over the wire, but for clarity I’ve displayed the RabbitMQ message as JSON.
