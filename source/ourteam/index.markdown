@@ -15,6 +15,8 @@ footer: false
 ****
 {% include ourteam/jeremyblock.markdown %}
 ****
+{% include ourteam/derekbrown.markdown %}
+****
 {% include ourteam/johnconnolly.markdown %}
 ****
 {% include ourteam/patrickdelfert.markdown %}
