@@ -1,15 +1,188 @@
 // This File is imported last, and will override other styles in the cascade
 // Add styles here to make changes without digging in too much
 
+$break-small: 480px;
+$break-medium: 768px;
+$break-large: 1024px;
+
+$logo-width: 119px;
+$logo-height: $logo-width * .9076;
+
+@mixin respond-to($media) {
+  @if $media == handhelds {
+    @media only screen and (max-width: $break-small) { @content; }
+  }
+  @else if $media == tablet {
+    @media only screen and (max-width: $break-large - 1) { @content; }
+  }
+  @else if $media == wide-screens {
+    @media only screen and (min-width: $break-medium) { @content; }
+  }
+}
+
+$base-font-size: 18px;
+$base-line-height: 27px;
+$pad-wide: $base-font-size;
+@include establish-baseline;
+
+html,
+body {
+	width: $max-width;
+	margin: 0;
+	background: #fff;
+  font-size: $base-font-size;
+  line-height: $base-line-height;
+}
+
+body, h1, h2, h3, h4, h5 { font-family: $sans; }
+
+.container {
+  @extend .group;
+  width: $container-width;
+  margin: 0 auto;
+  @include respond-to(handhelds) {
+    width: $max-width;
+  }
+  @include respond-to(tablet) {
+    width: $max-width;
+  }  
+}
+
+.main-navigation {
+  padding: {
+    left: $pad-wide;
+    right: $pad-wide;
+  }
+  border: none;
+  background: $nav-bg;
+
+  a {
+    color: #fff;
+    &:hover {
+      color: $link-color;
+    }
+  }
+
+  .search {
+    @include border-radius(.25em);
+    background: #fff;
+  }
+}
+
+.main-header {
+  @extend .group;
+  padding: $pad-wide;
+	background: image-url("bg-theladders.png");
+  font-size: $base-font-size;
+  line-height: $base-line-height;
+
+  .logo {
+    @include float-left;
+    width: $logo-width;
+    height: $logo-height;
+    border: 2px solid #598cae;
+    @include border-radius(60px);
+    box-shadow: -9px 1px 1px #598cae;
+    margin-right: 18px;
+    margin-left: 9px;
+    background: #fff;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+    
+    @include respond-to(tablet) {
+      width: $logo-width * ($break-medium/$break-large);
+      height: $logo-height * ($break-medium/$break-large);
+    }  
+    
+    @include respond-to(handhelds) {
+      display: none;
+      //width: $logo-width * ($break-small/$break-large);
+      //height: $logo-height * ($break-small/$break-large);
+    }
+  }
+
+  hgroup {
+    @include float-left;
+  }
+
+  .title,
+  .subtitle {
+    display: block;
+    width: auto;
+    font-family: $sans;
+  }
+
+  .title {
+    font-weight: bold;
+    @include adjust-font-size-to(54px);
+    //font-size: 2em;
+    @include respond-to(tablet) {
+      @include adjust-font-size-to(40px);
+    }
+
+    @include respond-to(handhelds) {
+      @include adjust-font-size-to(32px);
+    }
+  }
+
+  .subtitle {
+    float: left;
+  }
+}
+
+#main.main {
+  display: block;
+  padding: 2em 1em;
+}
+
+.content {
+  @extend .container;
+  padding: 0;
+}
+
+.article {
+  padding: 0;
+  font-size: $base-font-size;
+
+  .entry-title {
+    font-family: $sans;
+    @include adjust-font-size-to(40px);
+
+    a:visited {
+      color: $link-color;
+    }
+  }
+
+  h2 { @include adjust-font-size-to(32px); }
+  h3 { @include adjust-font-size-to(28px); }
+  h4 { @include adjust-font-size-to(24px); }
+  h5 { @include adjust-font-size-to(20px); }
+}
+
+.footer {
+  padding: {
+    right: $pad-wide;
+    left: $pad-wide;
+  }
+  @include border-radius(0);
+  margin-bottom: 0;
+  background: $footer-bg;
+}
+
+
+
 article {
   ol, ul {
     padding-left: 3em;
-	padding-right: 3em;
+    padding-right: 3em;
   }
 }
 
 .message {
-    background-image: url("/images/404/skippy-unicorn.png");
+  background-image: url("/images/404/skippy-unicorn.png");
 	height: 256px;
 	padding-left: 316px;
 	display: inline-block;
