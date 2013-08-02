@@ -81,11 +81,8 @@ body, h1, h2, h3, h4, h5 { font-family: $sans; }
     width: $logo-width;
     height: $logo-height;
     border: 2px solid #598cae;
-    @include border-radius(60px);
-    box-shadow: -9px 1px 1px #598cae;
     margin-right: 18px;
     margin-left: 9px;
-    background: #fff;
 
     img {
       width: 100%;
