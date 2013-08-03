@@ -3,7 +3,7 @@ author: Sean T Allen
 layout: post
 title: "Varnish in Five Acts"
 date: 2013-05-03 13:21
-categories: Varnish
+categories: Varnish Scaling
 published: true
 ---
 {% blockquote %}
