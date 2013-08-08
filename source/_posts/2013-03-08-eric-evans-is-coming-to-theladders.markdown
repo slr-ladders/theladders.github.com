@@ -4,7 +4,7 @@ layout: post
 title: "Eric Evans Is Coming to TheLadders"
 date: 2013-03-08 10:09
 comments: true
-categories: [DDD, Legacy]
+categories: [DDD, Legacy, Announcements]
 published: true 
 ---
 {% blockquote --Johnny Cash %}
