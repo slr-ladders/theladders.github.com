@@ -2,8 +2,8 @@
 layout: post
 title: "We're Hosting the first NYC Erlang Factory Lite on September 14th"
 date: 2013-08-07 16:06
-categories: Announce 
-published: false
+categories: Announcements Erlang 
+published: true
 ---
 
 Thanks to one of our Lead Software Engineers, [Derek Brown](../ourteam/derekbrown/), TheLadders will be hosting the first [NYC Erlang Factory Lite](http://www.erlang-factory.com/conference/NYC2013) on the 14th of September. 
