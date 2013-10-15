@@ -21,6 +21,8 @@ footer: false
 ****
 {% include ourteam/patrickdelfert.markdown %}
 ****
+{% include ourteam/ericfeder.markdown %}
+****
 {% include ourteam/matthewgundel.markdown %}
 ****
 {% include ourteam/jamesholder.markdown %}
