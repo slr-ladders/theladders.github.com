@@ -25,6 +25,8 @@ footer: false
 ****
 {% include ourteam/ericfeder.markdown %}
 ****
+{% include ourteam/douggrove.markdown %}
+****
 {% include ourteam/matthewgundel.markdown %}
 ****
 {% include ourteam/jamesholder.markdown %}
@@ -37,6 +39,8 @@ footer: false
 ****
 {% include ourteam/laurakang.markdown %}
 ****
+{% include ourteam/tatianakrmpotic.markdown %}
+****
 {% include ourteam/hailin.markdown %}
 ****
 {% include ourteam/frankmadrie.markdown %}
@@ -46,6 +50,8 @@ footer: false
 {% include ourteam/drewnichols.markdown %}
 ****
 {% include ourteam/peter.markdown %}
+***
+{% include ourteam/jonruttenberg.markdown %}
 ****
 {% include ourteam/chrissanders.markdown %}
 ****
@@ -58,6 +64,8 @@ footer: false
 {% include ourteam/dextertaylor.markdown %}
 ****
 {% include ourteam/andrewturley.markdown %}
+****
+{% include ourteam/kenulc.markdown %}
 ****
 {% include ourteam/kylewinter.markdown %}
 ****
