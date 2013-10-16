@@ -3,6 +3,6 @@
     {% gravatar dgrove@theladders.com %}
   </div>
   <div class="profile-content">
-    <strong>Doug</strong> doesn't like writing bios or having his picture taken.
+    <strong>Doug Grove</strong>: Professional cat herder.
   </div>
 </div>
