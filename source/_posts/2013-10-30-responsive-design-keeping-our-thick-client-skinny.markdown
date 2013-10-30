@@ -2,10 +2,10 @@
 author: Daniel Wislocki
 layout: post
 title: "Responsive Design: Keeping our thick client skinny"
-date: 2013-10-29 12:13
+date: 2013-10-30 1:37
 comments: true
 categories: responsive design front-end media query mobile
-published: false
+published: true
 ---
 
 {% blockquote --Charles Eames %}
