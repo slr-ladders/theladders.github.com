@@ -82,4 +82,6 @@ Our new responsive website is still young, it was only released earlier this yea
 
 Until then, check it out for yourself: [www.theladders.com](https://www.theladders.com/). While it is by no means perfect--there are some devices and screen configurations where the experience is less than optimal--it is far better than the original site both in terms of its responsiveness and clean design.
 
+Join the discussion at [Hacker News](https://news.ycombinator.com/item?id=6641857).
+
 _Note: In an effort to most accurately describe the current state of our site's responsiveness, this post was edited and updated by Daniel Wislocki. It was originally written by [Christina Kung](https://twitter.com/logtailer) in early April, when design was unfinished._
