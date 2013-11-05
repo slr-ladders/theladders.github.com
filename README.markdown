@@ -5,6 +5,9 @@
 If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
 
 And obviously make sure you've got git installed.
+5. **Ships with great plug-ins** some original and others from the Jekyll community &mdash; tested and improved.
+
+**Note**: Octopress requires a minimum Ruby version of `1.9.3-p0`.
 
 I've not tried any of this on windows.  This is kid tested OSX and Linux approved.
 
