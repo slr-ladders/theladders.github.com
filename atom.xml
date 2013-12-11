@@ -1,0 +1,2038 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2013-12-11T10:30:50-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Responsive Design: Keeping our thick client skinny]]></title>
+    <link href="http://dev.theladders.com/2013/10/responsive-design-keeping-our-thick-client-skinny/"/>
+    <updated>2013-10-30T01:37:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/10/responsive-design-keeping-our-thick-client-skinny</id>
+    <content type="html"><![CDATA[<blockquote><p>Recognizing the need is the primary condition for design.</p><footer><strong>&#8211;Charles Eames</strong></footer></blockquote>
+
+
+<p>You may or may not have noticed, but <a href="https://www.theladders.com/">TheLadders.com</a> just got a huge make over. We rewrote the website, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.  <br/>
+iPhone? Check. iPad? Check. MacBook Air? Check. Ginormous iMac screen? Check.</p>
+
+<p><span class='caption-wrapper left small'><img class='caption' src='http://dev.theladders.com/images/responsive/ladders-wide.jpeg' width='' height='' alt='New TheLadders.com on a desktop screen with the wide experience' title='New TheLadders.com on a desktop screen with the wide experience'><span class='caption-text'>New TheLadders.com on a desktop screen with the wide experience</span></span></p>
+
+<p><span class='caption-wrapper left small'><img class='caption' src='http://dev.theladders.com/images/responsive/ladders-skinny.png' width='' height='' alt='New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar' title='New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar'><span class='caption-text'>New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: <a href="http://jasonweaver.name/lab/offcanvas/">off canvas</a> sidebar</span></span></p>
+
+<h2>Adapt to survive</h2>
+
+<p><span class='caption-wrapper left small'><img class='caption' src='http://dev.theladders.com/images/responsive/messy-windows.jpg' width='' height='' alt='Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.' title='Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.'><span class='caption-text'>Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.</span></span>
+Mobile is here, and has been for years. It is only a matter of time before we are forced to adapt the front-end code design in order to survive on all screens. To me, responsive design is not an option; it’s mandatory.</p>
+
+<p>It&rsquo;s not just about fitting inside of a phone screen either. Our site should be flexible and sturdy enough to undergo all sorts crazy behavior: windows shrinking, windows expanding, zoom in, zoom out, and so forth. It’s a wilderness of user actions with legions of new mobile devices to support &hellip; how the heck do we keep up?</p>
+
+<h2>One size fits most</h2>
+
+<p>TheLadders’ responsive support subscribes to the majority rule. We prioritize the user experience for the majority, and the minority cases are “overlooked.” This means the website is not tested on every phone and tablet &ndash; even newer ones &ndash; because there isn’t enough site traffic. We sacrificed this level of precision hoping to concentrate instead on improving the experience for the majority. <br/>
+<span class='caption-wrapper right extra-small'><img class='caption' src='http://dev.theladders.com/images/responsive/device-breakdown.jpeg' width='' height='' alt='Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices.' title='Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices.'><span class='caption-text'>Google Analytics device breakdown. Blue &ndash; iPhone, Green &ndash; iPad, Gray &ndash; undetermined. Other slivers are mostly Samsung Android devices.</span></span></p>
+
+<p><strong>First</strong>, we decided what we were going to support &ndash; devices and screen size ranges:</p>
+
+<ul>
+<li>Devices
+
+<ul>
+<li>iPhone 4S and up (incl. iPad mini)</li>
+<li>iPad 2 and up</li>
+</ul>
+</li>
+<li>Screen size ranges
+
+<ul>
+<li>20em (320px) to 48em (768px) for skinny experience support</li>
+<li>50em (800px) and up for wide experience support</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Together these Apple devices compose approximately 17% of our total page visits (includes hits from both browsers and devices). Of course you should look at your own device and browser breakdowns before deciding on a strategy. But do it early, otherwise you will be spending a lot of time debugging for ~1% of your users.</p>
+
+<p><strong>Second</strong>, we decided on our limitations. I think this saved hours of designer/developer time by acknowledging that not everything will interact exactly as it would on a desktop screen:</p>
+
+<ul>
+<li>Can’t support every mobile device and every screen width.</li>
+<li>Can’t have 100% feature parity between a mobile device and a desktop browser.</li>
+<li>Support for touch gestures (like swipe) costs extra code.</li>
+<li>Modals are not small screen friendly, especially certain date pickers.</li>
+<li>Hover states will be awkward on a touch screen. (If there is a hover state, the first tap is hover and the second tap is click.)</li>
+<li>Performance will suffer on mobile connections.</li>
+</ul>
+
+
+<p><strong>Third</strong>, we decided what techniques to use. Truthfully, each of these points needs its own blog topic, but here’s a quick list for now:</p>
+
+<ul>
+<li><a href="http://jasonweaver.name/lab/offcanvas">Off canvas</a> layout for our “skinny” experience.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/CSS/Media_queries">Media queries</a> to trigger the skinny vs. wide experience. Used SASS to implement <a href="http://thesassway.com/intermediate/responsive-web-design-in-sass-using-media-queries-in-sass-32">reusable media query break points</a>, making our lives MUCH easier.</li>
+<li>Set <a href="https://developer.mozilla.org/en-US/docs/Mobile/Viewport_meta_tag">width=device-width</a> in viewport metatag.</li>
+<li><a href="http://css-tricks.com/examples/PerfectFluidWidthLayout">Elastic layout</a> for widths.  Use % widths to create a fluid main content area, and a fixed width for the sidebar area.</li>
+<li>Use em. First <a href="http://css-tricks.com/css-font-size">understand</a> what measurement units are out there. There are many reasons to use em, but <a href="http://blog.cloudfour.com/the-ems-have-it-proportional-media-queries-ftw">this article</a> made the best case.</li>
+<li>SVG for responsive images.  We chose to use SVG logos and icons that fall back to PNG sprites if SVG is not supported.</li>
+</ul>
+
+
+<p>Now we should never, ever see a horizontal scroll bar. Scrollbars mean users can’t easily see precious content and get a unfulfilling experience.</p>
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='http://dev.theladders.com/images/responsive/sad-scrollbar.png' width='' height='' alt='Ewww horizontal scrollbar' title='Ewww horizontal scrollbar'><span class='caption-text'>Ewww horizontal scrollbar</span></span></p>
+
+<h2>Mobile First?</h2>
+
+<p>Mobile first means to implement your website for mobile devices first, and desktop, etc., second. It helps set boundaries for page weight and complicated layouts that are unfriendly to handhelds.</p>
+
+<p>In theory, mobile first for design and development is a good idea.  It’s a sure-fire way to keep your pages as lightweight as possible. But in practice, our designer created mobile designs simultaneously with desktop designs, remembering to remove superfluous visual elements, ensuring a similar design would work for a small screen. As for development, we coded for the desktop first because we still support IE8 (IE8 doesn’t support media queries).  We built a desktop version first and used media queries to adjust for the mobile version. This way, IE8 screens work without extra media queries. Only mobile and the latest browsers are responsible for triggering media queries.</p>
+
+<p>So we aren’t really mobile first, but it heavily influences how we design the site. This practice works well if the designs are clean, and you are innately stingy with markup.</p>
+
+<h2>Anyway …</h2>
+
+<p><span class='caption-wrapper right extra-small'><img class='caption' src='http://dev.theladders.com/images/responsive/rabbit-pair.jpg' width='' height='' alt='Collaborating like arctic hares' title='Collaborating like arctic hares'><span class='caption-text'>Collaborating like arctic hares</span></span>
+My favorite side-effect of going responsive is the close collaboration between designers and developers. It’s hard to articulate screen reactions and device behavior through design comps. During this rewrite our front-end team and design team were pairing regularly throughout the day to determine what responsive meant for TheLadders.</p>
+
+<p>Also, it is important to recognize a responsive website is NOT a substitute for a native phone application.  A browser page and native phone application have completely different rules of conduct, so just because your website is responsive doesn’t mean you don’t need a native application.</p>
+
+<h2>Results</h2>
+
+<p>Our new responsive website is still young, it was only released earlier this year. We’ve just begun to throw serious traffic at it, but I’m confident that it performs and looks better than the old, non-responsive site. We are closely monitoring customer satisfaction and page visits from mobile devices. Hopefully in a couple months we’ll have flattering statistics and feedback to post.</p>
+
+<p>Until then, check it out for yourself: <a href="https://www.theladders.com/">www.theladders.com</a>. While it is by no means perfect&mdash;there are some devices and screen configurations where the experience is less than optimal&mdash;it is far better than the original site both in terms of its responsiveness and clean design.</p>
+
+<p>Join the discussion at <a href="https://news.ycombinator.com/item?id=6641857">Hacker News</a>.</p>
+
+<p><em>Note: In an effort to most accurately describe the current state of our site&rsquo;s responsiveness, this post was edited and updated by Daniel Wislocki. It was originally written by <a href="https://twitter.com/logtailer">Christina Kung</a> in early April, when design was unfinished.</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[We're Hosting the first NYC Erlang Factory Lite on September 14th]]></title>
+    <link href="http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite/"/>
+    <updated>2013-08-07T16:06:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite</id>
+    <content type="html"><![CDATA[<p>Thanks to one of our Lead Software Engineers, <a href="http://dev.theladders.com/ourteam/derekbrown/">Derek Brown</a>, TheLadders will be hosting the first <a href="http://www.erlang-factory.com/conference/NYC2013">NYC Erlang Factory Lite</a> on the 14th of September.</p>
+
+<p>If you haven’t heard about Erlang before, it is an open-source programming language that was designed for massive concurrency, making it an ideal candidate for scalability on multicore architectures. The language was invented for telecoms, but due to its unique features it quickly made its way into a range of other verticals with similar requirements – from financial switches, through instant messaging servers, HTTP servers and web frameworks, database engines and so forth. It is used for highly available systems, providing uptime of five nines and allowing live code updates, all at a fraction of the effort required by conventional languages such as C++ and Java. Ericsson, Aol, WhatsApp, Nokia, T-Mobile, Heroku and Basho are a few of the companies that employ Erlang.</p>
+
+<p>At TheLadders, we’re currently using two of the most popular software products written in Erlang: the document-oriented database system Couchbase, and RabbitMQ, an AMQP messaging service. I asked Derek how he found out about Erlang in the first place: &ldquo;I became interested in Erlang while first reading about functional programming, and was drawn to its fault-tolerant capabilities and its unique syntax. Erlang&rsquo;s functional nature is a big draw, coming from an imperative background. On top of that, the Erlang community is active and very open. So a few years later here I am co-organizing the NYC Erlang Meetup and now co-organizing the NYC Erlang Factory Lite.&rdquo;</p>
+
+<p>On the 14th of September New York developers will not only get to find out more about Erlang and its applications to distributed environments, but also to meet two of the language’s inventors. NYC Erlang Factory Lite will also be a chance for the East Coast Erlang community to showcase Erlang and its use in the real world. Adam Denenberg, VP of Engineering at the Huffington Post will talk about the architecture and setup built by the Huffington Post to power their real-time WebSocket-based commenting framework.  Leveraging RabbitMQ, SockJS, Cowboy and Erlang, they were able to build and design a highly scalable, customizable solution to power real-time comments. Christopher Meiklejohn, software engineer at Basho, will provide an introduction to building Riak Core applications. Fred Hebert, engineer on Heroku&rsquo;s Routing Team, will talk about Heroku’s cloud platform composed of heterogeneous components (written in Ruby, Erlang and Go, to name a few) and why a large part of its routing stack is written in Erlang.  Other speakers include Christian Gribneau, CTO of Ology Media, and Mahesh Paolini Subramania, Creator of the first Erlang Cloud PBX. For more info check out the program on the ErlangFactory website: <a href="http://www.erlang-factory.com/conference/NYC2013/programme">http://www.erlang-factory.com/conference/NYC2013/programme</a></p>
+
+<p>The high point of the day will the keynotes of Joe Armstrong and Robert Virding, two of the three inventors of the language. Joe was part of the team who designed and implemented the first version of Erlang and has written several Erlang books including Programming Erlang Software for a Concurrent World. He will be talking about the OTP rationale. OTP is a number of different things: a delivery platform for Erlang and the Erlang VM, a large set of general-purpose libraries and a set of design principles. Robert took part in the original system design and contributed much of the original libraries, as well as to the current compiler. While at the lab he also did a lot of work on the implementation of logic and functional languages and on garbage collection. He also taught Erlang to literally hundreds of developers.  In his talk he will look at the rationale behind Erlang and try to show how many of its important features combine to work together.</p>
+
+<p>For those interested in learning Erlang, Robert Virding will teach a three-day course immediately prior to the Erlang Factory Lite. The course contains all the Erlang basics such as sequential and concurrent programming, alongside error handling. More details on all modules here: <a href="http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress">http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress</a></p>
+
+<p>Early Bird tickets are available at $70 until the 16th of August. After the 16th, the full-price ticket is $90. Half-price student discounts are also available. Places are limited, so if you want to come you should get your ticket now.</p>
+
+<p>If you want to find out more about Erlang, here’s a great introduction to Erlang ‘from behind the trenches’ video: <a href="https://vimeo.com/19806728">https://vimeo.com/19806728</a>. A lot more videos and slides from various Erlang Factory events around the world can be found on the event website: <a href="http://www.erlang-factory.com/">http://www.erlang-factory.com/</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Denormalize the Datas for Great Good]]></title>
+    <link href="http://dev.theladders.com/2013/07/denormalize-the-datas-for-great-good/"/>
+    <updated>2013-07-08T16:02:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/07/denormalize-the-datas-for-great-good</id>
+    <content type="html"><![CDATA[<blockquote><p>Normal is not something to aspire to, it&#8217;s something to get away from.</p><footer><strong>&#8211;Jodie Foster</strong></footer></blockquote>
+
+
+<h2>Scout reads go slow</h2>
+
+<p>A few weeks ago, as we were about to launch our <a href="http://app.appsflyer.com/id654867487?pid=TLC_organic">iPhone app</a>, we discovered that one of its core features, Scout, frequently took seconds to render.</p>
+
+<center>
+<span class='caption-wrapper small'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span> 
+</center>
+
+
+<p>For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.</p>
+
+<p>Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve <em>one</em> Scout view request).  In cases of higher load, sometimes request times take well over that.</p>
+
+<center>
+<span class='caption-wrapper small'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span> 
+</center>
+
+
+<p>That brings Scout into unusably slow country, as the Graphite chart below indicates:</p>
+
+<center>
+<span class='caption-wrapper medium'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/before-graphite.png' width='' height='' alt='95th percentile of response times for Scout in seconds' title='95th percentile of response times for Scout in seconds'><span class='caption-text'>95th percentile of response times for Scout in seconds</span></span>
+</center>
+
+
+<p>The graph shows the time it takes to form a response to a view-job request issued by our iPhone app. It’s the 95th percentile, which means that 5% of requests had times of the lines in the graph or higher for any given date.  One in twenty requests took this long or longer. There are many lines because we have a horizontally scalable architecture, so there are many backend app nodes.</p>
+
+<p>We managed to bring those seconds down to milliseconds, with about a 1000x decrease in times of high load.  Below I’ll describe the changes in our architecture that enabled us to make such a huge improvement.</p>
+
+<hr />
+
+<h2>Architecture</h2>
+
+<p>In its initial implementation, Scout’s applicant information was gathered and assembled on the fly for each and every request. Driving the iPhone app, we have a backend app server, which is essentially just a number of RESTful endpoints against which our iPhone app issues requests.  Below is a quick rundown of the architecture before I trace a request through our architecture.</p>
+
+<center>
+<span class='caption-wrapper medium'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/front-end-orchestration.png' width='' height='' alt='iPhone app talks to the backend app server' title='iPhone app talks to the backend app server'><span class='caption-text'>iPhone app talks to the backend app server</span></span>
+</center>
+
+
+<p>Below this backend server there are a number of RESTful entity servers with which the app server is interacting via HTTP.</p>
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity.png' width='' height='' alt='Backend app server relies on entity servers' title='Backend app server relies on entity servers'><span class='caption-text'>Backend app server relies on entity servers</span></span></p>
+
+<p>These entity servers in turn query each other and the canonical data store, in our case Clustrix, and that’s that.</p>
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity-clustrix.png' width='' height='' alt='Entity servers query the db' title='Entity servers query the db'><span class='caption-text'>Entity servers query the db</span></span></p>
+
+<p>So when a user of our iPhone app taps on a job, a request is sent to the backend app server&hellip;</p>
+
+<p><img class="center medium" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/mobile-orchestration-request.png" title="iPhone app makes a request" ></p>
+
+<p>&hellip;which then issues a request to our job application service for all job applications for that job. The response contains a number of links to the where those job applications may be retrieved.</p>
+
+<p><img class="center medium" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request.png" title="backend server queries the job application service for all applications to a job" ></p>
+
+<p>The backend server iterates over those links, requesting the job applications themselves one at a time. Just as before, adhering to hypermedia design, the response contains a link to the jobseeker who applied to the job. For your sanity, I’ve simplified the response to contain only the job seeker link:</p>
+
+<p><img class="center medium" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request2.png" title="backend retrieves each application" ></p>
+
+<p>Finally with that result set, the orchestration service then issues a number of requests to the job seeker service for information about the job seekers who have applied to the job being viewed.  In its initial implementation all of the requests were synchronous and in series as I mentioned earlier. We eventually parallelized them, as you can see in the Graphite chart where the big spikes left diminish towards the right.</p>
+
+<p><img class="center medium" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request3.png" title="backend retrieves each application" ></p>
+
+<p>The iPhone app backend server then extracts the relevant information from those job seekers’ profiles, and returns them as a JSON array of applicants to the mobile app.</p>
+
+<p><img class="center medium" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/mobile-orchestration-response.png" title="backend retrieves each application" ></p>
+
+<p>That is not just a lot of words and diagrams, that is a lot of work!</p>
+
+<p>The workflow includes multiple objects serializing and deserializing, HTTP transfers, hitting the canonical store etc. Why does each request need to assemble this data itself? Why bother hitting the database? Is there an alternative? It seems like a natural fit for a document-oriented database, as the data we are passing back to the client is just a JSON object containing an array of applicants.  We could stand a <a href="http://dev.theladders.com/2013/05/varnish-in-five-acts/">Varnish cache</a> in front of the Scout endpoints on the orchestration service, but then we’d be trading freshness for speed. On the platform team we like to deliver data fast and fresh (and furious).</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/tokyo-drift-o.gif" title="how we roll at the Democratic Republic of Platformia" ></p>
+
+<hr />
+
+<h2>Scout reads go fast</h2>
+
+<p>Principal Architect <a href="http://twitter.com/SeanTAllen">Sean T Allen</a> set <a href="http://twitter.com/casio_juarez">Andy Turley</a> and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in <a href="http://www.couchbase.com/">Couchbase</a> and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  <a href="http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/">Storm</a> topology that should listen for that message. The RabbitMQ message would be the entry point into the spout.</p>
+
+<p>The message contains a link to the job seeker who applied to the job, as well as the ID for the job to which she applied.   The message isn’t actually encoded as JSON and transmitted over the wire, but for clarity I’ve displayed the RabbitMQ message as JSON.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/rabbitmq-storm.png" title="RabbitMQ passes along a job-application message to a listening Storm topology" ></p>
+
+<p>The second step, after having received the RabbitMQ message, fetches the job seeker profile from the jobseeker service, and passes that information to the next step.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/rabbitmq-storm-jobseeker.png" title="The Storm topology extracts the job seeker link from the messages and retrieves information about the job seeker who just applied to the job." ></p>
+
+<p>This third step is responsible for persisting the applicant information to a Couchbase bucket. It uses the job ID as the key, and it does a create or update operation on the document corresponding to that key depending on whether there are applicants already in the bucket for that job.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/rabbitmq-storm-couchbase.png" title="The final step is that the topology persists the relevant job" ></p>
+
+<p>That last diagram is a bit of a simplification. Although Couchbase is &ldquo;JSON-aware&rdquo;, it lacks the ability to perform certain operations on the JSON documents it stores.  For example, if the document being stored is an Array, and the client&rsquo;s append method is called, we hoped that Couchbase would add that element to the end of the Array. Instead, it&rsquo;s just a blind String.append, resulting in an invalid JSON document. As a result, we had to implement our own append operation by reading the document (if it exists), adding an item to a list if it’s not already there, and then writing the document.  So it’s more like two operations than one.</p>
+
+<p><em>Now</em> when TheLadders mobile service gets a request for Scout information for a job, all it does is a lookup in Couchbase with that job ID and returns the applicants associated with that key.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/denormalize-the-datas-for-great-good/mobile-orchestration-couchbase.png" title="iPhone issues a request for Scout information, backend just retrieves it from couchbase" ></p>
+
+<p><span class='caption-wrapper center'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/before-couchbase-after-no-lines.png' width='' height='' alt='95th percentile response time for Scout data, before and after moving to the read view' title='95th percentile response time for Scout data, before and after moving to the read view'><span class='caption-text'>95th percentile response time for Scout data, before and after moving to the read view</span></span></p>
+
+<p>Dramatically faster, even at the 95th percentile.</p>
+
+<hr />
+
+<p>SOA is no panacea. There are many instances where querying a number of backend servers to assemble and aggregate data returned from a database simply doesn&rsquo;t make sense. In those cases, you may do well to denormalize that data and put it in a store that&rsquo;s more efficient for retrieval.</p>
+
+<p>If you find this post interesting, join the dicussion over on <a href="https://news.ycombinator.com/item?id=6015123">Hacker News</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[The Evolution of QA at TheLadders]]></title>
+    <link href="http://dev.theladders.com/2013/05/the-evolution-of-qa-at-theladders/"/>
+    <updated>2013-05-16T09:04:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/05/the-evolution-of-qa-at-theladders</id>
+    <content type="html"><![CDATA[<blockquote><p>Change means that what was before wasn&#8217;t perfect. People want things to be better.</p><footer><strong>&#8211;Esther Dyson</strong></footer></blockquote>
+
+
+<p>Looking back on my 6+ years at TheLadders, I realize how much has changed. When I first joined the company at the start of 2007, there were five other people on the QA team supporting a team of 12 software developers. We followed a strict waterfall process. Product ideas were generated, researched and solidified before any conversation with the development or QA teams. Product managers would spend a large portion of their time hunkered down at their desks writing specification documents, complete with statements on purpose and scope, workflows, wireframes and interaction rules.</p>
+
+<p>After these documents were approved by business owners, the development, QA, and design teams would meet to walk through the document with the goal of estimating the implementation time. QA played the role of a customer advocate and tried to ensure that there was as little uncertainty in the documentation as possible. Instead of walking out of the meeting with estimates, the Product Manager would usually leave with a list of missing workflows and use cases that they would need to add to the spec before development began.</p>
+
+<p>Eventually a release date would be set. Spec and design mocks in hand, the development team would start building the feature.  The QA team would write test cases. We created long lists of actions and expected outcomes that we would use to manually test the development team’s work. Test automation &ndash; unit, integration, functional, load, et al &ndash; was a distant dream. Our primary interaction with the development team was proving the existence of bugs that they couldn’t reproduce.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/the-evolution-of-qa-at-theladders/it-works-on-my-machine.png"></p>
+
+<p>Even though both the development and QA teams worked off of the same documents, the software never matched the expected behavior according to the test case. Preparing for a release was a never-ending cycle of testing, bug-finding, bug-fixing, and retesting. Fixed release dates and not testing until the end of the development cycle led to releases that were huge events with late, stressful nights leading up to release and late, stressful nights spent cleaning up after it was over!</p>
+
+<p>Between major releases, QA was either responding to customer issues, estimating how long it would take to test an upcoming project, or maintaining our set of regression test case documents in Excel.</p>
+
+<h2>Fast forward to 2009.</h2>
+
+<p>The development team had grown to 35. The QA team had shrunk to 4. We’d transitioned to Scrum a few months previous and shuffled the production teams around to form 4 cross-functional ones. Each team consisted of developers, a QA lead, a designer, a copy editor, and a product manager. The move to Scrum was bumpy as we molded the framework into a process that worked for us but teams had started to find a groove. Ideas were generated and defined within each team, we were checking in with each other often, and delivering value to our customers faster. The teams were working like well-oiled machines&hellip; almost.</p>
+
+<p>Selecting user stories to be undertaken during an iteration had become a team decision, however then the Product Manager and QA rep would work together, without the rest of the team, to define the requirements for each story and flesh them out into use case documents. QA still played the role of customer advocate: working to clearly define expected behavior of each user story in terms of the use case document.</p>
+
+<p>The developers would use these documents to build each user story. Sometimes, they&rsquo;d also write unit tests to cover a few of the more important use case scenarios. Before a story was considered &ldquo;done&rdquo;, a code review would need to be completed by at least two developers. In order to make sure that each story met customer expectations, QA would need to manually test the feature. The need for manual testing didn’t end there. At the end of each iteration, QA would run through the entire regression suite before releasing.</p>
+
+<p>We had made some improvements, but it was clear that we could improve the process if we increased communication of requirements and lessened the amount of manual testing that needed to be done.</p>
+
+<p>We were releasing every two weeks. They were smaller and less stressful than in the past. QA still spent a lot of time manually testing, but it was done throughout the iteration instead of being squeezed in at the end. This meant that QA had a lot more downtime than before. While some of this time was spent doing the work we had always done, we also made sure to spend time learning about new tools and best practices. Over time, we learned a lot about automated functional testing. We experimented with different frameworks, starting with a simple record-and-playback tool, until we learned more about what we needed and which tools might best fit that need. I’ll write a post later to shed some light on what that journey was like, but suffice it to say that it took quite a bit of trial and error!</p>
+
+<h2>Fast forward to now.</h2>
+
+<p>We&rsquo;ve moved beyond Scrum to an adapted Agile process that emphasises cross-functional, independent, and highly collaborative teams. Each team is free to adopt practices that work for them. They have free reign to define the way that they work amongst themselves. There are certain commonalities that hold true across all our teams:</p>
+
+<p><strong>QA plays the role of customer advocate</strong>. We know our customers well and our applications even better. This gives us a unique perspective when defining new user stories that helps our teams deliver better products for our users.</p>
+
+<p><strong>The teams define user stories together</strong>. QA still helps flesh out requirements and acceptance criteria, but with the participation of the rest of the team. Defining requirements as a team helps us make sure that we&rsquo;re all on the same page which in turn helps us work better and faster.</p>
+
+<p><strong>We aren&rsquo;t heavy-handed with the documentation</strong>. We&rsquo;ve found that most of our previous attempts at documentation were wasteful &ndash; and often not as useful to the developers as we thought. Instead, after each team conversation around story requirements QA either writes notes and acceptance criteria on the back of the story card (if the team uses a whiteboard to manage their backlog) or in comments attached to the story in Trello.</p>
+
+<p><strong>We automate tests when it&rsquo;s the smart thing to do</strong>. Manually testing everything definitely was not the best thing for us to do, but <a href="http://xkcd.com/1205/">neither is automating every test</a>. Instead, QA and the developers have frequent conversations around how to appropriately test each user scenario: Can it be sufficiently covered in a unit or integration test? Does it make sense to write an expensive automated functional test that checks the functionality through the browser? How important is this functionality? What&rsquo;s the risk of it breaking? We also keep test coverage at the front of our minds and use different <a href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">strategies</a> to make sure that we can trust the tests that we do automate.</p>
+
+<p><strong>Developers write most of our automated tests</strong>. Whether unit, integration, functional, or load tests, usually it&rsquo;s a developer that&rsquo;s going to write it. QA does pitch in when they can but with one QA lead per team, it&rsquo;s not feasible for them to write all of the automated tests without becoming a bottleneck.</p>
+
+<p><strong>We peer review code</strong> with QA actively participating.</p>
+
+<p><strong>We&rsquo;ve set up continuous integration builds</strong>. All of our unit-level tests run after each commit and all of our automated functional regression tests must pass before each deployment. If a test fails, we fix it.</p>
+
+<p>And of course, QA is still responsible for investigating and responding to customer issues. Some things will never change.</p>
+
+<p>We&rsquo;ve come a long way! But that doesn&rsquo;t mean that we can&rsquo;t get better. As a wise man* once said, consistency requires you to be as ignorant today as you were a year ago. Here at TheLadders, we&rsquo;re always learning.</p>
+
+<p>*Bernard Berenson</p>
+
+<p>Join the discussion over at <a href="http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved">Software Testing Club</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Varnish in Five Acts]]></title>
+    <link href="http://dev.theladders.com/2013/05/varnish-in-five-acts/"/>
+    <updated>2013-05-03T13:21:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/05/varnish-in-five-acts</id>
+    <content type="html"><![CDATA[<blockquote><p>“Take a load off Annie. Take a load for free. Take a load off Annie. And you put the load right on me.” &#8211; Robbie Robertson</p></blockquote>
+
+
+<h2>Act I: The Players</h2>
+
+<p>At TheLadders, we have a number of entity services that clients access via HTTP. Some examples are the job service, the job application service and the topic of this post: the job seeker service. Each service manages the lifecycle of a core entity in our domain. On each request, the service gathers data from multiple data sources to build a complete entity and then serializes that entity to JSON. This is done for every request and is incredibly wasteful when you consider that most of these entities don’t change that often. This was a major bottleneck in our infrastructure. In the case of the job seeker service, the same entity can be requested multiple times per request from our consumer website.</p>
+
+<p>All this repeated, unnecessary entity object assembly and JSON serialization created scaling problems. Making matters worse, we periodically have batch processes that can increase service load by an order of magnitude. Caching is an easy win here. The question is how.</p>
+
+<p>Initial attempts to cache these entities were done inside the service JVMs, using familiar and popular JVM based caches like EHcache and calls out to memcache. Unfortunately, this left us operating at JVM speeds and the caches were competing with the service logic for memory and threads.</p>
+
+<p>In addition, our service code was muddled with messy caching logic.  Making the code harder to reuse, and more annoyingly, changes just affecting caching forced us to re-release the entire service.  We didn’t like this mixing of concerns.</p>
+
+<p>We thought we could do better if we used external read through caches. It&rsquo;s easy to slide them between existing clients and services. With caching outside the service, it get released only when their logic changes not because we’re tuning caching.</p>
+
+<p>For reasons too numerous to cover in this post we chose <a href="https://www.varnish-cache.org/about">Varnish</a> as our read through cache.</p>
+
+<hr />
+
+<h2>Act II: The Architecture</h2>
+
+<p>When we introduced Varnish to our architecture, we wanted to make sure we were not adding a single point of failure. Simply put, if the cache layer goes down, our infrastructure should continue running. Performance might be degraded, but we should continue to be able to serve content to clients.</p>
+
+<p>The diagram below shows a typical setup. In a normal scenario, a client accesses Varnish via a load balancer. Varnish in turn farms out the work in round robin fashion to one of four job seeker service nodes. Should Varnish become unavailable, the load balancer stops sending traffic to Varnish and reroutes it to the four job seeker service nodes.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/varnish-in-five-acts/varnish-flow.png"></p>
+
+<p>Of all our entity services, the job seeker services carries the highest median load. The graph below is the 1 minute request rate on 4 jobseeker service nodes over the 36 hour period before and after Varnish was turned on.</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/varnish-in-five-acts/before-after.png"></p>
+
+<hr />
+
+<h2>Act III: Cache Invalidation</h2>
+
+<p>Cache invalidation is one of the 2 hard problems in computer science along with naming things and off by one errors.</p>
+
+<p>We cache job seeker entity representations until some point in the “far future”, which is great until something about that job seeker changes, then we must invalidate the cached entry. So, how do we do that?</p>
+
+<p>Two ways.</p>
+
+<h3>Via Header:</h3>
+
+<p>All requests that change the state of a job seeker that are made via the service attach a header in the response called &ldquo;x-invalidates&rdquo; that looks something like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>x-invalidates: /jobseekers/123</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://dev.theladders.com/ourteam/johnconnolly/">John Connolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
+
+<h3>Via Magic:</h3>
+
+<p>Once upon a time, we had a database administrator named Gennady. Gennady wrote a <a href="http://www.dinodigusa.com/images/Magic1.gif">PHP script that reads MySQL’s binary logs</a>, looking for changes to a set of predefined tables. When it sees an update, it finds the primary key for the row and fires off an invalidation request. In our case, a purge of the cached jobseeker url in Varnish. This allows us to invalidate cached job seeker entities even when the update was performed via legacy code that interacts directly with the database rather than through the service.</p>
+
+<p>If you were to do this manually, it would look something like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -X PURGE varnish-jobseeker/jobseekers/123</span></code></pre></td></tr></table></div></figure>
+
+
+<hr />
+
+<h2>Act IV: Configuration Spelunking</h2>
+
+<p>So, how did we do it? I’m going to break down our configuration into its parts and cover the general role each part plays. From here on out, I’m assuming you understand the basics of how Varnish works and how you configure it. Also, there is some repetition in our configuration that isn’t required, it just makes it easier for our configuration management tool, puppet, to create the final output.</p>
+
+<h3>Load Balancing</h3>
+
+<p>We have four service servers behind varnish so we create four backend entries and then set up a director to round robin between them. Then in vcl_recv, we set our director named &lsquo;nodes&rsquo; to be the backend that we will use to fetch content.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend JS1 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS1&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>backend JS2 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS2&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>backend JS3 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS3&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>backend JS4 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS4&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>director nodes round-robin <span class="o">{</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS1 ; <span class="o">}</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS2 ; <span class="o">}</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS3 ; <span class="o">}</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS4 ; <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_recv <span class="o">{</span>
+</span><span class='line'>  <span class="nb">set </span>req.backend <span class="o">=</span> nodes;
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># store in cache only by url, not backend host</span>
+</span><span class='line'>sub vcl_hash <span class="o">{</span>
+</span><span class='line'>  hash_data<span class="o">(</span>req.url<span class="o">)</span>;
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="nb">hash</span><span class="o">)</span>;
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Degraded</h3>
+
+<p>Each backend is setup with a probe url that we use to check its health. If the probe url doesn&rsquo;t return at least one HTTP 200 response within a fifteen second period, we mark that backend as unhealthy.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend ... <span class="o">{</span>
+</span><span class='line'>   ...
+</span><span class='line'>
+</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
+</span><span class='line'>    .interval <span class="o">=</span> 5s;
+</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
+</span><span class='line'>    .window <span class="o">=</span> 3;
+</span><span class='line'>    .threshold <span class="o">=</span> 2;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Varnish has the concept of a grace period, wherein, we can keep content alive in our cache past the TTL based on the health status of our backends. In our case, when the all backends are down, we keep cached items alive for an extra hour. During this time, we operate in a degraded status. Read requests for cached items will be handled while write requests will fail because there is no backend service to handle them.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
+</span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
+</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to </span>
+</span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
+</span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_recv <span class="o">{</span>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># extra ttl for cached objects based on backend health</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>!req.backend.healthy<span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 1h;
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 15s;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Invalidation</h3>
+
+<p>We do two types of invalidation:</p>
+
+<ul>
+<li>invalidation based on the &lsquo;x-invalidates&rsquo; header that comes back with a response</li>
+<li>&lsquo;manual&rsquo; invalidation based on sending the HTTP PURGE verb to a url in the Varnish cache.</li>
+</ul>
+
+
+<p>The ability to do a manual purge is limited to a small set of IP addresses that we validate against when a purge request is received.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>acl purge <span class="o">{</span>
+</span><span class='line'>  <span class="s2">&quot;localhost&quot;</span>;
+</span><span class='line'>  <span class="s2">&quot;10.10.10.10&quot;</span>;
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_recv <span class="o">{</span>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span>client.ip ~ purge<span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>       <span class="k">return</span><span class="o">(</span>lookup<span class="o">)</span>;
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    error 405 <span class="s2">&quot;Not allowed.&quot;</span>;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The actual mechanics of doing the purge are fairly simple. If the url attempted to be purged exists, purge it and return a 200.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_hit <span class="o">{</span>
+</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    purge;
+</span><span class='line'>    error 200 <span class="s2">&quot;Purged.&quot;</span>;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If it doesn&rsquo;t, return a 404 response code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_miss <span class="o">{</span>
+</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    purge;
+</span><span class='line'>    error 404 <span class="s2">&quot;Not in cache.&quot;</span>;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Update requests include invalidation-related headers. Every request we fetch has, inside of Varnish, its request url stored in a special x-url header. This will be used as the url to check the x-invalidates header against. As this header is purely for our internal use, we remove it before delivering items to a client:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_deliver <span class="o">{</span>
+</span><span class='line'>  <span class="c"># clear internal cache invalidation header before sending to client</span>
+</span><span class='line'>  <span class="nb">unset </span>resp.http.x-url;
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Any &lsquo;successful&rsquo; PUT, POST, DELETE or PATCH response will have its x-invalidates header used as a regular expression to invalidate existing content whose x-url header matches the x-invalidates regex.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># cache invalidation</span>
+</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PUT&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;POST&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;DELETE&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;PATCH&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span>  <span class="o">(</span>beresp.status &gt;<span class="o">=</span> 200 <span class="o">&amp;&amp;</span> beresp.status &lt; 400<span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>     ban<span class="o">(</span><span class="s2">&quot;obj.http.x-url ~ &quot;</span> + beresp.http.x-invalidates<span class="o">)</span>;
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<hr />
+
+<h2>Act V: The final product</h2>
+
+<p>And finally, we put it all together into a complete file (note, we use Varnish 3, the semantics around ban/purge changed from v2 to v3):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend JS1 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS1&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
+</span><span class='line'>    .interval <span class="o">=</span> 5s;
+</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
+</span><span class='line'>    .window <span class="o">=</span> 3;
+</span><span class='line'>    .threshold <span class="o">=</span> 2;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>backend JS2 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS2&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
+</span><span class='line'>    .interval <span class="o">=</span> 5s;
+</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
+</span><span class='line'>    .window <span class="o">=</span> 3;
+</span><span class='line'>    .threshold <span class="o">=</span> 2;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>backend JS3 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS3&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
+</span><span class='line'>    .interval <span class="o">=</span> 5s;
+</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
+</span><span class='line'>    .window <span class="o">=</span> 3;
+</span><span class='line'>    .threshold <span class="o">=</span> 2;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>backend JS4 <span class="o">{</span>
+</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS4&quot;</span>;
+</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
+</span><span class='line'>    .interval <span class="o">=</span> 5s;
+</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
+</span><span class='line'>    .window <span class="o">=</span> 3;
+</span><span class='line'>    .threshold <span class="o">=</span> 2;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>director nodes round-robin <span class="o">{</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS1 ; <span class="o">}</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS2 ; <span class="o">}</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS3 ; <span class="o">}</span>
+</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS4 ; <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># what machines can institute a &#39;manual&#39; purge</span>
+</span><span class='line'>acl purge <span class="o">{</span>
+</span><span class='line'>  <span class="s2">&quot;localhost&quot;</span>;
+</span><span class='line'>  <span class="s2">&quot;192.1.1.4&quot;</span>;
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># store in cache only by url, not backend host</span>
+</span><span class='line'>sub vcl_hash <span class="o">{</span>
+</span><span class='line'>  hash_data<span class="o">(</span>req.url<span class="o">)</span>;
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="nb">hash</span><span class="o">)</span>;
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_fetch <span class="o">{</span>
+</span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
+</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to </span>
+</span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
+</span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># cache invalidation</span>
+</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PUT&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;POST&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;DELETE&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;PATCH&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span>  <span class="o">(</span>beresp.status &gt;<span class="o">=</span> 200 <span class="o">&amp;&amp;</span> beresp.status &lt; 400<span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>     ban<span class="o">(</span><span class="s2">&quot;obj.http.x-url ~ &quot;</span> + beresp.http.x-invalidates<span class="o">)</span>;
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_recv <span class="o">{</span>
+</span><span class='line'>  <span class="nb">set </span>req.backend <span class="o">=</span> nodes;
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span>client.ip ~ purge<span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>       <span class="k">return</span><span class="o">(</span>lookup<span class="o">)</span>;
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    error 405 <span class="s2">&quot;Not allowed.&quot;</span>;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># extra ttl for cached objects based on backend health</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>!req.backend.healthy<span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 1h;
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 15s;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_deliver <span class="o">{</span>
+</span><span class='line'>  <span class="c"># clear internal cache invalidation header before sending to client</span>
+</span><span class='line'>  <span class="nb">unset </span>resp.http.x-url;
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_hit <span class="o">{</span>
+</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    purge;
+</span><span class='line'>    error 200 <span class="s2">&quot;Purged.&quot;</span>;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>sub vcl_miss <span class="o">{</span>
+</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    purge;
+</span><span class='line'>    error 404 <span class="s2">&quot;Not in cache.&quot;</span>;
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hidden Track Bonus Act:</h2>
+
+<p><img class="center" src="http://dev.theladders.com/images/varnish-in-five-acts/varnish-all-the-things.jpg"></p>
+
+<p>Join the discussion over at <a href="https://news.ycombinator.com/item?id=5651874">Hacker News</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Getting Some Clojure: nREPL in a Spring App]]></title>
+    <link href="http://dev.theladders.com/2013/04/getting-some-clojure-nrepl-in-a-spring-app/"/>
+    <updated>2013-04-02T16:04:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/04/getting-some-clojure-nrepl-in-a-spring-app</id>
+    <content type="html"><![CDATA[<blockquote><p>You don&#8217;t have to be great to start, but you have to start to be great.</p><footer><strong>&#8211;Zig Ziglar</strong></footer></blockquote>
+
+
+<p>Despite having read through the
+<a href="http://www.amazon.com/The-Joy-Clojure-Thinking-Way/dp/1935182641/">several</a>
+<a href="http://www.amazon.com/Clojure-Action-Amit-Rathore/dp/1935182595/">Clojure</a>
+<a href="http://www.amazon.com/Programming-Clojure-Pragmatic-Programmers-Halloway/dp/1934356336/">books</a>
+on my shelf and having played around with
+<a href="http://www.4clojure.com/">4Clojure</a> (user “wislocki”, ranked 2309th
+the last time I checked), I’m not feeling much confidence with the
+language yet. We use embedded <a href="http://www.eclipse.org/jetty/">Jetty</a>
+to run the website on personal development machines, and I figured it
+would be great to be able to play with it interactively in a Clojure
+<a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>
+and get some more hands-on experience.</p>
+
+<p>Practically speaking, since the website is a Java application, a Scala
+REPL might make more sense, bridging the gap between the
+object-oriented and functional styles more smoothly. But this is a
+Clojure-learning exercise, after all.</p>
+
+<p>We’re using
+<a href="http://www.springsource.org/spring-framework">Spring 3.1.x</a>, and I
+initially looked to see if there was any precedence for combining a
+Clojure REPL with Spring. The links I found were mostly out of date or
+not relevant.</p>
+
+<p>I decided that I would use
+<a href="https://github.com/clojure/tools.nrepl">nREPL</a>, since the
+alternative, <a href="https://github.com/technomancy/swank-clojure">Swank</a>, is
+no longer maintained. As we’re using
+<a href="http://static.springsource.org/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java">Spring’s Java configuration system</a>,
+it would have to be started up there. That’s actually pretty
+straightforward. Using
+<a href="https://github.com/clojure/tools.nrepl#embedding-nrepl-starting-a-server">code</a>
+from the nREPL README to start the server, I created the following
+Spring configuration class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">config</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.io.StringReader</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.annotation.PostConstruct</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationContext</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">clojure.lang.Compiler</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">clojure.lang.RT</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NReplConfig</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="c1">// Clojure code to start the server. If you wanted to, you could probably move the port value</span>
+</span><span class='line'>  <span class="c1">// into a Java properties file, and use the @Value annotation to provide it instead.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">NREPL_INIT</span> <span class="o">=</span> <span class="s">&quot;(use &#39;[clojure.tools.nrepl.server :only (start-server stop-server)]) &quot;</span> <span class="o">+</span>
+</span><span class='line'>                                           <span class="s">&quot;(start-server :port 7888)&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Inject</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">ApplicationContext</span>  <span class="n">context</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Annotated with @PostConstruct so that this method is run after the object is instantiated and </span>
+</span><span class='line'>  <span class="c1">// any other dependency injection has taken place.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@PostConstruct</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initializeRepl</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Load the Clojure Runtime class so that the Compiler can properly use it.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&quot;clojure.lang.RT&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Start the nREPL server.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Compiler</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="k">new</span> <span class="n">StringReader</span><span class="o">(</span><span class="n">NREPL_INIT</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Make the Spring context available in the &quot;lw&quot; namespace.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">RT</span><span class="o">.</span><span class="na">var</span><span class="o">(</span><span class="s">&quot;lw&quot;</span><span class="o">,</span> <span class="s">&quot;*context*&quot;</span><span class="o">,</span> <span class="n">context</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Thanks to <a href="https://twitter.com/petitlaurent">Laurent Petit</a> of
+<a href="https://code.google.com/p/counterclockwise/">counterclockwise</a>-fame
+for recommending the above class-loading strategy, as well as the the
+suggestion to replace the use of <code>(ns lw)</code> with <code>(in-ns 'lw)</code> in the
+REPL example below.)</p>
+
+<p>With this file in place, running <code>mvn jetty:run</code> starts up both the
+web server and nREPL. While I could have used
+<a href="https://github.com/technomancy/leiningen">Leiningen</a> to connect the
+REPL, I decided to use <a href="http://www.gnu.org/software/emacs/">emacs</a>
+instead. If you’re using <a href="http://batsov.com/">Bozhidar Batsov</a>’s
+<a href="https://github.com/bbatsov/prelude">Prelude configuration</a>, you
+already have support for nREPL installed, otherwise you can get it
+through <a href="http://melpa.milkbox.net/">MELPA</a> or
+<a href="http://marmalade-repo.org/">Marmalade</a> or directly
+<a href="https://github.com/kingtim/nrepl.el">here</a>. After a quick <code>M-x
+nrepl</code>, I can interact with the running server like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">;</span> <span class="n">nREPL</span> <span class="mf">0.1</span><span class="o">.</span><span class="mi">7</span><span class="o">-</span><span class="n">preview</span>
+</span><span class='line'><span class="n">user</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">in</span><span class="o">-</span><span class="n">ns</span> <span class="err">&#39;</span><span class="n">lw</span><span class="o">)</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">Namespace</span> <span class="n">lw</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">context</span><span class="o">*</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">AnnotationConfigWebApplicationContext</span> <span class="n">Root</span> <span class="nl">WebApplicationContext:</span> <span class="n">startup</span> <span class="n">date</span> <span class="o">[</span><span class="n">Thu</span> <span class="n">Mar</span> <span class="mi">28</span> <span class="mi">16</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">12</span> <span class="n">EDT</span> <span class="mi">2013</span><span class="o">];</span> <span class="n">root</span> <span class="n">of</span> <span class="n">context</span> <span class="n">hierarchy</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">def</span> <span class="n">jss</span> <span class="o">(.</span><span class="na">getBean</span> <span class="o">*</span><span class="n">context</span><span class="o">*</span> <span class="n">getBean</span> <span class="s">&quot;jobseekerService&quot;</span><span class="o">))</span>
+</span><span class='line'><span class="err">#&#39;</span><span class="n">lw</span><span class="o">/</span><span class="n">jss</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="n">jss</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">JobseekerService</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">jobseeker</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">JobseekerService</span><span class="err">@</span><span class="mi">1</span><span class="n">f4e3b7c</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">def</span> <span class="n">jsid</span> <span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">jobseeker</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">JobseekerId</span><span class="o">.</span> <span class="mi">7906538</span><span class="o">))</span>
+</span><span class='line'><span class="err">#&#39;</span><span class="n">lw</span><span class="o">/</span><span class="n">jsid</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(.</span><span class="na">get</span> <span class="n">jss</span> <span class="n">jsid</span><span class="o">)</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">Jobseeker</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">jobseeker</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">Jobseeker</span><span class="err">@</span><span class="mi">5</span><span class="n">dfcb9fd</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(.</span><span class="na">getFirstName</span> <span class="o">(.</span><span class="na">get</span> <span class="n">jss</span> <span class="n">jsid</span><span class="o">))</span>
+</span><span class='line'><span class="s">&quot;Daniel&quot;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pretty straightforward!</p>
+
+<p>The additions to the <code>pom.xml</code> file that enable nREPL support are below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;repositories&gt;</span>
+</span><span class='line'>...
+</span><span class='line'>    <span class="c">&lt;!-- The following gives us access to Clojure libraries like clojure-complete. --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;repository&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;id&gt;</span>clojars.org<span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;url&gt;</span>http://clojars.org/repo<span class="nt">&lt;/url&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/repository&gt;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="nt">&lt;/repositories&gt;</span>
+</span><span class='line'><span class="nt">&lt;dependencies&gt;</span>
+</span><span class='line'>...
+</span><span class='line'>    <span class="c">&lt;!-- Clojure-complete enables tab-completion in the REPL. --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>clojure-complete<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>clojure-complete<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>0.2.3<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>org.clojure<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>clojure<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>1.5.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>org.clojure<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>tools.nrepl<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>0.2.2<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="nt">&lt;/dependencies&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I hope you found this brief write-up useful. I plan on continuing my stumbling exploration, so look for other Clojure-related posts soon.</p>
+
+<p>Join the discussion over on <a href="http://www.reddit.com/r/programming/comments/1bjh69/getting_some_clojure_nrepl_in_a_spring_app/">reddit</a>.</p>
+
+<p><em>April 8th, 2013: Edited in response to suggestions from Laurent Petit.</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[TheLadders Onboarding: A Retrospective]]></title>
+    <link href="http://dev.theladders.com/2013/03/theladders-on-boarding-a-retrospective/"/>
+    <updated>2013-03-28T12:00:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/03/theladders-on-boarding-a-retrospective</id>
+    <content type="html"><![CDATA[<blockquote><p>Whatever you do or dream you can do – begin it. Boldness has genius and power and magic in it.</p><footer><strong>&#8211;Johann Wolfgang von Goethe</strong></footer></blockquote>
+
+
+<p><img class="center" src="http://dev.theladders.com/images/dilbert-onboarding.gif" title="'Onboarding'" ></p>
+
+<p>Just before joining TheLadders, I read a post on their dev blog detailing a new onboarding process for incoming engineers. I was very interested in what I&rsquo;d soon learn about its execution. If you&rsquo;ve not had the chance to read through this post, you can find it <a href="http://dev.theladders.com/2013/02/onboarding/">here</a>.</p>
+
+<p>The onboarding process could be broken into two main sections. The first started when we were given a few user stories and were asked to build a corresponding system while following some fairly restrictive <a href="https://github.com/TheLadders/object-calisthenics#the-rules">guidelines</a>. These restrictions challenged us to reevaluate our normal architecting techniques and develop less-than-obvious solutions to this problem. The rules allowed us to implement our solution in the language of our own choosing, and I chose Ruby. The chance to showcase my skills for the first time at a new company excited me.</p>
+
+<p>The second section spanned the next eight days. We dove into Robert Martin’s SOLID principles video series. After watching, learning, and discussing each one of the the five principles, we proceeded to work on code with real-world <a href="https://github.com/TheLadders/solid-exercises">examples</a> of principle violations. Between these videos and exercises, we met with established engineers at TheLadders to discuss the subject matter and our own philosophies on software craftsmanship.</p>
+
+<p>This was the first time I&rsquo;d ever had a formal onboarding. I&rsquo;ve worked for agencies and other product companies, both larger and smaller, before joining TheLadders. This was brand new. I&rsquo;d encourage every software company to seriously consider a process like this for their new engineers. Why? Here are a few reasons:</p>
+
+<ul>
+<li>I was allowed access to the top engineers in the company, learning not only about the way software was written at the TheLadders but also where and how the team was looking to grow.</li>
+<li>I was able to get a strong feeling for the culture and technologies used as well as prevailing opinions on languages, practices and history. This was also a great opportunity for engineers at TheLadders to learn more about me and get a good picture of my experience and viewpoints.</li>
+<li>It also served as a vacation from production code, deadlines and the stress of the everyday that we encounter wherever we go. We were encouraged to stretch our solutions and see where they took us.</li>
+</ul>
+
+
+<p>You may have heard of Rich Hickey’s <a href="http://blip.tv/clojure/hammock-driven-development-4475586">Hammock Driven Development</a>, the idea that spending time away from your code produces unexpected benefits. In the same vein, I&rsquo;ll call what we did for these two weeks Garbage Driven Development. What do I mean when I say garbage? The code written while practicing GDD is never going into production. It’ll never really do anything beyond providing a learning experience and proving a point you’d like to make. You don’t feel pressure to make sure the code fits within a particular context, that it’s easily readable by others, or that it’ll be maintainable going forward. In the end, the code may be quite eloquent or look like garbage, but it doesn&rsquo;t really matter. Try that idea you’ve always thought about but never had time to implement. Buck best practices to see if you can find better ones. When you’re done, it’s garbage. Developers would be well served to routinely make time to focus less on product and more on process.</p>
+
+<p>Most of all, this process woke me up from the monotony of just pushing out code and inspired me to learn and pursue more of my own side projects. I&rsquo;ve wanted to read more, explore new languages, and try new ways of doing things. It was an excellent way to frame the start of a new chapter in my life as an engineer.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Trouble with Google's ImmutableSet]]></title>
+    <link href="http://dev.theladders.com/2013/03/trouble-with-googles-immutableset/"/>
+    <updated>2013-03-12T06:10:10-04:00</updated>
+    <id>http://dev.theladders.com/2013/03/trouble-with-googles-immutableset</id>
+    <content type="html"><![CDATA[<p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
+
+<blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&#8211;Hunter S. Thompson</strong></footer></blockquote>
+
+
+<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
+
+<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
+Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
+
+<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
+
+<!-- more -->
+
+
+<p><a href="http://dev.theladders.com/images/cache-creation-slowdown1.png"><img class="center" src="http://dev.theladders.com/images/cache-creation-slowdown1.png" width="300" height="171" title="Cache creation slowdown chart" ></a></p>
+
+<p>You&rsquo;ll notice the jump on 1/16 from a gradual increase to a more rapid increase. That day a new release went out that included an increase in the size of a related cache- one that contains all job seekers who have permission to follow recruiters. Intersections of that cache with another are then used to build the followers cache.</p>
+
+<p>At first we thought that the slowdown was a function of the increased cache size. Maybe pulling more data from the database to fill up the larger cache was the culprit. But from the logs we found that wasn&rsquo;t the case. In fact, we found that CPU usage was spiking to 100% while the cache was being built. This was in contrast to the QA machines, where CPU did not spike at all during the process. Further analysis determined the code was spending the vast majority of its time calculating the intersections of caches to produce the followers cache. The code is something along these lines:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">recruiterId</span> <span class="o">:</span> <span class="n">followersForRecruitersCache</span><span class="o">.</span><span class="na">keySet</span><span class="o">())</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">Set</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Sets</span><span class="o">.</span><span class="na">intersection</span><span class="o">(</span><span class="n">followersForRecruitersCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">recruiterId</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">canFollowRecruitersCache</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">followersCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">recruiterId</span><span class="o">,</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">(</span><span class="n">s</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(The method Set.intersection() is from Google Collections.) So was the problem that we had so much more data in production than in our QA environment, and many more iterations were being spent calculating set intersections? We also found another interesting bit of information. The following code, used to build the canFollowRecruitersCache, a simple set of integer IDs, was also taking longer in production than in QA:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImmutableSet</span><span class="o">.</span><span class="na">Builder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">ImmutableSet</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
+</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="n">Integer</span> <span class="n">id</span> <span class="o">:</span> <span class="n">userPrivilegeSystem</span><span class="o">.</span><span class="na">getAllJobseekersWhoCanFollowRecruiters</span><span class="o">())</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">canFollowRecruitersCache</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Actually, all the slowness was in the call to ImmutableSet.Builder.build(), also from Google Collections. In fact, we have a larger canFollowRecruitersCache in QA than in production due to the amount of test data in the QA database. So the problem must be in the data itself and its interaction with ImmutableSet. (For the source code for the ImmutableSet, see <a href="http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java">http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java</a>.)</p>
+
+<p>Taking a closer look, the distribution of IDs in canFollowRecruitersCache in QA looks like this (X-axis is the array index, Y-axis is the ID):</p>
+
+<p><a href="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-QA.png"><img class="center" src="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-QA.png" width="300" height="176" title="&#34;canFollowRecruitersCache ID Distribution in QA&#34;" alt="&#34;canFollowRecruitersCache ID Distribution in QA&#34;"></a></p>
+
+<p>The standard deviation of this set of IDs is 12,266,077.</p>
+
+<p>The distribution of IDs in canFollowRecruitersCache in production looks like this:</p>
+
+<p><a href="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-production.png"><img class="center" src="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-production.png" width="300" height="173" title="&#34;canFollowRecruiterCache ID distribution in production&#34;" alt="&#34;canFollowRecruiterCache ID distribution in production&#34;"></a></p>
+
+<p>The standard deviation of this set of IDs is 642,039.</p>
+
+<p>Opening up the code in ImmutableSet, we find that it uses a linear array of buckets, and when a collision occurs it probes each bucket until it finds an empty one, and puts the element there. It uses a secondary hash function, called smear(), to index into the array. Presumably this is used to augment whatever hash is already supplied by the element to be inserted. Unfortunately this isn&rsquo;t enough to overcome the distribution of IDs in our production data. Since Java a Integer&rsquo;s hash code is just its value, the efficiency of the ImmutableSet ends up being subject to the distribution of the IDs. The number of collisions that occur with production data when building the set is a huge 3,217,789,124, but with our somewhat larger QA dataset, only 3,199,502. If we read in the same production data as Strings instead of Integers, however, the number of collisions drops dramatically, and production performance is equivalent to QA&rsquo;s.</p>
+
+<p>Both our QA and production data cause the same size of array of buckets of 1,048,576 to be used internally by ImmutableSet. Rendering this array into a 1024 x 1024 square, and color-coding by number of collisions at that index, we can have a better idea of what&rsquo;s happening.</p>
+
+<p>The colors in the graphics below have the following meaning:</p>
+
+<table style="border:1px solid black;border-collapse:collapse;margin:auto;">
+  <tbody>
+    <tr>
+      <th style="border:2px solid black;padding:10px;">collision count</th>
+      <th style="border:2px solid black;padding:10px;text-align:right">color</th>
+    </tr>
+    <tr>  
+      <td style="border:1px solid black;padding:10px;">0 (no element)</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">white</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">0 (has element)</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">black</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 10</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">magenta</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 100</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">blue</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 1000</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 10000</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 25000</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">orange</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">25000+</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">red</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<p>Thus the array produced for QA data looks like this:</p>
+
+<p><a href="http://dev.theladders.com/images/ImmutableSet-collisions-in-QA.png"><img class="center" src="http://dev.theladders.com/images/ImmutableSet-collisions-in-QA.png" width="300" height="300" title="&#34;ImmutableSet collisions in QA&#34;" alt="&#34;ImmutableSet collisions in QA&#34;"></a></p>
+
+<p>Whereas the array produced for production data looks like this:</p>
+
+<p><a href="http://dev.theladders.com/images/ImmutableSet-collisions-in-production.png"><img class="center" src="http://dev.theladders.com/images/ImmutableSet-collisions-in-production.png" width="300" height="300" title="&#34;ImmutableSet collisions in production&#34;" alt="&#34;ImmutableSet collisions in production&#34;"></a></p>
+
+<p>The same algorithm is used to implement the set&#8217;s contains() method, so operations such as intersections are also extremely slow with this data. A simple change to Java&rsquo;s built-in HashSet fixes the problem.</p>
+
+<p><a href="http://www.reddit.com/r/programming/comments/1a5by8/trouble_wi%20%20%20%20th_googles_immutableset/">Join the discussion on reddit</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Eric Evans Is Coming to TheLadders]]></title>
+    <link href="http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders/"/>
+    <updated>2013-03-08T10:09:00-05:00</updated>
+    <id>http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders</id>
+    <content type="html"><![CDATA[<blockquote><p>&#8230; when the Man comes around.</p><footer><strong>&#8211;Johnny Cash</strong></footer></blockquote>
+
+
+<p>We are happy to announce that on April 10th, TheLadders will be hosting
+<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
+<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
+York City DDD Meetup group. Engineers at TheLadders have long been
+following developments in the DDD community. <a href="http://dev.theladders.com/ourteam/kyrisarantakos/">Some</a> of
+<a href="http://dev.theladders.com/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
+<a href="http://dev.theladders.com/ourteam/kylewinter/">more</a> of <a href="http://dev.theladders.com/ourteam/mattjankowski/">us</a> will be attending it shortly, and
+our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
+
+<p>For those of you who might be unfamiliar with DDD, its goal is the
+design of software that creates business value. DDD guides technical
+and domain experts to collaboratively create a mental model of the
+central business concepts. This model is then used to drive
+design. This sounds like common sense: developers work with people who
+know about the business to make software that works to solve its
+problems. What could be more straightforward?  And yet, the complexity
+inherent in the business world and software engineering make it
+difficult to create software that is supple and adaptable to changing
+needs. DDD provides a framework for thinking about, creating, and
+communicating mental models. And that requires the learning of new
+skills and ideas. It isn’t an easy process, but we have found that it
+is rewarding for both the business and developers.</p>
+
+<h1>A Little of Our Experience with DDD</h1>
+
+<p>While creating our new website, we’ve tried to remain focused on
+“communicating mental models”. One way this can be done is through
+DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
+communicate the contract between the domain model and its
+users. Judging from the vast amount of code out there, this simple
+idea is counterintuitive. Our own legacy codebase is no exception. For
+example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Subscription</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">AutoRenewFlags</span> <span class="nf">getAutoRenewFlag</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAutoRenewFlag</span><span class="o">(</span><span class="n">AutoRenewFlags</span> <span class="n">autoRenewFlag</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">autoRenewFlag</span> <span class="o">=</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getUnsubscribeReason</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUnsubscribeReason</span><span class="o">(</span><span class="kt">int</span> <span class="n">unsubscribeReason</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">unsubscribeReason</span> <span class="o">=</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is an example of what in DDD is called an “anemic domain
+model”. The Subscription class is a key part of the domain, yet not
+only does it communicate nothing to the user about its usage, it in
+fact does nothing. Values can be retrieved and set, but what then? How
+do I actually unsubscribe someone? What prevents me from using any
+arbitrary integer for the “unsubscribe reason”? What about changing
+auto-renewal to null? There is no explicit contract here, and the user
+of this object is given no guidance or constraints. By contrast, we’ve
+worked hard in our newer code to avoid creating anemic domain models
+and instead create objects that are not only useful, but clear in
+their usage. Here is another example, this time from the new
+Subscription class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Subscription</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>   <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOn</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOff</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">CanceledSubscription</span> <span class="nf">unsubscribe</span><span class="o">(</span><span class="n">UnsubscribeReason</span> <span class="n">unsubscribeReason</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this case we’ve attempted to make the contract clear. Calling the
+unsubscribe method actually unsubscribes the customer, returning a
+CanceledSubscription. The “unsubscribe reason” is now strongly typed,
+clearly communicating which values are allowed. Auto-renewal changes
+yield a new immutable Subscription object, and can be chained together
+with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
+settings.</p>
+
+<p>Another example of an anemic domain model, lacking an
+intention-revealing interface, comes from the old Payment class in our
+legacy codebase:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="kt">int</span> <span class="n">paymentId</span><span class="o">,</span>
+</span><span class='line'>               <span class="kt">int</span> <span class="n">paymentActionType</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">BigDecimal</span> <span class="n">amount</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">String</span> <span class="n">approvalCode</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">String</span> <span class="n">transactionReference</span><span class="o">,</span>
+</span><span class='line'>               <span class="kt">int</span> <span class="n">creditCardId</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentId</span> <span class="o">=</span> <span class="n">paymentId</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentActionType</span> <span class="o">=</span> <span class="n">paymentActionType</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">amount</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">approvalCode</span> <span class="o">=</span> <span class="n">approvalCode</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">creditCardId</span> <span class="o">=</span> <span class="n">creditCardId</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">transactionReference</span> <span class="o">=</span> <span class="n">transactionReference</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This class contains only the constructor you see here, and getters for
+each of the fields created. It turns out that it’s used as a parameter
+object, and nothing more. There’s no guidance as to it’s valid
+construction, and no hint about its usage. Yet obviously handling
+subscription payments is an important part of the subscription domain,
+and we want the contracts around the model of that domain clear and
+easy to understand. Here’s our attempt at accomplishing those goals in
+the new codebase:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="n">PaymentAmount</span> <span class="n">paymentAmount</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">JobseekerId</span> <span class="n">jobseekerId</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">PaymentActionType</span> <span class="n">paymentActionType</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">ReportGroup</span> <span class="n">reportGroup</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first difference is actually one that’s not visible from the code
+itself. As we’ve developed the new site, we’ve agreed that all
+arguments to methods or constructors are required; no passing of
+nulls. If an argument is truly optional, a separate method or
+constructor is added that excludes it. We want our code to be
+confident, and this contract means that methods and constructors “say
+what they mean and mean what they say”. In the legacy codebase, nulls
+were passed liberally to and fro, and you could never be quite sure
+which arguments were truly required.</p>
+
+<p>Another change is the promotion of this class from a mere parameter
+object to an active participant in the domain model:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Receipt</span> <span class="nf">makeWith</span><span class="o">(</span><span class="n">PaymentMethod</span> <span class="n">method</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">method</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Receipt</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">.</span><span class="na">asAmountPaid</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">recordWith</span><span class="o">(</span><span class="n">PaymentRecorder</span> <span class="n">paymentRecorder</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">paymentRecorder</span><span class="o">.</span><span class="na">record</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Instead of being passed around to “manager” objects and DAOs, a
+Payment object can actually make a payment and create records of
+itself. It seems only natural.</p>
+
+<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
+this post barely scratches the surface. And as a team we know we still
+have much farther to go in its mastery, but the time we’ve spent in
+study and practice have been well worth the effort so far.</p>
+
+<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
+presentation and discussion.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Riders on the Storm: Take a long holiday, Let your children play]]></title>
+    <link href="http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/"/>
+    <updated>2013-03-04T13:52:00-05:00</updated>
+    <id>http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://dev.theladders.com/images/lightning_storm.gif" title="'Lightning Storm'" ></p>
+
+<blockquote><p>It was the age of wisdom, it was the age of foolishness</p><footer><strong>&#8211;Charles Dickens</strong></footer></blockquote>
+
+
+<hr />
+
+<h1>Introduction</h1>
+
+<p>I’ve decided to split this blog post up into three different sections as we have gone through three different phases with our usage of Storm.  The first describes how we used to use Storm at TheLadders.  This is followed by our “wake up call”, forcing us to the realization that how we had been using Storm was not sufficient.  The “wake up call” has led us to our current state of how we now use Storm at TheLadders. But first for those of you who aren’t familiar with Storm, a quick explanation straight from the horse’s mouth:</p>
+
+<blockquote><p>Storm is a distributed real-time computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing real-time computation. Storm is simple, can be used with any programming language, is used by many companies, and is a lot of fun to use!</p><footer><strong>Nathan Marz</strong> <cite><a href='https://github.com/nathanmarz/storm'>Storm Readme</a></cite></footer></blockquote>
+
+
+<hr />
+
+<h1>The Past</h1>
+
+<p>We were early users of Storm, starting out with the Storm 0.5.x releases and later upgrading to 0.6.2.  Our Storm cluster was very basic: Nimbus, Zookeeper with 2 Worker nodes;   5 topologies deployed, but only 3 of them really being exercised.  Many of these topologies were for non-critical portions of our application, as such we weren’t paying much attention to the cluster. The topologies we wrote had well-tested individual components; each of the Spouts and Bolts were written with testability in mind.  However we struggled when it came to end-to-end tests for an entire topology.</p>
+
+<p>Other areas of our Storm related pain were:</p>
+
+<ul>
+<li>Very limited visibility into the overall health of the Storm cluster.  We lacked any monitoring and had very few metrics regarding our cluster.  We relied a lot on tailing the logs of the worker nodes to see how things were behaving.</li>
+<li>We naively configured the topology resources, not really being aware of what resources were being used across the worker nodes.</li>
+<li>A majority of our topologies used RabbitMQ as the entry-point and we had a very basic AMQP Spout implementation.  In fact, the initial AMQP Spout increased CPU usage on our RabbitMQ nodes from 4-10% to 40-45% with very little message throughput.</li>
+<li>Guaranteed message processing was not always enforced (more due to lack of knowledge on the subject than anything).</li>
+</ul>
+
+
+<p>That list looks bad and one might wonder how we got along at all given those shortcomings.  To be honest, everything just “worked”, which was all we needed at that point.  The combination of Nimbus and Zookeeper did a great job of re-deploying topologies anytime “something” happened.  While we would occasionally open up the Storm web admin to see how things were doing, we really didn’t pay much attention to it; everything just worked.  Even the increase in RabbitMQ CPU usage was not considered overly serious because everything continued to work and was fairly stable.  This behavior continued for about a year or so.</p>
+
+<hr />
+
+<h1>The &ldquo;Wake Up Call&rdquo;</h1>
+
+<p>Then came the day when we needed to deploy a new feature in one of our topologies.  We ran the standard release script to deploy a topology through Nimbus, and … nothing…  After some digging, we found that Nimbus had run out of disk space and our topologies had not been pulling messages off of RabbitMQ for an estimated 3 – 7 days.</p>
+
+<p>In addition, shortly after this initial wake up call, we had some one-off topologies that needed to be run for a 24-hour period.  These topologies required a decent number of resources.  They quickly starved the existing topologies of resources and did a good job of bringing Storm to a screeching halt.  It was like watching a caged death match between all of our topologies that left everyone unconscious on the mat.</p>
+
+<p>If something like the 7-10 day outage can go unnoticed for so long, and if we could starve topologies at the drop of a hat, how could we expect to successfully expand our usage of Storm to more critical portions of the application?</p>
+
+<p>We needed to change, and fast!</p>
+
+<hr />
+
+<h1>The Present</h1>
+
+<p>We immediately started figuring out what we didn’t know about Storm and which bits were the most important for immediate success.  Some members of the development team got together with our operations team and worked out monitoring of cluster components. While Operations beefed up what they could, the development team:</p>
+
+<ul>
+<li>Enforced guaranteed message processing in all of our topologies.  This has mainly been done through the use of the BaseBasicBolt, which provides emitting anchored tuples and acking for free. <a href="http://nathanmarz.github.com/storm/doc/backtype/storm/topology/base/BaseBasicBolt.html">(http://nathanmarz.github.com/storm/doc/backtype/storm/topology/base/BaseBasicBolt.html)</a></li>
+<li>Refactored our AMQP Spout implementation to subscribe to a queue instead of using individual “gets”.  This has resulted in pre-Storm 0.6.2 levels of CPU usage on our RabbitMQ nodes (below 10% again).</li>
+<li>Added an additional three worker nodes with more memory and CPU so we don’t have to constantly worry about resource starvation (although this should always be something to consider really).</li>
+<li>Improved our unit testing of configured topologies using the simulated time cluster testing feature in Storm 0.8.1  <a href="https://github.com/xumingming/storm-lib/blob/master/src/jvm/storm/TestingApiDemo.java">(https://github.com/xumingming/storm-lib/blob/master/src/jvm/storm/TestingApiDemo.java)</a>:</li>
+</ul>
+
+
+<hr />
+
+<h1>The Future</h1>
+
+<p>Okay, so I lied.  There is a fourth phase: the future; where we plan to go with Storm.</p>
+
+<p>We plan on upgrading to Storm 0.8.2 very soon.  It has a much-improved web admin that allows for deployment and rebalancing of topologies on the fly.  We hope this simplifies the process of deploying and rebalancing (if needed) of our topologies.</p>
+
+<p>Upgrade to Storm 0.9.x as soon as possible once released.  We hear good things about this release; mainly the metric collecting which will be a huge win in terms of improving visibility into the streams and flow of tuples between Spouts and Bolts.</p>
+
+<p>Finally, we are plan on expanding our topologies to be more than simple queue-to-spout designs.  We are experimenting with using Storm for scheduled batch processes, hoping to have something in production within the next week.</p>
+
+<p>Hopefully this blog gave you a nice overview of how Storm can be used by a company.  I think one of the take-aways can be how easy Storm is to use.  Storm served us for over a year with very little intervention and minimal knowledge on our part; I believe this speaks volumes of Storm’s ease-of-use and reliability.</p>
+
+<p>Stay tuned for some more detailed technical blogs on some of the things we did to improve our Storm usage.</p>
+
+<p>Join the discussion over at <a href="http://www.reddit.com/r/programming/comments/19noko/how_we_use_twitters_storm_part_one/">reddit</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mutation testing with PIT: A step beyond normal code coverage]]></title>
+    <link href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/"/>
+    <updated>2013-02-20T03:15:15-05:00</updated>
+    <id>http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage</id>
+    <content type="html"><![CDATA[<blockquote><p>&#8220;Program testing can be used to show the presence of bugs, but never to show their absence!&#8221;</p><footer><strong>&#8211;Edsger W. Dijkstra</strong></footer></blockquote>
+
+
+<p>When we started out building our <a href="http://www.cenedella.com/job-search/job-offer-guaranteed-signature/">Signature program</a>, we had a goal in mind &ndash; test the &lt;insert expletive of choice here&gt; out of it.  We also wanted to make sure that not only did we test it, but we tested it right.  Regular code line coverage tools like <a href="http://www.atlassian.com/software/clover/overview">Clover</a> are great, but typically only tell you that a line of code was executed &ndash; not necessarily that it was verified.  Many developers often see them as a way to determine what&rsquo;s been tested, but in reality they are better at<em> highlighting code that hasn&rsquo;t been tested at all</em>.</p>
+
+<p>Our interest in mutation testing stemmed from a talk about how occasionally we see bad/ineffective tests, ones that give the impression of testing the code but in reality don&rsquo;t do a great job.  <a href="https://twitter.com/SeanTAllen">Sean T Allen</a> and I had apparently both already been looking into a new tool, because once the discussion came up we were already on the same page.  Enter <a href="http://pitest.org/">PIT</a>, a mutation testing tool under active development.  We decided to try it out in combination with Clover, and the results were:</p>
+
+<p><img class="center" src="http://dev.theladders.com/images/tim_and_eric_mind_blown.gif" title="'Tim and Eric Mind Blown gif')" ></p>
+
+<h1></h1>
+
+<h1>But first, what is mutation testing?</h1>
+
+<p>For those unfamiliar with how mutation testing works, I&rsquo;ll offer a brief summary.  After your sources and tests are compiled and run, a mutation test framework like PIT will alter the program code and insert ‘mutations’, such as changing != to == or completely removing a line.  It will then run the tests that exercise that chunk of code again, with the expectation that at least one of them should now fail.  If your tests are well written, or more importantly, <em>complete</em>, then at least one assertion should have been broken by PIT’s change.  (For more, <a href="http://www.simple-talk.com/dotnet/.net-tools/mutation-testing/">Jeremy Jarrell’s introduction</a> (first 2 sections) sums it up pretty well)</p>
+
+<h1></h1>
+
+<h1>Your 100% coverage?  It’s a lie.</h1>
+
+<p>You write a test &ndash; it&rsquo;s green and all is well.  But are you <em>certain</em> that it will fail if someone mistakenly alters the code?  “Yea, I have tons-o-coverage” you say?  Typical line coverage tools like Clover can lull you into a false sense of security by showing 100% coverage without really delivering on that promise.  And that’s probably fine &ndash; heck, a lot of teams/projects would be happy to break 90% overall line coverage (or 50%&hellip;or 20%).  But there are a few of us here that border on insane and try to push the envelope &ndash; more, more, more!</p>
+
+<h1>So what&rsquo;s so great/different about mutation testing?</h1>
+
+<h2>Testing your tests:</h2>
+
+<p>One of the most important long-term benefits of a test is not knowing that it passes, but rather knowing that it will fail if the code is broken.  When not TDDing, I tend to alter the code or comment out blocks and ensure that the test fails as expected.  Sometimes we write tests that don&rsquo;t fail correctly with the code they test: maybe because of a mistaken assumption, or maybe because of a slight oversight &ndash; it happens.  Mutation testing is an effective, automated way of enforcing that tests fail correctly.</p>
+
+<h2>Code is verified:</h2>
+
+<p>PIT provides a way of ensuring that you&rsquo;ve written complete tests that verify the results of executing a piece of code.  The core concept of mutation testing is a powerful one &ndash; if you botch a line of code, a test should break somewhere.  If a test doesn&rsquo;t break, it means your tests aren&rsquo;t complete, the test may be wrong, or the line of code just flat out isn&rsquo;t doing anything.  In one case, we discovered dead code that was identified by PIT when switching our storage model.</p>
+
+<p>Depending on how far you believe in test coverage in general and mutation testing itself, it can be a great ally.  We decided to aim high &ndash; test everything.  PIT was vital in ensuring that we were actually verifying each line of code that we set out to.</p>
+
+<h1></h1>
+
+<h1>An Example:</h1>
+
+<p>To illustrate an example of what PIT does, consider the below (very basic) class and test:</p>
+
+<figure class='code'><figcaption><span>PersonFactory</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/PersonFactory.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactory</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Person</span> <span class="nf">createPerson</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">setLastName</span><span class="o">(</span><span class="s">&quot;Last&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">person</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span>Person</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/Person.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFirstName</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setFirstName</span><span class="o">(</span><span class="n">String</span> <span class="n">firstName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">firstName</span> <span class="o">=</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getLastName</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLastName</span><span class="o">(</span><span class="n">String</span> <span class="n">lastName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">lastName</span> <span class="o">=</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span>PersonFactoryTest</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactoryTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonFactory</span><span class="o">().</span><span class="na">createPerson</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getFirstName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">lastName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getLastName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">,</span> <span class="n">firstName</span><span class="o">);</span>
+</span><span class='line'>    <span class="c1">// forgot test for last name</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Clover (and PIT) will say that the <em><strong>line</strong></em> coverage is 100%.  But at a close glance &ndash; how many untested pieces of code do you see?  PIT <em><strong>mutation</strong></em> coverage will point out that there are 2 &ndash; the call to person.setLastName(&ldquo;Last&rdquo;) and the getLastName() method.  Both were executed as part of the test, but neither are actually verified for correctness.</p>
+
+<h2>Clover Results:</h2>
+
+<h2><img src="http://dev.theladders.com/images/clover.png" alt="clover results" /></h2>
+
+<h2>PIT Results:</h2>
+
+<h2><img src="http://dev.theladders.com/images/pit-failure.png" alt="pit failure" /></h2>
+
+<h2><img src="http://dev.theladders.com/images/person-factory.png" alt="PersonFactory class" /></h2>
+
+<p>(Person report excluded for brevity)</p>
+
+<p>You’ll notice that the setLastName method in the PersonFactory is highlighted in red, with an explanation below:
+removed call to com/theladders/Person::setLastName : SURVIVED</p>
+
+<p>What this means is that PIT altered the code and removed the call to setLastName() completely, ran the tests again, and they all still passed &ndash; meaning that the mutation survived.  You’ll also notice that it tried the same thing for setFirstName(), but it was successfully killed by our test (it failed, as it should).</p>
+
+<p>Once we add a test for last name, we’ll see that PIT will now report that all mutations are killed.  Essentially what it means, is that PIT couldn’t find a way to screw with the code without breaking a test.</p>
+
+<figure class='code'><figcaption><span>PersonFactoryTest</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactoryTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonFactory</span><span class="o">().</span><span class="na">createPerson</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getFirstName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">lastName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getLastName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">,</span> <span class="n">firstName</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Last&quot;</span><span class="o">,</span> <span class="n">lastName</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>PIT Results afterwards:</h2>
+
+<h2><img src="http://dev.theladders.com/images/pit-success.png" alt="Pit success" /></h2>
+
+<p>This was a very trivial example, and PIT supports much more than what I&rsquo;ve shown you here.  As you may have noticed, I skipped over one of the killed mutations: if (x != null) null else throw new RuntimeException.  This is another type of fault that PIT will try to introduce for return objects.  The full list of mutations can be found <a href="http://pitest.org/quickstart/mutators/">here</a>.</p>
+
+<h1></h1>
+
+<h1>Our Experience with PIT:</h1>
+
+<p>We started using it last year on a new project with some really great success.  As part of it, we were building a RESTful web service with Jersey.  It was a green field project with no legacy code &ndash; everything written from scratch except for small internal libraries.  We tested almost every meaningful thing we could about the server (web interfaces, security XML configs, null validation rules, etc).  It was very heavy on integration tests &ndash; some just verified all the business components working together and some deployed the server on embedded Jetty and hit the web endpoints.  Towards the end we were maintaining around 98% in both Clover and PIT (excluding Data Transfer Object classes), and ended up around 95%.</p>
+
+<p>While we also used Clover for basic code coverage, as we got our PIT mutation coverage up into the 90s I stopped paying much attention to Clover.  Our use of PIT was to ensure that we were actually testing and verifying all the parts of the code that we thought we were, and to find the places where we needed to fill in more tests or assertions.  We would add/modify tests so that each line of code we wrote (almost) was also backed by an assertion somewhere.  Essentially, &ldquo;Hey PIT, where do I need to add more tests and assertions?&rdquo;</p>
+
+<p>This gave us extreme confidence in our tests &ndash; if the code was modified incorrectly (with some small exceptions), a test would break and we knew it.  The effects of that confidence were outstanding.  At TheLadders we place a lot of value in code quality and &ldquo;doing things right,&rdquo; so refactoring is a large part of our process.  It enabled us to refactor at will with little fear of breaking anything, which happened quite frequently in many different ways, especially as a new project growing from the ground up.</p>
+
+<p>The best example of a big win was a refactoring to shift how we stored and tracked state.  When we first started out, we were creating and updating rows in the database (update in place).  We decided to switch to an <a href="http://martinfowler.com/eaaDev/EventSourcing.html">Event Sourcing</a> approach &ndash; instead of storing/retrieving state in the database, we instead stored &lsquo;actions&rsquo; and inputs in the database and then rebuilt the state in memory from those actions.  This was a large change to how a lot of the internals operated, and would normally carry a big risk factor in breaking existing functionality.  In this case, that risk factor was minimal and hardly played a part in our decision.  Because of the confidence we had in our tests thanks to PIT (and the fact that the majority of them were high level integration tests), all we did was start switching over and making changes until the tests were green again, and we were done.  The tests were the ultimate source of how the server needed to act, and PIT helped ensure that those tests covered everything the server was expected to do.</p>
+
+<p>If you want to try it out yourself, the above example in code is available here: <a href="https://github.com/TheLadders/pit-example">https://github.com/TheLadders/pit-example</a></p>
+
+<p>Join the discussion over at <a href="http://www.reddit.com/r/programming/comments/18w2ia/who_tests_the_tests_mutation_testing_with_pit/">reddit</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[The Catechism of Code]]></title>
+    <link href="http://dev.theladders.com/2013/02/onboarding/"/>
+    <updated>2013-02-01T06:34:00-05:00</updated>
+    <id>http://dev.theladders.com/2013/02/onboarding</id>
+    <content type="html"><![CDATA[<blockquote><p>&#8220;Begin, be bold, and venture to be wise.&#8221;</p><footer><strong>&#8211;Horace</strong></footer></blockquote>
+
+
+<p>All things have a beginning, some cosmologists may disagree, but for our purposes we will assume the universe had a start. How things start sets the tone for how they will continue and ultimately how they will end. So it is with employment at TheLadders.</p>
+
+<p>If you ask the most recent developers to join TheLadders, <a href="http://twitter.com/johnconnolly">@johnconnolly</a> and <a href="http://twitter.com/casio_juarez">@casio_juarez</a>, they probably can point to more than a few bumps in the road. But learn, iterate, repeat. Starting today, we are introducing a new onboarding plan&hellip;</p>
+
+<h2><strong>Day Zero</strong></h2>
+
+<p>Once the usual HR paperwork is out of the way, get this:</p>
+
+<p><img src="http://dev.theladders.com/images/floating_flaming_retina_imac_15_inch.JPG" alt="15 inch retina macbook" /></p>
+
+<p>Install your favorite IDE and tools and <a href="https://github.com/SeanTAllen/OS-X-Customizations">make that MacBook your own</a>.</p>
+
+<h2><strong><strong>Day One</strong></strong></h2>
+
+<p>We’ll start you off working on a modified version of the Thoughtworks &ldquo;Object Calisthenics&rdquo; exercise. You can find our version on <a href="https://github.com/TheLadders/object-calisthenics">our github.</a></p>
+
+<p>Why? We&rsquo;ve found that most programmers still have a very procedural mindset when it comes to code. They favor if statements over the use of polymorphic objects, tend towards code that spreads knowledge about domain objects across a wide range of classes (usually a wide range of controllers in most web apps)  and a variety of other potentially problematic tendencies. We originally did the Thoughtworks &ldquo;Object Calisthenics&rdquo; exercise as a team at TheLadders in September of 2012 to start a conversation about a variety of OO techniques that we rarely saw in our existing codebase. Each of the rules that the exercise lays down might seem silly in a production codebase, but they aren&rsquo;t meant as hard and fast rules during day to day work. They are meant to guide the exercise and force you into thinking about coding in a way that you perhaps haven&rsquo;t before. Things like:</p>
+
+<ul>
+<li><p>favoring polymorphic objects over conditionals</p></li>
+<li><p>observing the law of demeter</p></li>
+<li><p>not overloading classes with multiple responsibilities</p></li>
+</ul>
+
+
+<p>These rules are then applied to a kata that introduces new developers to a core part of TheLadders domain: applying to a job, and some of the key concepts: jobs, job seekers, recruiters, and resumes.</p>
+
+<p>Each new developer spends their first day working through the exercise with an existing member of our team. Discussing why you might want to follow a particular rule in production code, why you might not. Pairing through blockages where how to continue without violating the rules of exercise aren&rsquo;t obvious. The overarching idea is to start a conversation about ideas that we think are valuable. The rules and the exercise are just a means to start that conversation in a concrete setting. I&rsquo;m renowned in the office for getting very hand wavey while discussing complicated programming topics and having these conversation while working on code is much more effective.</p>
+
+<p>So great, that&rsquo;s day 1, but we have a full 2 week onboarding so, what else do we do?</p>
+
+<h2><strong>Days Two to Six</strong></h2>
+
+<p>Start watching the SOLID series videos from Clean Coders, doing <a href="https://github.com/TheLadders/solid-exercises">exercises we have designed around them</a> and talking through the issues raised in the videos. Uncle Bob does an excellent job in the series of presenting engineering concepts in a way that firmly expresses that everything is a tradeoff. It has been said that &ldquo;programmers know the value of everything and the tradeoffs of nothing&rdquo;. I&rsquo;ve always taken that to mean that many programmers need black and white rules for what to do and what not to do and have a hard time understanding the tradeoffs involved with a particular practice or design. All best practices need to be broken sometime, all good design patterns eventually become bad ones when put in certain contexts. Uncle Bob&rsquo;s SOLID videos do an excellent job of both presenting the SOLID principles and discussing tradeoffs involved.</p>
+
+<p>That&rsquo;s all well and good, but what does this really mean? Let&rsquo;s jump into Day 2 and walk through what we do.</p>
+
+<ol>
+<li><p> Start by watching &ldquo;<a href="http://cleancoders.com/codecast/clean-code-episode-9/show">Clean Code Episode 9: The Single Responsibility Principle</a>&rdquo;</p></li>
+<li><p> Stop at key points during the episode to discuss salient points</p></li>
+<li><p> Talk more in general about the single responsibility principle, why you would want to apply it, etc. at the end</p></li>
+<li><p> Crack open some legacy Ladders&#8217; code that violates the single responsibility principle for a concrete example of the mess violating it can get you into</p></li>
+<li><p> Work together to refactor said code so that it no longer violates the single responsibility principle</p></li>
+</ol>
+
+
+<p>Not bad for Day 2. Hands on exposure to some of hairy areas of our legacy codebase and a chance to talk about the values we hope everyone on the development team shares.</p>
+
+<h2><strong>Day Seven and Beyond</strong></h2>
+
+<p>If you’re doing the math, you might notice that with 5 SOLID episodes that only gets us up to the end of Day 6 and two weeks is ten work days. What do we do with the other 4 days? Good question. We don&rsquo;t know. We&rsquo;ll never know because it will vary from person to person. We expect that over the course of the first six days, we&rsquo;ll see areas that we should address. Perhaps we will go back over some concepts from the object calisthenics exercise that were confusing or problematic. Perhaps a crash course on domain modeling. Perhaps an overview of how we want to use hypermedia to drive our RESTful services. Maybe they need more time with the SOLID exercises. The possibilities are endless and driven by the individual we are seeking to bring on board.</p>
+
+<p>How have you been on-boarded at other companies?  We’d love to hear ideas for improving our own process, and don’t forget <a href="http://careers.theladders.com">we’re hiring</a>, so join TheLadders today and we will work hard to make your transition to our team as smooth as possible.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[New Beginnings]]></title>
+    <link href="http://dev.theladders.com/2013/01/new-beginnings/"/>
+    <updated>2013-01-31T06:59:09-05:00</updated>
+    <id>http://dev.theladders.com/2013/01/new-beginnings</id>
+    <content type="html"><![CDATA[<blockquote><p>&#8220;You must be the change you wish to see&#8230;&#8221;</p><footer><strong>&#8211;Gandhi</strong></footer></blockquote>
+
+
+<p><a href="http://dev.theladders.com/images/blinking_main.gif"><img src="http://dev.theladders.com/images/blinking_main.gif" alt="blinking_main" /></a></p>
+
+<p>Eight years ago today, I joined TheLadders.</p>
+
+<p>Back in January 2005, we were a small startup with only 25 employees. My first job was working on building a new version of TheLadders.com. At the time, there were only a few hundred lines of code and we spent the next few months working around the clock to deliver a new and improved website. When we were done and the site was launched, I remember my father asking me, “Now what? The site’s done; do you still have work to do?”</p>
+
+<p>We certainly had more work to do then and we still do now. Today, our mission is the same as when we started: finding the right person for the right job. As long as our customers face frustration  with their job search, we will be hard at work trying to help job seekers find their next job or employers their perfect candidate.</p>
+
+<p>As we embrace 2013, I am seeing the same kinds of change and excitement that I saw in 2005. Over the past eight years, we’ve learned a lot about the job search, and we’re making big moves to reflect a new way of discovering job opportunities and candidates.</p>
+
+<p>Fundamentally, we have changed the way we work. We threw long backlogs and task-lists out the window, and started working towards shared themes and goals among the whole company; not just technology, not just a single Scrum team. Themes shared by the CEO, marketing, sales, finance, customer service, product, tech and UX groups. With this approach, we have abandoned a traditional team structure previously set by executives and, instead, empowered our staff to determine how best to organize themselves to achieve our shared goals. We try and gather the right people in a room to solve a problem and we know they will make something great.</p>
+
+<p>Have we figured out the magic formula for software-development success? Perhaps. We are closer to being agile with a lowercase ‘a’ than ever before. We are making better decisions about how to best deploy our collective brainpower and talents. We are shipping value to our users faster. We are learning to say ‘no,’ affording us more time to focus on the work that best serves our users.</p>
+
+<p>Almost 20% of our traffic is coming from phones and tablets, so the new website for TheLadders is completely responsive. It renders well on desktops, tablets and mobile phones. And, we are not stopping with just some fancy CSS; more is coming on the mobile front in the next few months, so stayed tuned.</p>
+
+<p>Because finding the right job should be less tedious than searching through a database of titles, our team of data scientists and engineers work relentlessly to pair our users with the jobs that suit them best. You can still search if you want, but you do not have to be an expert on crafting keyword searches and filters to find relevant jobs; based on what you tell us, and also what you actually do online, we will find you those jobs.</p>
+
+<p>Matching is easy to say and hard to do well. We have to deal with a host of technical challenges, such as classifying jobs into our taxonomy, and we are employing machine-learning to do that. But, that is a topic for another blog post. If you are one of our more-than 5 million members,  you may have noticed some of our job-matching efforts with our new Targeted Hiring Alerts.</p>
+
+<p>Job descriptions are becoming a commodity; everybody’s got them.  So, what data do we have to augment them and provide our users with relevant job information they cannot get anywhere else? We’ve launched TheLadders <a href="http://blog.theladders.com/product/new-product-for-the-new-year/">Scout</a>, an innovative (and addictive) way to get a deeper understanding  for the job market and your competition. It is a start towards giving our users the data they need to make faster and more-informed decisions in their job search. Here’s our <a href="http://www.theladders.com/member/career-newsletters/please-review-the-other-applicants-for-this-job-first-">founder’s take on it</a>.</p>
+
+<p>We’ve grown a lot in the past eight years. With more than 5 million jobseekers and 31,000 recruiters and employers, we have embarked on a large infrastructure rebuild,  launched powerful caching with Varnish for our web-services layer, and we are leveraging Storm for processing our long-running match and email tasks. Our move from MySQL to Clustrix continues, and dozens of DB slaves are going offline as we increase our load on the Clustrix database. And, most significantly, we are refactoring away some of the most fiddly bits of our codebase.</p>
+
+<p>Additionally, we are rebuilding our data center with shiny hardware, as well as a new network and level of resource flexibility that gets the bits from us to you, that much faster. Our DevOps team has been busy designing the new data center and ramping up for a smooth transition over the upcoming months.</p>
+
+<p>To celebrate our accomplishments so far, and to share our excitement about what is to come, we are relaunching our development blog, because the best decisions stand up to the harshest light of criticism. There are exceptionally talented people on this team, and you should meet them.</p>
+]]></content>
+  </entry>
+  
+</feed>

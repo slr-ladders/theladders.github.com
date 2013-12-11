@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: DDD | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/ddd/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2013-12-11T10:30:50-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Eric Evans Is Coming to TheLadders]]></title>
+    <link href="http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders/"/>
+    <updated>2013-03-08T10:09:00-05:00</updated>
+    <id>http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders</id>
+    <content type="html"><![CDATA[<p><blockquote><p>&hellip; when the Man comes around.</p><footer><strong>&mdash;Johnny Cash</strong></footer></blockquote></p>
+
+<p>We are happy to announce that on April 10th, TheLadders will be hosting
+<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
+<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
+York City DDD Meetup group. Engineers at TheLadders have long been
+following developments in the DDD community. <a href="/ourteam/kyrisarantakos/">Some</a> of
+<a href="/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
+<a href="/ourteam/kylewinter/">more</a> of <a href="/ourteam/mattjankowski/">us</a> will be attending it shortly, and
+our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
+
+<p>For those of you who might be unfamiliar with DDD, its goal is the
+design of software that creates business value. DDD guides technical
+and domain experts to collaboratively create a mental model of the
+central business concepts. This model is then used to drive
+design. This sounds like common sense: developers work with people who
+know about the business to make software that works to solve its
+problems. What could be more straightforward?  And yet, the complexity
+inherent in the business world and software engineering make it
+difficult to create software that is supple and adaptable to changing
+needs. DDD provides a framework for thinking about, creating, and
+communicating mental models. And that requires the learning of new
+skills and ideas. It isn’t an easy process, but we have found that it
+is rewarding for both the business and developers.</p>
+
+<h1>A Little of Our Experience with DDD</h1>
+
+<p>While creating our new website, we’ve tried to remain focused on
+“communicating mental models”. One way this can be done is through
+DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
+communicate the contract between the domain model and its
+users. Judging from the vast amount of code out there, this simple
+idea is counterintuitive. Our own legacy codebase is no exception. For
+example:</p>
+
+<p>``` java
+public class Subscription
+{
+  &hellip;</p>
+
+<p>  public AutoRenewFlags getAutoRenewFlag()
+  {</p>
+
+<pre><code>return autoRenewFlag;
+</code></pre>
+
+<p>  }</p>
+
+<p>  public void setAutoRenewFlag(AutoRenewFlags autoRenewFlag)
+  {</p>
+
+<pre><code>this.autoRenewFlag = autoRenewFlag;
+</code></pre>
+
+<p>  }</p>
+
+<p>  public int getUnsubscribeReason()
+  {</p>
+
+<pre><code>return unsubscribeReason;
+</code></pre>
+
+<p>  }</p>
+
+<p>  public void setUnsubscribeReason(int unsubscribeReason)
+  {</p>
+
+<pre><code>this.unsubscribeReason = unsubscribeReason;
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>This is an example of what in DDD is called an “anemic domain
+model”. The Subscription class is a key part of the domain, yet not
+only does it communicate nothing to the user about its usage, it in
+fact does nothing. Values can be retrieved and set, but what then? How
+do I actually unsubscribe someone? What prevents me from using any
+arbitrary integer for the “unsubscribe reason”? What about changing
+auto-renewal to null? There is no explicit contract here, and the user
+of this object is given no guidance or constraints. By contrast, we’ve
+worked hard in our newer code to avoid creating anemic domain models
+and instead create objects that are not only useful, but clear in
+their usage. Here is another example, this time from the new
+Subscription class:</p>
+
+<p>``` java
+public abstract class Subscription
+{
+   &hellip;</p>
+
+<p>   public abstract Subscription withAutoRenewOn();</p>
+
+<p>   public abstract Subscription withAutoRenewOff();</p>
+
+<p>   public abstract CanceledSubscription unsubscribe(UnsubscribeReason unsubscribeReason);
+}
+```</p>
+
+<p>In this case we’ve attempted to make the contract clear. Calling the
+unsubscribe method actually unsubscribes the customer, returning a
+CanceledSubscription. The “unsubscribe reason” is now strongly typed,
+clearly communicating which values are allowed. Auto-renewal changes
+yield a new immutable Subscription object, and can be chained together
+with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
+settings.</p>
+
+<p>Another example of an anemic domain model, lacking an
+intention-revealing interface, comes from the old Payment class in our
+legacy codebase:</p>
+
+<p>``` java
+public Payment(int paymentId,</p>
+
+<pre><code>           int paymentActionType,
+           BigDecimal amount,
+           String approvalCode,
+           String transactionReference,
+           int creditCardId)
+</code></pre>
+
+<p>{
+  this.paymentId = paymentId;
+  this.paymentActionType = paymentActionType;
+  this.amount = amount;
+  this.approvalCode = approvalCode;
+  this.creditCardId = creditCardId;
+  this.transactionReference = transactionReference;
+}
+```</p>
+
+<p>This class contains only the constructor you see here, and getters for
+each of the fields created. It turns out that it’s used as a parameter
+object, and nothing more. There’s no guidance as to it’s valid
+construction, and no hint about its usage. Yet obviously handling
+subscription payments is an important part of the subscription domain,
+and we want the contracts around the model of that domain clear and
+easy to understand. Here’s our attempt at accomplishing those goals in
+the new codebase:</p>
+
+<p>``` java
+public Payment(PaymentAmount paymentAmount,</p>
+
+<pre><code>           JobseekerId jobseekerId,
+           PaymentActionType paymentActionType,
+           ReportGroup reportGroup)
+</code></pre>
+
+<p>```</p>
+
+<p>The first difference is actually one that’s not visible from the code
+itself. As we’ve developed the new site, we’ve agreed that all
+arguments to methods or constructors are required; no passing of
+nulls. If an argument is truly optional, a separate method or
+constructor is added that excludes it. We want our code to be
+confident, and this contract means that methods and constructors “say
+what they mean and mean what they say”. In the legacy codebase, nulls
+were passed liberally to and fro, and you could never be quite sure
+which arguments were truly required.</p>
+
+<p>Another change is the promotion of this class from a mere parameter
+object to an active participant in the domain model:</p>
+
+<p>``` java
+public Receipt makeWith(PaymentMethod method)
+{
+  method.make(this);
+  return new Receipt(paymentAmount.asAmountPaid());
+}</p>
+
+<p>public void recordWith(PaymentRecorder paymentRecorder)
+{
+  paymentRecorder.record(paymentAmount);
+}
+```</p>
+
+<p>Instead of being passed around to “manager” objects and DAOs, a
+Payment object can actually make a payment and create records of
+itself. It seems only natural.</p>
+
+<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
+this post barely scratches the surface. And as a team we know we still
+have much farther to go in its mastery, but the time we’ve spent in
+study and practice have been well worth the effort so far.</p>
+
+<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
+presentation and discussion.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="&#8220;Program testing can be used to show the presence of bugs, but never to show their absence!&#8221;&#8211;Edsger W. Dijkstra When we started out &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/blog/page/11/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div class="blog-index">
+  
+  
+  
+    <article class="article">
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">Mutation Testing With PIT: A Step Beyond Normal Code Coverage</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-20T03:15:15-05:00" pubdate data-updated="true">Feb 20<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>&#8220;Program testing can be used to show the presence of bugs, but never to show their absence!&#8221;</p><footer><strong>&#8211;Edsger W. Dijkstra</strong></footer></blockquote>
+
+
+<p>When we started out building our <a href="http://www.cenedella.com/job-search/job-offer-guaranteed-signature/">Signature program</a>, we had a goal in mind &ndash; test the &lt;insert expletive of choice here&gt; out of it.  We also wanted to make sure that not only did we test it, but we tested it right.  Regular code line coverage tools like <a href="http://www.atlassian.com/software/clover/overview">Clover</a> are great, but typically only tell you that a line of code was executed &ndash; not necessarily that it was verified.  Many developers often see them as a way to determine what&rsquo;s been tested, but in reality they are better at<em> highlighting code that hasn&rsquo;t been tested at all</em>.</p>
+
+<p>Our interest in mutation testing stemmed from a talk about how occasionally we see bad/ineffective tests, ones that give the impression of testing the code but in reality don&rsquo;t do a great job.  <a href="https://twitter.com/SeanTAllen">Sean T Allen</a> and I had apparently both already been looking into a new tool, because once the discussion came up we were already on the same page.  Enter <a href="http://pitest.org/">PIT</a>, a mutation testing tool under active development.  We decided to try it out in combination with Clover, and the results were:</p>
+
+<p><img class="center" src="/images/tim_and_eric_mind_blown.gif" title="'Tim and Eric Mind Blown gif')" ></p>
+
+<h1></h1>
+
+<h1>But first, what is mutation testing?</h1>
+
+<p>For those unfamiliar with how mutation testing works, I&rsquo;ll offer a brief summary.  After your sources and tests are compiled and run, a mutation test framework like PIT will alter the program code and insert ‘mutations’, such as changing != to == or completely removing a line.  It will then run the tests that exercise that chunk of code again, with the expectation that at least one of them should now fail.  If your tests are well written, or more importantly, <em>complete</em>, then at least one assertion should have been broken by PIT’s change.  (For more, <a href="http://www.simple-talk.com/dotnet/.net-tools/mutation-testing/">Jeremy Jarrell’s introduction</a> (first 2 sections) sums it up pretty well)</p>
+
+<h1></h1>
+
+<h1>Your 100% coverage?  It’s a lie.</h1>
+
+<p>You write a test &ndash; it&rsquo;s green and all is well.  But are you <em>certain</em> that it will fail if someone mistakenly alters the code?  “Yea, I have tons-o-coverage” you say?  Typical line coverage tools like Clover can lull you into a false sense of security by showing 100% coverage without really delivering on that promise.  And that’s probably fine &ndash; heck, a lot of teams/projects would be happy to break 90% overall line coverage (or 50%&hellip;or 20%).  But there are a few of us here that border on insane and try to push the envelope &ndash; more, more, more!</p>
+
+<h1>So what&rsquo;s so great/different about mutation testing?</h1>
+
+<h2>Testing your tests:</h2>
+
+<p>One of the most important long-term benefits of a test is not knowing that it passes, but rather knowing that it will fail if the code is broken.  When not TDDing, I tend to alter the code or comment out blocks and ensure that the test fails as expected.  Sometimes we write tests that don&rsquo;t fail correctly with the code they test: maybe because of a mistaken assumption, or maybe because of a slight oversight &ndash; it happens.  Mutation testing is an effective, automated way of enforcing that tests fail correctly.</p>
+
+<h2>Code is verified:</h2>
+
+<p>PIT provides a way of ensuring that you&rsquo;ve written complete tests that verify the results of executing a piece of code.  The core concept of mutation testing is a powerful one &ndash; if you botch a line of code, a test should break somewhere.  If a test doesn&rsquo;t break, it means your tests aren&rsquo;t complete, the test may be wrong, or the line of code just flat out isn&rsquo;t doing anything.  In one case, we discovered dead code that was identified by PIT when switching our storage model.</p>
+
+<p>Depending on how far you believe in test coverage in general and mutation testing itself, it can be a great ally.  We decided to aim high &ndash; test everything.  PIT was vital in ensuring that we were actually verifying each line of code that we set out to.</p>
+
+<h1></h1>
+
+<h1>An Example:</h1>
+
+<p>To illustrate an example of what PIT does, consider the below (very basic) class and test:</p>
+
+<figure class='code'><figcaption><span>PersonFactory</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/PersonFactory.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactory</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Person</span> <span class="nf">createPerson</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">setLastName</span><span class="o">(</span><span class="s">&quot;Last&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">person</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span>Person</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/Person.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFirstName</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setFirstName</span><span class="o">(</span><span class="n">String</span> <span class="n">firstName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">firstName</span> <span class="o">=</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getLastName</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLastName</span><span class="o">(</span><span class="n">String</span> <span class="n">lastName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">lastName</span> <span class="o">=</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span>PersonFactoryTest</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactoryTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonFactory</span><span class="o">().</span><span class="na">createPerson</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getFirstName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">lastName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getLastName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">,</span> <span class="n">firstName</span><span class="o">);</span>
+</span><span class='line'>    <span class="c1">// forgot test for last name</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Clover (and PIT) will say that the <em><strong>line</strong></em> coverage is 100%.  But at a close glance &ndash; how many untested pieces of code do you see?  PIT <em><strong>mutation</strong></em> coverage will point out that there are 2 &ndash; the call to person.setLastName(&ldquo;Last&rdquo;) and the getLastName() method.  Both were executed as part of the test, but neither are actually verified for correctness.</p>
+
+<h2>Clover Results:</h2>
+
+<h2><img src="/images/clover.png" alt="clover results" /></h2>
+
+<h2>PIT Results:</h2>
+
+<h2><img src="/images/pit-failure.png" alt="pit failure" /></h2>
+
+<h2><img src="/images/person-factory.png" alt="PersonFactory class" /></h2>
+
+<p>(Person report excluded for brevity)</p>
+
+<p>You’ll notice that the setLastName method in the PersonFactory is highlighted in red, with an explanation below:
+removed call to com/theladders/Person::setLastName : SURVIVED</p>
+
+<p>What this means is that PIT altered the code and removed the call to setLastName() completely, ran the tests again, and they all still passed &ndash; meaning that the mutation survived.  You’ll also notice that it tried the same thing for setFirstName(), but it was successfully killed by our test (it failed, as it should).</p>
+
+<p>Once we add a test for last name, we’ll see that PIT will now report that all mutations are killed.  Essentially what it means, is that PIT couldn’t find a way to screw with the code without breaking a test.</p>
+
+<figure class='code'><figcaption><span>PersonFactoryTest</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactoryTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonFactory</span><span class="o">().</span><span class="na">createPerson</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getFirstName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">lastName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getLastName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">,</span> <span class="n">firstName</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Last&quot;</span><span class="o">,</span> <span class="n">lastName</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>PIT Results afterwards:</h2>
+
+<h2><img src="/images/pit-success.png" alt="Pit success" /></h2>
+
+<p>This was a very trivial example, and PIT supports much more than what I&rsquo;ve shown you here.  As you may have noticed, I skipped over one of the killed mutations: if (x != null) null else throw new RuntimeException.  This is another type of fault that PIT will try to introduce for return objects.  The full list of mutations can be found <a href="http://pitest.org/quickstart/mutators/">here</a>.</p>
+
+<h1></h1>
+
+<h1>Our Experience with PIT:</h1>
+
+<p>We started using it last year on a new project with some really great success.  As part of it, we were building a RESTful web service with Jersey.  It was a green field project with no legacy code &ndash; everything written from scratch except for small internal libraries.  We tested almost every meaningful thing we could about the server (web interfaces, security XML configs, null validation rules, etc).  It was very heavy on integration tests &ndash; some just verified all the business components working together and some deployed the server on embedded Jetty and hit the web endpoints.  Towards the end we were maintaining around 98% in both Clover and PIT (excluding Data Transfer Object classes), and ended up around 95%.</p>
+
+<p>While we also used Clover for basic code coverage, as we got our PIT mutation coverage up into the 90s I stopped paying much attention to Clover.  Our use of PIT was to ensure that we were actually testing and verifying all the parts of the code that we thought we were, and to find the places where we needed to fill in more tests or assertions.  We would add/modify tests so that each line of code we wrote (almost) was also backed by an assertion somewhere.  Essentially, &ldquo;Hey PIT, where do I need to add more tests and assertions?&rdquo;</p>
+
+<p>This gave us extreme confidence in our tests &ndash; if the code was modified incorrectly (with some small exceptions), a test would break and we knew it.  The effects of that confidence were outstanding.  At TheLadders we place a lot of value in code quality and &ldquo;doing things right,&rdquo; so refactoring is a large part of our process.  It enabled us to refactor at will with little fear of breaking anything, which happened quite frequently in many different ways, especially as a new project growing from the ground up.</p>
+
+<p>The best example of a big win was a refactoring to shift how we stored and tracked state.  When we first started out, we were creating and updating rows in the database (update in place).  We decided to switch to an <a href="http://martinfowler.com/eaaDev/EventSourcing.html">Event Sourcing</a> approach &ndash; instead of storing/retrieving state in the database, we instead stored &lsquo;actions&rsquo; and inputs in the database and then rebuilt the state in memory from those actions.  This was a large change to how a lot of the internals operated, and would normally carry a big risk factor in breaking existing functionality.  In this case, that risk factor was minimal and hardly played a part in our decision.  Because of the confidence we had in our tests thanks to PIT (and the fact that the majority of them were high level integration tests), all we did was start switching over and making changes until the tests were green again, and we were done.  The tests were the ultimate source of how the server needed to act, and PIT helped ensure that those tests covered everything the server was expected to do.</p>
+
+<p>If you want to try it out yourself, the above example in code is available here: <a href="https://github.com/TheLadders/pit-example">https://github.com/TheLadders/pit-example</a></p>
+
+<p>Join the discussion over at <a href="http://www.reddit.com/r/programming/comments/18w2ia/who_tests_the_tests_mutation_testing_with_pit/">reddit</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/12/">&larr; Older</a>
+    
+    <a class="archives" href="/blog/archives">Blog Archives</a>
+    
+      <a class="next" href="/blog/page/10/">Newer &rarr;</a>
+    
+  </div> 
+</div>
+
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping our thick client skinny</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/08/were-hosting-erlang-factory-lite/">We're Hosting the first NYC Erlang Factory Lite on September 14th</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/07/denormalize-the-datas-for-great-good/">Denormalize the Datas for Great Good</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/05/the-evolution-of-qa-at-theladders/">The Evolution of QA at TheLadders</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/05/varnish-in-five-acts/">Varnish in Five Acts</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2013 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
