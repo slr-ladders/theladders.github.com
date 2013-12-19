@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>James Holder - TheLadders Engineering Stories</title>
+  <title>A Brewing Storm - TheLadders Engineering Stories</title>
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="James Holder James Holder is a Software Engineer at TheLadders. When not exploring the wonders of New York, he loves to get deep in a good book or &hellip;">
+  <meta name="description" content="If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it&#8211;Toni Morrison Once upon a time &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://dev.theladders.com/ourteam/jamesholder/">
+  <link rel="canonical" href="http://dev.theladders.com/2013/12/a-brewing-storm/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -104,26 +104,107 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 	<main id="main" class="main">
 		<div class="content">
 		  <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">James Holder</h1>
+    
+      <h1 class="entry-title">A Brewing Storm</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
+        
+      </p>
     
   </header>
-  
-  <div class="profile-container">
-  <div class="profile-thumb">
-    <img class="gravatar" src="http://www.gravatar.com/avatar/fd0bbdcf8081bb5ecfa5166a1c11db1c?s=150"></img>
-  </div>
-  <div class="profile-content">
-    <strong>James Holder</strong> is a Software Engineer at TheLadders. When not exploring the wonders of New York, he loves to get deep in a good book or to write a few of his own. Inspired by Uncle Bob, he intends to pen the first test-driven novel. Ruby and JavaScript scratch his programming itch, though purer functional languages have also caught his eye. You can earn his eternal friendship by asking him about giant robots.
-  </div>
+
+
+<div class="entry-content"><blockquote><p>If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it</p><footer><strong>&#8211;Toni Morrison</strong></footer></blockquote>
+
+
+<p>Once upon a time there was a script. Each morning it sent new jobs to our job seeking customers. It was simple and the data it operated on was relatively small.  As the months turned into years this script grew in complexity and the data grew in size.  And more scripts came to the party and they had data of their own and these new scripts beget data for other scripts, and this small group of scripts extracted and transformed, processed and prepared, working tirelessly every night.</p>
+
+<p>Some worked alone while others fed each other, all growing increasingly more complex.  Occasionally at first and more frequently over time, the scripts started to interfere with each other by competing for resources or not finishing in time for a child script to consume it’s parents data, or worst of all, deadlocking for no apparent reason.</p>
+
+<p>Let’s bring some order we said and used cron to wrangle them at first, then moving to more complex “enterprise” scheduling systems to try and tame the beast, and keep the scripts from clobbering each other or grinding themselves to a crawl.</p>
+
+<p>But the data grew and grew and with it came longer and longer run times.  At this same time our script was getting slower, our users’ expectations and our own ambitions grew.  Could we alert a job seeker the minute a new relevant job entered our system?  Could we alert an employer as soon as job seeker they were interested in updated their profile?</p>
+
+<p>The network of interactions/activity/entities we wanted to grow, monitor and react to and then extract value from was exploding in complexity.  You can picture all of our job seekers, employers and jobs as nodes in a graph, and imagine our teams are furiously trying to connect them in new and interesting ways.  They are using machine learning to light up edges between these nodes, indicating which jobs a particular job seeker might be interested in and which job seekers an employer might like.  Or clustering these entities into similar groups.</p>
+
+<p>Doing all of this between 12am and 6am was getting hard. Hadoop was an option, but processing speed alone wasn’t just the issue.  Some things we wanted to do had to be done in real time, not batch.  A user isn’t going to wait until the nightly run for us to calculate what jobs are appropriate for them.  In addtion, as TheLadders moves into mobile and speed becomes more and more a concern we want the Graph of our Ecosystem to be as current as possible not something that gets updated once a day.</p>
+
+<p>There comes this thing. Storm. It fits into our infrastructure; working nicely with RabbitMQ and interop’ing well with our existing code base.</p>
+
+<p>However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place.</p>
+
+<p>Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the <a href="http://www.manning.com/sallen/">Manning Early Access Program</a> any day now.  We hope you find it useful and we look forward to your feedback on the book.</p>
 </div>
 
 
+  <footer>
+    <p class="meta">
+      
+  
+
+
+       
+     <span class="byline author vcard">Posted by <span class="fn">
+		<a href="/ourteam/kyrisarantakos">Kyri Sarantakos</a></span></span>
+  
+  
+
+
+      
+
+
+
+
+
+
 
 
   
+
+
+<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2013/12/a-brewing-storm/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2013/12/a-brewing-storm/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/10/responsive-design-keeping-our-thick-client-skinny/" title="Previous Post: Responsive Design: Keeping our thick client skinny">&laquo; Responsive Design: Keeping our thick client skinny</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>

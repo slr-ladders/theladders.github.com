@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Change means that what was before wasn&#8217;t perfect. People want things to be better.&#8211;Esther Dyson Looking back on my 6+ years at TheLadders &hellip;">
+  <meta name="description" content="Normal is not something to aspire to, it&#8217;s something to get away from.&#8211;Jodie Foster Scout reads go slow A few weeks ago, as we were about &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/05/the-evolution-of-qa-at-theladders/">The Evolution of QA at TheLadders</a></h1>
+      <h1 class="entry-title"><a href="/2013/07/denormalize-the-datas-for-great-good/">Denormalize the Datas for Great Good</a></h1>
     
     
       <p class="meta">
@@ -127,65 +127,123 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-05-16T09:04:00-04:00" pubdate data-updated="true">May 16<span>th</span>, 2013</time>
+<time datetime="2013-07-08T16:02:00-04:00" pubdate data-updated="true">Jul 8<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Change means that what was before wasn&#8217;t perfect. People want things to be better.</p><footer><strong>&#8211;Esther Dyson</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Normal is not something to aspire to, it&#8217;s something to get away from.</p><footer><strong>&#8211;Jodie Foster</strong></footer></blockquote>
 
 
-<p>Looking back on my 6+ years at TheLadders, I realize how much has changed. When I first joined the company at the start of 2007, there were five other people on the QA team supporting a team of 12 software developers. We followed a strict waterfall process. Product ideas were generated, researched and solidified before any conversation with the development or QA teams. Product managers would spend a large portion of their time hunkered down at their desks writing specification documents, complete with statements on purpose and scope, workflows, wireframes and interaction rules.</p>
+<h2>Scout reads go slow</h2>
 
-<p>After these documents were approved by business owners, the development, QA, and design teams would meet to walk through the document with the goal of estimating the implementation time. QA played the role of a customer advocate and tried to ensure that there was as little uncertainty in the documentation as possible. Instead of walking out of the meeting with estimates, the Product Manager would usually leave with a list of missing workflows and use cases that they would need to add to the spec before development began.</p>
+<p>A few weeks ago, as we were about to launch our <a href="http://app.appsflyer.com/id654867487?pid=TLC_organic">iPhone app</a>, we discovered that one of its core features, Scout, frequently took seconds to render.</p>
 
-<p>Eventually a release date would be set. Spec and design mocks in hand, the development team would start building the feature.  The QA team would write test cases. We created long lists of actions and expected outcomes that we would use to manually test the development team’s work. Test automation &ndash; unit, integration, functional, load, et al &ndash; was a distant dream. Our primary interaction with the development team was proving the existence of bugs that they couldn’t reproduce.</p>
+<center>
+<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span> 
+</center>
 
-<p><img class="center" src="/images/the-evolution-of-qa-at-theladders/it-works-on-my-machine.png"></p>
 
-<p>Even though both the development and QA teams worked off of the same documents, the software never matched the expected behavior according to the test case. Preparing for a release was a never-ending cycle of testing, bug-finding, bug-fixing, and retesting. Fixed release dates and not testing until the end of the development cycle led to releases that were huge events with late, stressful nights leading up to release and late, stressful nights spent cleaning up after it was over!</p>
+<p>For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.</p>
 
-<p>Between major releases, QA was either responding to customer issues, estimating how long it would take to test an upcoming project, or maintaining our set of regression test case documents in Excel.</p>
+<p>Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve <em>one</em> Scout view request).  In cases of higher load, sometimes request times take well over that.</p>
 
-<h2>Fast forward to 2009.</h2>
+<center>
+<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span> 
+</center>
 
-<p>The development team had grown to 35. The QA team had shrunk to 4. We’d transitioned to Scrum a few months previous and shuffled the production teams around to form 4 cross-functional ones. Each team consisted of developers, a QA lead, a designer, a copy editor, and a product manager. The move to Scrum was bumpy as we molded the framework into a process that worked for us but teams had started to find a groove. Ideas were generated and defined within each team, we were checking in with each other often, and delivering value to our customers faster. The teams were working like well-oiled machines&hellip; almost.</p>
 
-<p>Selecting user stories to be undertaken during an iteration had become a team decision, however then the Product Manager and QA rep would work together, without the rest of the team, to define the requirements for each story and flesh them out into use case documents. QA still played the role of customer advocate: working to clearly define expected behavior of each user story in terms of the use case document.</p>
+<p>That brings Scout into unusably slow country, as the Graphite chart below indicates:</p>
 
-<p>The developers would use these documents to build each user story. Sometimes, they&rsquo;d also write unit tests to cover a few of the more important use case scenarios. Before a story was considered &ldquo;done&rdquo;, a code review would need to be completed by at least two developers. In order to make sure that each story met customer expectations, QA would need to manually test the feature. The need for manual testing didn’t end there. At the end of each iteration, QA would run through the entire regression suite before releasing.</p>
+<center>
+<span class='caption-wrapper medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/before-graphite.png' width='' height='' alt='95th percentile of response times for Scout in seconds' title='95th percentile of response times for Scout in seconds'><span class='caption-text'>95th percentile of response times for Scout in seconds</span></span>
+</center>
 
-<p>We had made some improvements, but it was clear that we could improve the process if we increased communication of requirements and lessened the amount of manual testing that needed to be done.</p>
 
-<p>We were releasing every two weeks. They were smaller and less stressful than in the past. QA still spent a lot of time manually testing, but it was done throughout the iteration instead of being squeezed in at the end. This meant that QA had a lot more downtime than before. While some of this time was spent doing the work we had always done, we also made sure to spend time learning about new tools and best practices. Over time, we learned a lot about automated functional testing. We experimented with different frameworks, starting with a simple record-and-playback tool, until we learned more about what we needed and which tools might best fit that need. I’ll write a post later to shed some light on what that journey was like, but suffice it to say that it took quite a bit of trial and error!</p>
+<p>The graph shows the time it takes to form a response to a view-job request issued by our iPhone app. It’s the 95th percentile, which means that 5% of requests had times of the lines in the graph or higher for any given date.  One in twenty requests took this long or longer. There are many lines because we have a horizontally scalable architecture, so there are many backend app nodes.</p>
 
-<h2>Fast forward to now.</h2>
+<p>We managed to bring those seconds down to milliseconds, with about a 1000x decrease in times of high load.  Below I’ll describe the changes in our architecture that enabled us to make such a huge improvement.</p>
 
-<p>We&rsquo;ve moved beyond Scrum to an adapted Agile process that emphasises cross-functional, independent, and highly collaborative teams. Each team is free to adopt practices that work for them. They have free reign to define the way that they work amongst themselves. There are certain commonalities that hold true across all our teams:</p>
+<hr />
 
-<p><strong>QA plays the role of customer advocate</strong>. We know our customers well and our applications even better. This gives us a unique perspective when defining new user stories that helps our teams deliver better products for our users.</p>
+<h2>Architecture</h2>
 
-<p><strong>The teams define user stories together</strong>. QA still helps flesh out requirements and acceptance criteria, but with the participation of the rest of the team. Defining requirements as a team helps us make sure that we&rsquo;re all on the same page which in turn helps us work better and faster.</p>
+<p>In its initial implementation, Scout’s applicant information was gathered and assembled on the fly for each and every request. Driving the iPhone app, we have a backend app server, which is essentially just a number of RESTful endpoints against which our iPhone app issues requests.  Below is a quick rundown of the architecture before I trace a request through our architecture.</p>
 
-<p><strong>We aren&rsquo;t heavy-handed with the documentation</strong>. We&rsquo;ve found that most of our previous attempts at documentation were wasteful &ndash; and often not as useful to the developers as we thought. Instead, after each team conversation around story requirements QA either writes notes and acceptance criteria on the back of the story card (if the team uses a whiteboard to manage their backlog) or in comments attached to the story in Trello.</p>
+<center>
+<span class='caption-wrapper medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration.png' width='' height='' alt='iPhone app talks to the backend app server' title='iPhone app talks to the backend app server'><span class='caption-text'>iPhone app talks to the backend app server</span></span>
+</center>
 
-<p><strong>We automate tests when it&rsquo;s the smart thing to do</strong>. Manually testing everything definitely was not the best thing for us to do, but <a href="http://xkcd.com/1205/">neither is automating every test</a>. Instead, QA and the developers have frequent conversations around how to appropriately test each user scenario: Can it be sufficiently covered in a unit or integration test? Does it make sense to write an expensive automated functional test that checks the functionality through the browser? How important is this functionality? What&rsquo;s the risk of it breaking? We also keep test coverage at the front of our minds and use different <a href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">strategies</a> to make sure that we can trust the tests that we do automate.</p>
 
-<p><strong>Developers write most of our automated tests</strong>. Whether unit, integration, functional, or load tests, usually it&rsquo;s a developer that&rsquo;s going to write it. QA does pitch in when they can but with one QA lead per team, it&rsquo;s not feasible for them to write all of the automated tests without becoming a bottleneck.</p>
+<p>Below this backend server there are a number of RESTful entity servers with which the app server is interacting via HTTP.</p>
 
-<p><strong>We peer review code</strong> with QA actively participating.</p>
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity.png' width='' height='' alt='Backend app server relies on entity servers' title='Backend app server relies on entity servers'><span class='caption-text'>Backend app server relies on entity servers</span></span></p>
 
-<p><strong>We&rsquo;ve set up continuous integration builds</strong>. All of our unit-level tests run after each commit and all of our automated functional regression tests must pass before each deployment. If a test fails, we fix it.</p>
+<p>These entity servers in turn query each other and the canonical data store, in our case Clustrix, and that’s that.</p>
 
-<p>And of course, QA is still responsible for investigating and responding to customer issues. Some things will never change.</p>
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity-clustrix.png' width='' height='' alt='Entity servers query the db' title='Entity servers query the db'><span class='caption-text'>Entity servers query the db</span></span></p>
 
-<p>We&rsquo;ve come a long way! But that doesn&rsquo;t mean that we can&rsquo;t get better. As a wise man* once said, consistency requires you to be as ignorant today as you were a year ago. Here at TheLadders, we&rsquo;re always learning.</p>
+<p>So when a user of our iPhone app taps on a job, a request is sent to the backend app server&hellip;</p>
 
-<p>*Bernard Berenson</p>
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-request.png" title="iPhone app makes a request" ></p>
 
-<p>Join the discussion over at <a href="http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved">Software Testing Club</a>.</p>
+<p>&hellip;which then issues a request to our job application service for all job applications for that job. The response contains a number of links to the where those job applications may be retrieved.</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request.png" title="backend server queries the job application service for all applications to a job" ></p>
+
+<p>The backend server iterates over those links, requesting the job applications themselves one at a time. Just as before, adhering to hypermedia design, the response contains a link to the jobseeker who applied to the job. For your sanity, I’ve simplified the response to contain only the job seeker link:</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request2.png" title="backend retrieves each application" ></p>
+
+<p>Finally with that result set, the orchestration service then issues a number of requests to the job seeker service for information about the job seekers who have applied to the job being viewed.  In its initial implementation all of the requests were synchronous and in series as I mentioned earlier. We eventually parallelized them, as you can see in the Graphite chart where the big spikes left diminish towards the right.</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request3.png" title="backend retrieves each application" ></p>
+
+<p>The iPhone app backend server then extracts the relevant information from those job seekers’ profiles, and returns them as a JSON array of applicants to the mobile app.</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-response.png" title="backend retrieves each application" ></p>
+
+<p>That is not just a lot of words and diagrams, that is a lot of work!</p>
+
+<p>The workflow includes multiple objects serializing and deserializing, HTTP transfers, hitting the canonical store etc. Why does each request need to assemble this data itself? Why bother hitting the database? Is there an alternative? It seems like a natural fit for a document-oriented database, as the data we are passing back to the client is just a JSON object containing an array of applicants.  We could stand a <a href="http://dev.theladders.com/2013/05/varnish-in-five-acts/">Varnish cache</a> in front of the Scout endpoints on the orchestration service, but then we’d be trading freshness for speed. On the platform team we like to deliver data fast and fresh (and furious).</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/tokyo-drift-o.gif" title="how we roll at the Democratic Republic of Platformia" ></p>
+
+<hr />
+
+<h2>Scout reads go fast</h2>
+
+<p>Principal Architect <a href="http://twitter.com/SeanTAllen">Sean T Allen</a> set <a href="http://twitter.com/casio_juarez">Andy Turley</a> and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in <a href="http://www.couchbase.com/">Couchbase</a> and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  <a href="http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/">Storm</a> topology that should listen for that message. The RabbitMQ message would be the entry point into the spout.</p>
+
+<p>The message contains a link to the job seeker who applied to the job, as well as the ID for the job to which she applied.   The message isn’t actually encoded as JSON and transmitted over the wire, but for clarity I’ve displayed the RabbitMQ message as JSON.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm.png" title="RabbitMQ passes along a job-application message to a listening Storm topology" ></p>
+
+<p>The second step, after having received the RabbitMQ message, fetches the job seeker profile from the jobseeker service, and passes that information to the next step.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm-jobseeker.png" title="The Storm topology extracts the job seeker link from the messages and retrieves information about the job seeker who just applied to the job." ></p>
+
+<p>This third step is responsible for persisting the applicant information to a Couchbase bucket. It uses the job ID as the key, and it does a create or update operation on the document corresponding to that key depending on whether there are applicants already in the bucket for that job.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm-couchbase.png" title="The final step is that the topology persists the relevant job" ></p>
+
+<p>That last diagram is a bit of a simplification. Although Couchbase is &ldquo;JSON-aware&rdquo;, it lacks the ability to perform certain operations on the JSON documents it stores.  For example, if the document being stored is an Array, and the client&rsquo;s append method is called, we hoped that Couchbase would add that element to the end of the Array. Instead, it&rsquo;s just a blind String.append, resulting in an invalid JSON document. As a result, we had to implement our own append operation by reading the document (if it exists), adding an item to a list if it’s not already there, and then writing the document.  So it’s more like two operations than one.</p>
+
+<p><em>Now</em> when TheLadders mobile service gets a request for Scout information for a job, all it does is a lookup in Couchbase with that job ID and returns the applicants associated with that key.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-couchbase.png" title="iPhone issues a request for Scout information, backend just retrieves it from couchbase" ></p>
+
+<p><span class='caption-wrapper center'><img class='caption' src='/images/denormalize-the-datas-for-great-good/before-couchbase-after-no-lines.png' width='' height='' alt='95th percentile response time for Scout data, before and after moving to the read view' title='95th percentile response time for Scout data, before and after moving to the read view'><span class='caption-text'>95th percentile response time for Scout data, before and after moving to the read view</span></span></p>
+
+<p>Dramatically faster, even at the 95th percentile.</p>
+
+<hr />
+
+<p>SOA is no panacea. There are many instances where querying a number of backend servers to assemble and aggregate data returned from a database simply doesn&rsquo;t make sense. In those cases, you may do well to denormalize that data and put it in a store that&rsquo;s more efficient for retrieval.</p>
+
+<p>If you find this post interesting, join the dicussion over on <a href="https://news.ycombinator.com/item?id=6015123">Hacker News</a>.</p>
 </div>
   
   
@@ -214,6 +272,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
+      </li>
+    
+      <li class="post">
         <a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping our thick client skinny</a>
       </li>
     
@@ -227,10 +289,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2013/05/the-evolution-of-qa-at-theladders/">The Evolution of QA at TheLadders</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2013/05/varnish-in-five-acts/">Varnish in Five Acts</a>
       </li>
     
   </ul>
