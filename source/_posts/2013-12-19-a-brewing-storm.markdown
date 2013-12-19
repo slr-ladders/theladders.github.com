@@ -2,7 +2,7 @@
 author: Kyri Sarantakos
 layout: post
 title: "A Brewing Storm"
-date: 2013-12-11 10:31
+date: 2013-12-19 11:45
 comments: true
 categories: 
 published: true
@@ -26,4 +26,4 @@ There comes this thing. Storm. It fits into our infrastructure; working nicely w
 
 However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place. 
 
-Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the [Manning Early Access Program](http://www.manning.com/about/meap) any day now.  We hope you find it useful and we look forward to your feedback on the book.
+Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the [Manning Early Access Program](http://www.manning.com/sallen/) any day now.  We hope you find it useful and we look forward to your feedback on the book.
