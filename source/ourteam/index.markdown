@@ -21,6 +21,8 @@ footer: false
 ****
 {% include ourteam/mattchesler.markdown %}
 ****
+{% include ourteam/rubychilds.markdown %}
+****
 {% include ourteam/johnconnolly.markdown %}
 ****
 {% include ourteam/patrickdelfert.markdown %}
@@ -48,13 +50,13 @@ footer: false
 {% include ourteam/frankmadrie.markdown %}
 ****
 {% include ourteam/dmitrimikhailov.markdown %}
-***
+****
 {% include ourteam/ambrishmisra.markdown %}
 ****
 {% include ourteam/drewnichols.markdown %}
 ****
 {% include ourteam/peter.markdown %}
-***
+****
 {% include ourteam/jonruttenberg.markdown %}
 ****
 {% include ourteam/chrissanders.markdown %}
