@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Varnish | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/varnish/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2014-02-24T11:44:48-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Varnish in Five Acts]]></title>
+    <link href="http://dev.theladders.com/2013/05/varnish-in-five-acts/"/>
+    <updated>2013-05-03T13:21:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/05/varnish-in-five-acts</id>
+    <content type="html"><![CDATA[<p><blockquote><p>“Take a load off Annie. Take a load for free. Take a load off Annie. And you put the load right on me.” &mdash; Robbie Robertson</p></blockquote></p>
+
+<h2>Act I: The Players</h2>
+
+<p>At TheLadders, we have a number of entity services that clients access via HTTP. Some examples are the job service, the job application service and the topic of this post: the job seeker service. Each service manages the lifecycle of a core entity in our domain. On each request, the service gathers data from multiple data sources to build a complete entity and then serializes that entity to JSON. This is done for every request and is incredibly wasteful when you consider that most of these entities don’t change that often. This was a major bottleneck in our infrastructure. In the case of the job seeker service, the same entity can be requested multiple times per request from our consumer website.</p>
+
+<p>All this repeated, unnecessary entity object assembly and JSON serialization created scaling problems. Making matters worse, we periodically have batch processes that can increase service load by an order of magnitude. Caching is an easy win here. The question is how.</p>
+
+<p>Initial attempts to cache these entities were done inside the service JVMs, using familiar and popular JVM based caches like EHcache and calls out to memcache. Unfortunately, this left us operating at JVM speeds and the caches were competing with the service logic for memory and threads.</p>
+
+<p>In addition, our service code was muddled with messy caching logic.  Making the code harder to reuse, and more annoyingly, changes just affecting caching forced us to re-release the entire service.  We didn’t like this mixing of concerns.</p>
+
+<p>We thought we could do better if we used external read through caches. It&rsquo;s easy to slide them between existing clients and services. With caching outside the service, it get released only when their logic changes not because we’re tuning caching.</p>
+
+<p>For reasons too numerous to cover in this post we chose <a href="https://www.varnish-cache.org/about">Varnish</a> as our read through cache.</p>
+
+<hr />
+
+<h2>Act II: The Architecture</h2>
+
+<p>When we introduced Varnish to our architecture, we wanted to make sure we were not adding a single point of failure. Simply put, if the cache layer goes down, our infrastructure should continue running. Performance might be degraded, but we should continue to be able to serve content to clients.</p>
+
+<p>The diagram below shows a typical setup. In a normal scenario, a client accesses Varnish via a load balancer. Varnish in turn farms out the work in round robin fashion to one of four job seeker service nodes. Should Varnish become unavailable, the load balancer stops sending traffic to Varnish and reroutes it to the four job seeker service nodes.</p>
+
+<p><img class="center" src="/images/varnish-in-five-acts/varnish-flow.png"></p>
+
+<p>Of all our entity services, the job seeker services carries the highest median load. The graph below is the 1 minute request rate on 4 jobseeker service nodes over the 36 hour period before and after Varnish was turned on.</p>
+
+<p><img class="center" src="/images/varnish-in-five-acts/before-after.png"></p>
+
+<hr />
+
+<h2>Act III: Cache Invalidation</h2>
+
+<p>Cache invalidation is one of the 2 hard problems in computer science along with naming things and off by one errors.</p>
+
+<p>We cache job seeker entity representations until some point in the “far future”, which is great until something about that job seeker changes, then we must invalidate the cached entry. So, how do we do that?</p>
+
+<p>Two ways.</p>
+
+<h3>Via Header:</h3>
+
+<p>All requests that change the state of a job seeker that are made via the service attach a header in the response called &ldquo;x-invalidates&rdquo; that looks something like:</p>
+
+<p><code>
+x-invalidates: /jobseekers/123
+</code></p>
+
+<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://dev.theladders.com/ourteam/johnconnolly/">John Connolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
+
+<h3>Via Magic:</h3>
+
+<p>Once upon a time, we had a database administrator named Gennady. Gennady wrote a <a href="http://www.dinodigusa.com/images/Magic1.gif">PHP script that reads MySQL’s binary logs</a>, looking for changes to a set of predefined tables. When it sees an update, it finds the primary key for the row and fires off an invalidation request. In our case, a purge of the cached jobseeker url in Varnish. This allows us to invalidate cached job seeker entities even when the update was performed via legacy code that interacts directly with the database rather than through the service.</p>
+
+<p>If you were to do this manually, it would look something like:</p>
+
+<p><code>
+curl -X PURGE varnish-jobseeker/jobseekers/123
+</code></p>
+
+<hr />
+
+<h2>Act IV: Configuration Spelunking</h2>
+
+<p>So, how did we do it? I’m going to break down our configuration into its parts and cover the general role each part plays. From here on out, I’m assuming you understand the basics of how Varnish works and how you configure it. Also, there is some repetition in our configuration that isn’t required, it just makes it easier for our configuration management tool, puppet, to create the final output.</p>
+
+<h3>Load Balancing</h3>
+
+<p>We have four service servers behind varnish so we create four backend entries and then set up a director to round robin between them. Then in vcl_recv, we set our director named &lsquo;nodes&rsquo; to be the backend that we will use to fetch content.</p>
+
+<p>``` bash
+backend JS1 {
+  .host  = &ldquo;JS1&rdquo;;
+  .port  = &ldquo;8080&rdquo;;</p>
+
+<p>  &hellip;
+}</p>
+
+<p>backend JS2 {
+  .host  = &ldquo;JS2&rdquo;;
+  .port  = &ldquo;8080&rdquo;;</p>
+
+<p>  &hellip;
+}</p>
+
+<p>backend JS3 {
+  .host  = &ldquo;JS3&rdquo;;
+  .port  = &ldquo;8080&rdquo;;</p>
+
+<p>  &hellip;
+}</p>
+
+<p>backend JS4 {
+  .host  = &ldquo;JS4&rdquo;;
+  .port  = &ldquo;8080&rdquo;;</p>
+
+<p>  &hellip;
+}</p>
+
+<p>director nodes round-robin {
+  { .backend = JS1 ; }
+  { .backend = JS2 ; }
+  { .backend = JS3 ; }
+  { .backend = JS4 ; }
+}</p>
+
+<p>sub vcl_recv {
+  set req.backend = nodes;
+}</p>
+
+<h1>store in cache only by url, not backend host</h1>
+
+<p>sub vcl_hash {
+  hash_data(req.url);
+  return (hash);
+}
+```</p>
+
+<h3>Degraded</h3>
+
+<p>Each backend is setup with a probe url that we use to check its health. If the probe url doesn&rsquo;t return at least one HTTP 200 response within a fifteen second period, we mark that backend as unhealthy.</p>
+
+<p>``` bash
+backend &hellip; {
+   &hellip;</p>
+
+<p>  .probe = {</p>
+
+<pre><code>.url = "/donjohnson/pulse";
+.interval = 5s;
+.timeout = 250ms;
+.window = 3;
+.threshold = 2;
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>Varnish has the concept of a grace period, wherein, we can keep content alive in our cache past the TTL based on the health status of our backends. In our case, when the all backends are down, we keep cached items alive for an extra hour. During this time, we operate in a degraded status. Read requests for cached items will be handled while write requests will fail because there is no backend service to handle them.</p>
+
+<p>``` bash
+sub vcl_fetch {
+  # max time to keep an item in the cache past its ttl
+  # used in conjunction with code in vcl_recv to
+  # deal with &lsquo;sick&rsquo; backends
+  set beresp.grace = 1h;</p>
+
+<p>  &hellip;
+}</p>
+
+<p>sub vcl_recv {
+  &hellip;</p>
+
+<p>  # extra ttl for cached objects based on backend health
+  if (!req.backend.healthy) {</p>
+
+<pre><code>set req.grace = 1h;
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>set req.grace = 15s;
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h3>Invalidation</h3>
+
+<p>We do two types of invalidation:</p>
+
+<ul>
+<li>invalidation based on the &lsquo;x-invalidates&rsquo; header that comes back with a response</li>
+<li>&lsquo;manual&rsquo; invalidation based on sending the HTTP PURGE verb to a url in the Varnish cache.</li>
+</ul>
+
+
+<p>The ability to do a manual purge is limited to a small set of IP addresses that we validate against when a purge request is received.</p>
+
+<p>``` bash
+acl purge {
+  &ldquo;localhost&rdquo;;
+  &ldquo;10.10.10.10&rdquo;;
+}</p>
+
+<p>sub vcl_recv {
+  &hellip;</p>
+
+<p>  # &lsquo;manual&rsquo; purge
+  if (req.request == &ldquo;PURGE&rdquo;) {</p>
+
+<pre><code>if (client.ip ~ purge) {
+   return(lookup);
+}
+
+error 405 "Not allowed.";
+</code></pre>
+
+<p>  }</p>
+
+<p>  &hellip;
+}
+```</p>
+
+<p>The actual mechanics of doing the purge are fairly simple. If the url attempted to be purged exists, purge it and return a 200.</p>
+
+<p>``` bash
+sub vcl_hit {
+  # &lsquo;manual&rsquo; purge
+  if (req.request == &ldquo;PURGE&rdquo;) {</p>
+
+<pre><code>purge;
+error 200 "Purged.";
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>If it doesn&rsquo;t, return a 404 response code:</p>
+
+<p>``` bash
+sub vcl_miss {
+  # &lsquo;manual&rsquo; purge
+  if (req.request == &ldquo;PURGE&rdquo;) {</p>
+
+<pre><code>purge;
+error 404 "Not in cache.";
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>Update requests include invalidation-related headers. Every request we fetch has, inside of Varnish, its request url stored in a special x-url header. This will be used as the url to check the x-invalidates header against. As this header is purely for our internal use, we remove it before delivering items to a client:</p>
+
+<p>``` bash
+sub vcl_fetch {
+  &hellip;</p>
+
+<p>  set beresp.http.x-url = req.url;</p>
+
+<p>  &hellip;
+}</p>
+
+<p>sub vcl_deliver {
+  # clear internal cache invalidation header before sending to client
+  unset resp.http.x-url;
+}
+```</p>
+
+<p>Any &lsquo;successful&rsquo; PUT, POST, DELETE or PATCH response will have its x-invalidates header used as a regular expression to invalidate existing content whose x-url header matches the x-invalidates regex.</p>
+
+<p>```
+sub vcl_fetch {
+  &hellip;</p>
+
+<p>  # cache invalidation
+  set beresp.http.x-url = req.url;
+  if (req.request == &ldquo;PUT&rdquo; || req.request == &ldquo;POST&rdquo; || req.request == &ldquo;DELETE&rdquo; || req.request == &ldquo;PATCH&rdquo;) {</p>
+
+<pre><code>if  (beresp.status &gt;= 200 &amp;&amp; beresp.status &lt; 400) {
+ ban("obj.http.x-url ~ " + beresp.http.x-invalidates);
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<hr />
+
+<h2>Act V: The final product</h2>
+
+<p>And finally, we put it all together into a complete file (note, we use Varnish 3, the semantics around ban/purge changed from v2 to v3):</p>
+
+<p>``` bash
+backend JS1 {
+  .host  = &ldquo;JS1&rdquo;;
+  .port  = &ldquo;8080&rdquo;;
+  .probe = {</p>
+
+<pre><code>.url = "/donjohnson/pulse";
+.interval = 5s;
+.timeout = 250ms;
+.window = 3;
+.threshold = 2;
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>backend JS2 {
+  .host  = &ldquo;JS2&rdquo;;
+  .port  = &ldquo;8080&rdquo;;
+  .probe = {</p>
+
+<pre><code>.url = "/donjohnson/pulse";
+.interval = 5s;
+.timeout = 250ms;
+.window = 3;
+.threshold = 2;
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>backend JS3 {
+  .host  = &ldquo;JS3&rdquo;;
+  .port  = &ldquo;8080&rdquo;;
+  .probe = {</p>
+
+<pre><code>.url = "/donjohnson/pulse";
+.interval = 5s;
+.timeout = 250ms;
+.window = 3;
+.threshold = 2;
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>backend JS4 {
+  .host  = &ldquo;JS4&rdquo;;
+  .port  = &ldquo;8080&rdquo;;
+  .probe = {</p>
+
+<pre><code>.url = "/donjohnson/pulse";
+.interval = 5s;
+.timeout = 250ms;
+.window = 3;
+.threshold = 2;
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>director nodes round-robin {
+  { .backend = JS1 ; }
+  { .backend = JS2 ; }
+  { .backend = JS3 ; }
+  { .backend = JS4 ; }
+}</p>
+
+<h1>what machines can institute a &lsquo;manual&rsquo; purge</h1>
+
+<p>acl purge {
+  &ldquo;localhost&rdquo;;
+  &ldquo;192.1.1.4&rdquo;;
+}</p>
+
+<h1>store in cache only by url, not backend host</h1>
+
+<p>sub vcl_hash {
+  hash_data(req.url);
+  return (hash);
+}</p>
+
+<p>sub vcl_fetch {
+  # max time to keep an item in the cache past its ttl
+  # used in conjunction with code in vcl_recv to
+  # deal with &lsquo;sick&rsquo; backends
+  set beresp.grace = 1h;</p>
+
+<p>  # cache invalidation
+  set beresp.http.x-url = req.url;
+  if (req.request == &ldquo;PUT&rdquo; || req.request == &ldquo;POST&rdquo; || req.request == &ldquo;DELETE&rdquo; || req.request == &ldquo;PATCH&rdquo;) {</p>
+
+<pre><code>if  (beresp.status &gt;= 200 &amp;&amp; beresp.status &lt; 400) {
+ ban("obj.http.x-url ~ " + beresp.http.x-invalidates);
+}
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>sub vcl_recv {
+  set req.backend = nodes;</p>
+
+<p>  # &lsquo;manual&rsquo; purge
+  if (req.request == &ldquo;PURGE&rdquo;) {</p>
+
+<pre><code>if (client.ip ~ purge) {
+   return(lookup);
+}
+
+error 405 "Not allowed.";
+</code></pre>
+
+<p>  }</p>
+
+<p>  # extra ttl for cached objects based on backend health
+  if (!req.backend.healthy) {</p>
+
+<pre><code>set req.grace = 1h;
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>set req.grace = 15s;
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>sub vcl_deliver {
+  # clear internal cache invalidation header before sending to client
+  unset resp.http.x-url;
+}</p>
+
+<p>sub vcl_hit {
+  # &lsquo;manual&rsquo; purge
+  if (req.request == &ldquo;PURGE&rdquo;) {</p>
+
+<pre><code>purge;
+error 200 "Purged.";
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>sub vcl_miss {
+  # &lsquo;manual&rsquo; purge
+  if (req.request == &ldquo;PURGE&rdquo;) {</p>
+
+<pre><code>purge;
+error 404 "Not in cache.";
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h2>Hidden Track Bonus Act:</h2>
+
+<p><img class="center" src="/images/varnish-in-five-acts/varnish-all-the-things.jpg"></p>
+
+<p>Join the discussion over at <a href="https://news.ycombinator.com/item?id=5651874">Hacker News</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Debugging | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/debugging/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2014-02-24T11:44:48-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Trouble with Google's ImmutableSet]]></title>
+    <link href="http://dev.theladders.com/2013/03/trouble-with-googles-immutableset/"/>
+    <updated>2013-03-12T06:10:10-04:00</updated>
+    <id>http://dev.theladders.com/2013/03/trouble-with-googles-immutableset</id>
+    <content type="html"><![CDATA[<p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
+
+<p><blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&mdash;Hunter S. Thompson</strong></footer></blockquote></p>
+
+<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
+
+<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
+Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
+
+<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
+
+<!-- more -->
+
+
+<p><a href="/images/cache-creation-slowdown1.png"><img class="center" src="/images/cache-creation-slowdown1.png" width="300" height="171" title="Cache creation slowdown chart" ></a></p>
+
+<p>You&rsquo;ll notice the jump on 1/16 from a gradual increase to a more rapid increase. That day a new release went out that included an increase in the size of a related cache- one that contains all job seekers who have permission to follow recruiters. Intersections of that cache with another are then used to build the followers cache.</p>
+
+<p>At first we thought that the slowdown was a function of the increased cache size. Maybe pulling more data from the database to fill up the larger cache was the culprit. But from the logs we found that wasn&rsquo;t the case. In fact, we found that CPU usage was spiking to 100% while the cache was being built. This was in contrast to the QA machines, where CPU did not spike at all during the process. Further analysis determined the code was spending the vast majority of its time calculating the intersections of caches to produce the followers cache. The code is something along these lines:</p>
+
+<p><code>java
+for (int recruiterId : followersForRecruitersCache.keySet())
+{
+  Set s = Sets.intersection(followersForRecruitersCache.get(recruiterId),
+  canFollowRecruitersCache);
+  followersCache.put(recruiterId, new HashSet(s));
+}
+</code></p>
+
+<p>(The method Set.intersection() is from Google Collections.) So was the problem that we had so much more data in production than in our QA environment, and many more iterations were being spent calculating set intersections? We also found another interesting bit of information. The following code, used to build the canFollowRecruitersCache, a simple set of integer IDs, was also taking longer in production than in QA:</p>
+
+<p><code>java
+ImmutableSet.Builder builder = ImmutableSet.builder();
+for (Integer id : userPrivilegeSystem.getAllJobseekersWhoCanFollowRecruiters())
+{
+  builder.add(id);
+}
+canFollowRecruitersCache = builder.build();
+</code></p>
+
+<p>Actually, all the slowness was in the call to ImmutableSet.Builder.build(), also from Google Collections. In fact, we have a larger canFollowRecruitersCache in QA than in production due to the amount of test data in the QA database. So the problem must be in the data itself and its interaction with ImmutableSet. (For the source code for the ImmutableSet, see <a href="http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java">http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java</a>.)</p>
+
+<p>Taking a closer look, the distribution of IDs in canFollowRecruitersCache in QA looks like this (X-axis is the array index, Y-axis is the ID):</p>
+
+<p><a href="/images/canFollowRecruitersCache-ID-distribution-in-QA.png"><img class="center" src="/images/canFollowRecruitersCache-ID-distribution-in-QA.png" width="300" height="176" title="&ldquo;canFollowRecruitersCache ID Distribution in QA&rdquo;" ></a></p>
+
+<p>The standard deviation of this set of IDs is 12,266,077.</p>
+
+<p>The distribution of IDs in canFollowRecruitersCache in production looks like this:</p>
+
+<p><a href="/images/canFollowRecruitersCache-ID-distribution-in-production.png"><img class="center" src="/images/canFollowRecruitersCache-ID-distribution-in-production.png" width="300" height="173" title="&ldquo;canFollowRecruiterCache ID distribution in production&rdquo;" ></a></p>
+
+<p>The standard deviation of this set of IDs is 642,039.</p>
+
+<p>Opening up the code in ImmutableSet, we find that it uses a linear array of buckets, and when a collision occurs it probes each bucket until it finds an empty one, and puts the element there. It uses a secondary hash function, called smear(), to index into the array. Presumably this is used to augment whatever hash is already supplied by the element to be inserted. Unfortunately this isn&rsquo;t enough to overcome the distribution of IDs in our production data. Since Java a Integer&rsquo;s hash code is just its value, the efficiency of the ImmutableSet ends up being subject to the distribution of the IDs. The number of collisions that occur with production data when building the set is a huge 3,217,789,124, but with our somewhat larger QA dataset, only 3,199,502. If we read in the same production data as Strings instead of Integers, however, the number of collisions drops dramatically, and production performance is equivalent to QA&rsquo;s.</p>
+
+<p>Both our QA and production data cause the same size of array of buckets of 1,048,576 to be used internally by ImmutableSet. Rendering this array into a 1024 x 1024 square, and color-coding by number of collisions at that index, we can have a better idea of what&rsquo;s happening.</p>
+
+<p>The colors in the graphics below have the following meaning:</p>
+
+<table style="border:1px solid black;border-collapse:collapse;margin:auto;">
+  <tbody>
+    <tr>
+      <th style="border:2px solid black;padding:10px;">collision count</th>
+      <th style="border:2px solid black;padding:10px;text-align:right">color</th>
+    </tr>
+    <tr>  
+      <td style="border:1px solid black;padding:10px;">0 (no element)</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">white</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">0 (has element)</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">black</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 10</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">magenta</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 100</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">blue</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 1000</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 10000</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">&lt; 25000</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">orange</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid black;padding:10px;">25000+</td>
+      <td style="border:1px solid black;padding:10px;text-align:right">red</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<p>Thus the array produced for QA data looks like this:</p>
+
+<p><a href="/images/ImmutableSet-collisions-in-QA.png"><img class="center" src="/images/ImmutableSet-collisions-in-QA.png" width="300" height="300" title="&ldquo;ImmutableSet collisions in QA&rdquo;" ></a></p>
+
+<p>Whereas the array produced for production data looks like this:</p>
+
+<p><a href="/images/ImmutableSet-collisions-in-production.png"><img class="center" src="/images/ImmutableSet-collisions-in-production.png" width="300" height="300" title="&ldquo;ImmutableSet collisions in production&rdquo;" ></a></p>
+
+<p>The same algorithm is used to implement the set's contains() method, so operations such as intersections are also extremely slow with this data. A simple change to Java&rsquo;s built-in HashSet fixes the problem.</p>
+
+<p><a href="http://www.reddit.com/r/programming/comments/1a5by8/trouble_wi%20%20%20%20th_googles_immutableset/">Join the discussion on reddit</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

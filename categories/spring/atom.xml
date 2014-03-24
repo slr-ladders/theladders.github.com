@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Spring | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/spring/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2014-02-24T11:44:48-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Getting Some Clojure: nREPL in a Spring App]]></title>
+    <link href="http://dev.theladders.com/2013/04/getting-some-clojure-nrepl-in-a-spring-app/"/>
+    <updated>2013-04-02T16:04:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/04/getting-some-clojure-nrepl-in-a-spring-app</id>
+    <content type="html"><![CDATA[<p><blockquote><p>You don&rsquo;t have to be great to start, but you have to start to be great.</p><footer><strong>&mdash;Zig Ziglar</strong></footer></blockquote></p>
+
+<p>Despite having read through the
+<a href="http://www.amazon.com/The-Joy-Clojure-Thinking-Way/dp/1935182641/">several</a>
+<a href="http://www.amazon.com/Clojure-Action-Amit-Rathore/dp/1935182595/">Clojure</a>
+<a href="http://www.amazon.com/Programming-Clojure-Pragmatic-Programmers-Halloway/dp/1934356336/">books</a>
+on my shelf and having played around with
+<a href="http://www.4clojure.com/">4Clojure</a> (user “wislocki”, ranked 2309th
+the last time I checked), I’m not feeling much confidence with the
+language yet. We use embedded <a href="http://www.eclipse.org/jetty/">Jetty</a>
+to run the website on personal development machines, and I figured it
+would be great to be able to play with it interactively in a Clojure
+<a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>
+and get some more hands-on experience.</p>
+
+<p>Practically speaking, since the website is a Java application, a Scala
+REPL might make more sense, bridging the gap between the
+object-oriented and functional styles more smoothly. But this is a
+Clojure-learning exercise, after all.</p>
+
+<p>We’re using
+<a href="http://www.springsource.org/spring-framework">Spring 3.1.x</a>, and I
+initially looked to see if there was any precedence for combining a
+Clojure REPL with Spring. The links I found were mostly out of date or
+not relevant.</p>
+
+<p>I decided that I would use
+<a href="https://github.com/clojure/tools.nrepl">nREPL</a>, since the
+alternative, <a href="https://github.com/technomancy/swank-clojure">Swank</a>, is
+no longer maintained. As we’re using
+<a href="http://static.springsource.org/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java">Spring’s Java configuration system</a>,
+it would have to be started up there. That’s actually pretty
+straightforward. Using
+<a href="https://github.com/clojure/tools.nrepl#embedding-nrepl-starting-a-server">code</a>
+from the nREPL README to start the server, I created the following
+Spring configuration class:</p>
+
+<p>``` java
+package com.theladders.lw.config;</p>
+
+<p>import java.io.StringReader;</p>
+
+<p>import javax.annotation.PostConstruct;
+import javax.inject.Inject;</p>
+
+<p>import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;</p>
+
+<p>import clojure.lang.Compiler;
+import clojure.lang.RT;</p>
+
+<p>@Configuration
+public class NReplConfig
+{
+  // Clojure code to start the server. If you wanted to, you could probably move the port value
+  // into a Java properties file, and use the @Value annotation to provide it instead.</p>
+
+<p>  private static final String NREPL_INIT = &ldquo;(use &lsquo;[clojure.tools.nrepl.server :only (start-server stop-server)]) &rdquo; +</p>
+
+<pre><code>                                       "(start-server :port 7888)";
+</code></pre>
+
+<p>  @Inject
+  private ApplicationContext  context;</p>
+
+<p>  // Annotated with @PostConstruct so that this method is run after the object is instantiated and
+  // any other dependency injection has taken place.</p>
+
+<p>  @PostConstruct
+  public void initializeRepl()
+  {</p>
+
+<pre><code>// Load the Clojure Runtime class so that the Compiler can properly use it.
+
+Class.forName("clojure.lang.RT");
+
+// Start the nREPL server.
+
+Compiler.load(new StringReader(NREPL_INIT));
+
+// Make the Spring context available in the "lw" namespace.
+
+RT.var("lw", "*context*", context);
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>(Thanks to <a href="https://twitter.com/petitlaurent">Laurent Petit</a> of
+<a href="https://code.google.com/p/counterclockwise/">counterclockwise</a>-fame
+for recommending the above class-loading strategy, as well as the the
+suggestion to replace the use of <code>(ns lw)</code> with <code>(in-ns 'lw)</code> in the
+REPL example below.)</p>
+
+<p>With this file in place, running <code>mvn jetty:run</code> starts up both the
+web server and nREPL. While I could have used
+<a href="https://github.com/technomancy/leiningen">Leiningen</a> to connect the
+REPL, I decided to use <a href="http://www.gnu.org/software/emacs/">emacs</a>
+instead. If you’re using <a href="http://batsov.com/">Bozhidar Batsov</a>’s
+<a href="https://github.com/bbatsov/prelude">Prelude configuration</a>, you
+already have support for nREPL installed, otherwise you can get it
+through <a href="http://melpa.milkbox.net/">MELPA</a> or
+<a href="http://marmalade-repo.org/">Marmalade</a> or directly
+<a href="https://github.com/kingtim/nrepl.el">here</a>. After a quick <code>M-x
+nrepl</code>, I can interact with the running server like so:</p>
+
+<p>```
+; nREPL 0.1.7-preview
+user> (in-ns &lsquo;lw)</p>
+
+<h1><Namespace lw></h1>
+
+<p>lw> <em>context</em></p>
+
+<h1><AnnotationConfigWebApplicationContext Root WebApplicationContext: startup date [Thu Mar 28 16:25:12 EDT 2013]; root of context hierarchy></h1>
+
+<p>lw> (def jss (.getBean <em>context</em> getBean &ldquo;jobseekerService&rdquo;))</p>
+
+<h1>&lsquo;lw/jss</h1>
+
+<p>lw> jss</p>
+
+<h1><JobseekerService com.theladders.lw.jobseeker.service.JobseekerService@1f4e3b7c></h1>
+
+<p>lw> (def jsid (com.theladders.lw.jobseeker.model.JobseekerId. 7906538))</p>
+
+<h1>&lsquo;lw/jsid</h1>
+
+<p>lw> (.get jss jsid)</p>
+
+<h1><Jobseeker com.theladders.lw.jobseeker.model.Jobseeker@5dfcb9fd></h1>
+
+<p>lw> (.getFirstName (.get jss jsid))
+&ldquo;Daniel&rdquo;
+lw>
+```</p>
+
+<p>Pretty straightforward!</p>
+
+<p>The additions to the <code>pom.xml</code> file that enable nREPL support are below:</p>
+
+<p>``` xml
+<repositories>
+&hellip;</p>
+
+<pre><code>&lt;!-- The following gives us access to Clojure libraries like clojure-complete. --&gt;
+&lt;repository&gt;
+    &lt;id&gt;clojars.org&lt;/id&gt;
+    &lt;url&gt;http://clojars.org/repo&lt;/url&gt;
+&lt;/repository&gt;
+</code></pre>
+
+<p>&hellip;
+</repositories>
+<dependencies>
+&hellip;</p>
+
+<pre><code>&lt;!-- Clojure-complete enables tab-completion in the REPL. --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;clojure-complete&lt;/groupId&gt;
+    &lt;artifactId&gt;clojure-complete&lt;/artifactId&gt;
+    &lt;version&gt;0.2.3&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.clojure&lt;/groupId&gt;
+    &lt;artifactId&gt;clojure&lt;/artifactId&gt;
+    &lt;version&gt;1.5.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.clojure&lt;/groupId&gt;
+    &lt;artifactId&gt;tools.nrepl&lt;/artifactId&gt;
+    &lt;version&gt;0.2.2&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<p>&hellip;
+</dependencies>
+```</p>
+
+<p>I hope you found this brief write-up useful. I plan on continuing my stumbling exploration, so look for other Clojure-related posts soon.</p>
+
+<p>Join the discussion over on <a href="http://www.reddit.com/r/programming/comments/1bjh69/getting_some_clojure_nrepl_in_a_spring_app/">reddit</a>.</p>
+
+<p><em>April 8th, 2013: Edited in response to suggestions from Laurent Petit.</em></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Announcements | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/announcements/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2014-02-24T11:44:48-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[We're Hosting the first NYC Erlang Factory Lite on September 14th]]></title>
+    <link href="http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite/"/>
+    <updated>2013-08-07T16:06:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite</id>
+    <content type="html"><![CDATA[<p>Thanks to one of our Lead Software Engineers, <a href="http://dev.theladders.com/ourteam/derekbrown/">Derek Brown</a>, TheLadders will be hosting the first <a href="http://www.erlang-factory.com/conference/NYC2013">NYC Erlang Factory Lite</a> on the 14th of September.</p>
+
+<p>If you haven’t heard about Erlang before, it is an open-source programming language that was designed for massive concurrency, making it an ideal candidate for scalability on multicore architectures. The language was invented for telecoms, but due to its unique features it quickly made its way into a range of other verticals with similar requirements – from financial switches, through instant messaging servers, HTTP servers and web frameworks, database engines and so forth. It is used for highly available systems, providing uptime of five nines and allowing live code updates, all at a fraction of the effort required by conventional languages such as C++ and Java. Ericsson, Aol, WhatsApp, Nokia, T-Mobile, Heroku and Basho are a few of the companies that employ Erlang.</p>
+
+<p>At TheLadders, we’re currently using two of the most popular software products written in Erlang: the document-oriented database system Couchbase, and RabbitMQ, an AMQP messaging service. I asked Derek how he found out about Erlang in the first place: &ldquo;I became interested in Erlang while first reading about functional programming, and was drawn to its fault-tolerant capabilities and its unique syntax. Erlang&rsquo;s functional nature is a big draw, coming from an imperative background. On top of that, the Erlang community is active and very open. So a few years later here I am co-organizing the NYC Erlang Meetup and now co-organizing the NYC Erlang Factory Lite.&rdquo;</p>
+
+<p>On the 14th of September New York developers will not only get to find out more about Erlang and its applications to distributed environments, but also to meet two of the language’s inventors. NYC Erlang Factory Lite will also be a chance for the East Coast Erlang community to showcase Erlang and its use in the real world. Adam Denenberg, VP of Engineering at the Huffington Post will talk about the architecture and setup built by the Huffington Post to power their real-time WebSocket-based commenting framework.  Leveraging RabbitMQ, SockJS, Cowboy and Erlang, they were able to build and design a highly scalable, customizable solution to power real-time comments. Christopher Meiklejohn, software engineer at Basho, will provide an introduction to building Riak Core applications. Fred Hebert, engineer on Heroku&rsquo;s Routing Team, will talk about Heroku’s cloud platform composed of heterogeneous components (written in Ruby, Erlang and Go, to name a few) and why a large part of its routing stack is written in Erlang.  Other speakers include Christian Gribneau, CTO of Ology Media, and Mahesh Paolini Subramania, Creator of the first Erlang Cloud PBX. For more info check out the program on the ErlangFactory website: <a href="http://www.erlang-factory.com/conference/NYC2013/programme">http://www.erlang-factory.com/conference/NYC2013/programme</a></p>
+
+<p>The high point of the day will the keynotes of Joe Armstrong and Robert Virding, two of the three inventors of the language. Joe was part of the team who designed and implemented the first version of Erlang and has written several Erlang books including Programming Erlang Software for a Concurrent World. He will be talking about the OTP rationale. OTP is a number of different things: a delivery platform for Erlang and the Erlang VM, a large set of general-purpose libraries and a set of design principles. Robert took part in the original system design and contributed much of the original libraries, as well as to the current compiler. While at the lab he also did a lot of work on the implementation of logic and functional languages and on garbage collection. He also taught Erlang to literally hundreds of developers.  In his talk he will look at the rationale behind Erlang and try to show how many of its important features combine to work together.</p>
+
+<p>For those interested in learning Erlang, Robert Virding will teach a three-day course immediately prior to the Erlang Factory Lite. The course contains all the Erlang basics such as sequential and concurrent programming, alongside error handling. More details on all modules here: <a href="http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress">http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress</a></p>
+
+<p>Early Bird tickets are available at $70 until the 16th of August. After the 16th, the full-price ticket is $90. Half-price student discounts are also available. Places are limited, so if you want to come you should get your ticket now.</p>
+
+<p>If you want to find out more about Erlang, here’s a great introduction to Erlang ‘from behind the trenches’ video: <a href="https://vimeo.com/19806728">https://vimeo.com/19806728</a>. A lot more videos and slides from various Erlang Factory events around the world can be found on the event website: <a href="http://www.erlang-factory.com/">http://www.erlang-factory.com/</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Eric Evans Is Coming to TheLadders]]></title>
+    <link href="http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders/"/>
+    <updated>2013-03-08T10:09:00-05:00</updated>
+    <id>http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders</id>
+    <content type="html"><![CDATA[<p><blockquote><p>&hellip; when the Man comes around.</p><footer><strong>&mdash;Johnny Cash</strong></footer></blockquote></p>
+
+<p>We are happy to announce that on April 10th, TheLadders will be hosting
+<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
+<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
+York City DDD Meetup group. Engineers at TheLadders have long been
+following developments in the DDD community. <a href="/ourteam/kyrisarantakos/">Some</a> of
+<a href="/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
+<a href="/ourteam/kylewinter/">more</a> of <a href="/ourteam/mattjankowski/">us</a> will be attending it shortly, and
+our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
+
+<p>For those of you who might be unfamiliar with DDD, its goal is the
+design of software that creates business value. DDD guides technical
+and domain experts to collaboratively create a mental model of the
+central business concepts. This model is then used to drive
+design. This sounds like common sense: developers work with people who
+know about the business to make software that works to solve its
+problems. What could be more straightforward?  And yet, the complexity
+inherent in the business world and software engineering make it
+difficult to create software that is supple and adaptable to changing
+needs. DDD provides a framework for thinking about, creating, and
+communicating mental models. And that requires the learning of new
+skills and ideas. It isn’t an easy process, but we have found that it
+is rewarding for both the business and developers.</p>
+
+<h1>A Little of Our Experience with DDD</h1>
+
+<p>While creating our new website, we’ve tried to remain focused on
+“communicating mental models”. One way this can be done is through
+DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
+communicate the contract between the domain model and its
+users. Judging from the vast amount of code out there, this simple
+idea is counterintuitive. Our own legacy codebase is no exception. For
+example:</p>
+
+<p>``` java
+public class Subscription
+{
+  &hellip;</p>
+
+<p>  public AutoRenewFlags getAutoRenewFlag()
+  {</p>
+
+<pre><code>return autoRenewFlag;
+</code></pre>
+
+<p>  }</p>
+
+<p>  public void setAutoRenewFlag(AutoRenewFlags autoRenewFlag)
+  {</p>
+
+<pre><code>this.autoRenewFlag = autoRenewFlag;
+</code></pre>
+
+<p>  }</p>
+
+<p>  public int getUnsubscribeReason()
+  {</p>
+
+<pre><code>return unsubscribeReason;
+</code></pre>
+
+<p>  }</p>
+
+<p>  public void setUnsubscribeReason(int unsubscribeReason)
+  {</p>
+
+<pre><code>this.unsubscribeReason = unsubscribeReason;
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>This is an example of what in DDD is called an “anemic domain
+model”. The Subscription class is a key part of the domain, yet not
+only does it communicate nothing to the user about its usage, it in
+fact does nothing. Values can be retrieved and set, but what then? How
+do I actually unsubscribe someone? What prevents me from using any
+arbitrary integer for the “unsubscribe reason”? What about changing
+auto-renewal to null? There is no explicit contract here, and the user
+of this object is given no guidance or constraints. By contrast, we’ve
+worked hard in our newer code to avoid creating anemic domain models
+and instead create objects that are not only useful, but clear in
+their usage. Here is another example, this time from the new
+Subscription class:</p>
+
+<p>``` java
+public abstract class Subscription
+{
+   &hellip;</p>
+
+<p>   public abstract Subscription withAutoRenewOn();</p>
+
+<p>   public abstract Subscription withAutoRenewOff();</p>
+
+<p>   public abstract CanceledSubscription unsubscribe(UnsubscribeReason unsubscribeReason);
+}
+```</p>
+
+<p>In this case we’ve attempted to make the contract clear. Calling the
+unsubscribe method actually unsubscribes the customer, returning a
+CanceledSubscription. The “unsubscribe reason” is now strongly typed,
+clearly communicating which values are allowed. Auto-renewal changes
+yield a new immutable Subscription object, and can be chained together
+with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
+settings.</p>
+
+<p>Another example of an anemic domain model, lacking an
+intention-revealing interface, comes from the old Payment class in our
+legacy codebase:</p>
+
+<p>``` java
+public Payment(int paymentId,</p>
+
+<pre><code>           int paymentActionType,
+           BigDecimal amount,
+           String approvalCode,
+           String transactionReference,
+           int creditCardId)
+</code></pre>
+
+<p>{
+  this.paymentId = paymentId;
+  this.paymentActionType = paymentActionType;
+  this.amount = amount;
+  this.approvalCode = approvalCode;
+  this.creditCardId = creditCardId;
+  this.transactionReference = transactionReference;
+}
+```</p>
+
+<p>This class contains only the constructor you see here, and getters for
+each of the fields created. It turns out that it’s used as a parameter
+object, and nothing more. There’s no guidance as to it’s valid
+construction, and no hint about its usage. Yet obviously handling
+subscription payments is an important part of the subscription domain,
+and we want the contracts around the model of that domain clear and
+easy to understand. Here’s our attempt at accomplishing those goals in
+the new codebase:</p>
+
+<p>``` java
+public Payment(PaymentAmount paymentAmount,</p>
+
+<pre><code>           JobseekerId jobseekerId,
+           PaymentActionType paymentActionType,
+           ReportGroup reportGroup)
+</code></pre>
+
+<p>```</p>
+
+<p>The first difference is actually one that’s not visible from the code
+itself. As we’ve developed the new site, we’ve agreed that all
+arguments to methods or constructors are required; no passing of
+nulls. If an argument is truly optional, a separate method or
+constructor is added that excludes it. We want our code to be
+confident, and this contract means that methods and constructors “say
+what they mean and mean what they say”. In the legacy codebase, nulls
+were passed liberally to and fro, and you could never be quite sure
+which arguments were truly required.</p>
+
+<p>Another change is the promotion of this class from a mere parameter
+object to an active participant in the domain model:</p>
+
+<p>``` java
+public Receipt makeWith(PaymentMethod method)
+{
+  method.make(this);
+  return new Receipt(paymentAmount.asAmountPaid());
+}</p>
+
+<p>public void recordWith(PaymentRecorder paymentRecorder)
+{
+  paymentRecorder.record(paymentAmount);
+}
+```</p>
+
+<p>Instead of being passed around to “manager” objects and DAOs, a
+Payment object can actually make a payment and create records of
+itself. It seems only natural.</p>
+
+<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
+this post barely scratches the surface. And as a team we know we still
+have much farther to go in its mastery, but the time we’ve spent in
+study and practice have been well worth the effort so far.</p>
+
+<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
+presentation and discussion.</p>
+]]></content>
+  </entry>
+  
+</feed>
