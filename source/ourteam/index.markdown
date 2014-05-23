@@ -9,8 +9,6 @@ footer: false
 ****
 {% include ourteam/seantallen.markdown %}
 ****
-{% include ourteam/leoamigud.markdown %}
-****
 {% include ourteam/joydipbandyopadhyay.markdown %}
 ****
 {% include ourteam/francobarbeite.markdown %}
