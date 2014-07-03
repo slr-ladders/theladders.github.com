@@ -6,7 +6,7 @@ categories: Announcements Erlang
 published: true
 ---
 
-Thanks to one of our Lead Software Engineers, [Derek Brown](http://dev.theladders.com/ourteam/derekbrown/), TheLadders will be hosting the first [NYC Erlang Factory Lite](http://www.erlang-factory.com/conference/NYC2013) on the 14th of September. 
+Thanks to one of our Lead Software Engineers, Derek Brown, TheLadders will be hosting the first [NYC Erlang Factory Lite](http://www.erlang-factory.com/conference/NYC2013) on the 14th of September. 
 
 If you haven’t heard about Erlang before, it is an open-source programming language that was designed for massive concurrency, making it an ideal candidate for scalability on multicore architectures. The language was invented for telecoms, but due to its unique features it quickly made its way into a range of other verticals with similar requirements – from financial switches, through instant messaging servers, HTTP servers and web frameworks, database engines and so forth. It is used for highly available systems, providing uptime of five nines and allowing live code updates, all at a fraction of the effort required by conventional languages such as C++ and Java. Ericsson, Aol, WhatsApp, Nokia, T-Mobile, Heroku and Basho are a few of the companies that employ Erlang.
 
