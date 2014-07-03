@@ -29,6 +29,8 @@ footer: false
 ****
 {% include ourteam/ericfeder.markdown %}
 ****
+{% include ourteam/jaygaonkar.markdown %}
+****
 {% include ourteam/douggrove.markdown %}
 ****
 {% include ourteam/matthewgundel.markdown %}
@@ -40,6 +42,8 @@ footer: false
 {% include ourteam/zhenjin.markdown %}
 ****
 {% include ourteam/hailin.markdown %}
+****
+{% include ourteam/leonliao.markdown %}
 ****
 {% include ourteam/frankmadrie.markdown %}
 ****
