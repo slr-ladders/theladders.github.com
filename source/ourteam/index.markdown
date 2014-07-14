@@ -71,6 +71,8 @@ footer: false
 ****
 {% include ourteam/andrewturley.markdown %}
 ****
+{% include ourteam/avitaltzubeli.markdown %}
+****
 {% include ourteam/kylewinter.markdown %}
 ****
 {% include ourteam/danielwislocki.markdown %}
