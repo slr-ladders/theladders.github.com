@@ -2,7 +2,7 @@
 author: Jon Ruttenberg
 layout: post
 title: "Monitoring RabbitMQ at TheLadders"
-date: 2014-07-15 15:27
+date: 2014-07-15 16:27
 comments: true
 categories: RabbitMQ
 published: false
