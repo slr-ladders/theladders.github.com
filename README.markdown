@@ -7,7 +7,9 @@ If this is the first time you're using ruby to do anything, go and do yourself a
 And obviously make sure you've got git installed.
 5. **Ships with great plug-ins** some original and others from the Jekyll community &mdash; tested and improved.
 
-**Note**: Octopress requires a minimum Ruby version of `1.9.3-p0`.
+**Note**: Octopress requires a minimum Ruby version of `1.9.3-p0`.  
+*You probably won't be able to install Ruby 1.9.3 using RVM on OS X 10.8.5.  
+Ruby 2.0.0 works OK.*
 
 I've not tried any of this on windows.  This is kid tested OSX and Linux approved.
 
@@ -72,7 +74,12 @@ Create a new post and give it your desired title
 
 ```
 rake new_post["Bob Loblaws Law Blog Post"]
+```  
+**N.B.**  *rake may abort due to a conflict between rake 0.9.6 and 0.9.2.2.  Running*  
 ```
+bundle exec rake new_post...
+```  
+*solves the problem.*
 
 You'll see this:
 
@@ -152,9 +159,17 @@ That's about it.  You're off and running.
 
 ## Preview mode
 
-Work locally.  run
-```rake preview```
-and it'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render published: false pages, so don't freak out.
+Work locally. Run  
+```
+rake preview
+```
+and it'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render published: false pages, so don't freak out.  
+**N.B.**  *rake may abort due to a conflict between rake 0.9.6 and 0.9.2.2.  Running*  
+```
+bundle exec rake preview
+```  
+*solves the problem.*
+
 
 ## It's all ready to go
 Make sure you've added the new file to be tracked by git:
