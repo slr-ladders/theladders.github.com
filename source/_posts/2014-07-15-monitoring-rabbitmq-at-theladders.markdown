@@ -104,3 +104,5 @@ Meanwhile, on the Riemann side of things, Riemann has been configured to watch t
 
 With *monitor-rabbitmq*, we supply a regular flow of events to our *Riemann* server containing data about our RabbitMQ queues and nodes. By choosing a good base set of statistics to request from the RabbitMQ Management API, a change to our monitoring and alerting requirements usually results in only a change to our *Riemann* configuration.
 
+
+Find this useful? Join the discussion at [Hacker News](https://news.ycombinator.com/item?id=8036593).
