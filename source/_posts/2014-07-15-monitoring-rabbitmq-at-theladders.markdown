@@ -2,10 +2,9 @@
 author: Jon Ruttenberg
 layout: post
 title: "Monitoring RabbitMQ at TheLadders"
-date: 2014-07-15 16:27
-comments: true
+date: 2014-07-15 10:24
 categories: RabbitMQ
-published: false
+published: true
 ---
 {% blockquote --Lewis Carroll, Alice in Wonderland %}
 Alice:        “How long is forever?”
