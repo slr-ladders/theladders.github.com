@@ -7,13 +7,11 @@ comments: true
 categories: RabbitMQ
 published: false
 ---
-
+{% blockquote --Lewis Carroll, Alice in Wonderland %}
 Alice:        “How long is forever?”
 
 White Rabbit:     “Sometimes, just one second."
-
-― Lewis Carroll, Alice in Wonderland
-
+{% endblockquote %}
 
 *Motivation*
 ------------
