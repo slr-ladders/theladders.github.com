@@ -4,7 +4,7 @@ layout: post
 title: "A Brewing Storm"
 date: 2013-12-19 11:45
 comments: true
-categories: 
+categories: Storm
 published: true
 ---
 {% blockquote --Toni Morrison %}
