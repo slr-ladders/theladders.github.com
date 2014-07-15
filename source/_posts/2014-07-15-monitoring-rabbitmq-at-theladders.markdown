@@ -29,7 +29,7 @@ We did not find a suitable ready-to-use solution for this need. As you will see 
 -------------------
 Our first attempts at a monitoring solution revolved around an assortment of shell scripts that made HTTP requests to the RabbitMQ Management API to discover the lengths of important queues at particular times. If certain thresholds were crossed, alerts were sent to on-call personnel. This approach had a number of drawbacks:
 
- - Brittleness: The times of the Management API queries were controlled by when the script was run by *cron*. The queue length thresholds were often dependent on the sizes of the datasets involved and the speed of the systems which published messages or read them from the queues.
+ - Brittleness: The times of the Management API queries were controlled by when the script was run by cron. The queue length thresholds were often dependent on the sizes of the datasets involved and the speed of the systems which published messages or read them from the queues.
  - Measuring Queue Lengths at a Single Point in Time: Checking the queue length at a particular point in time could not provide the information necessary to answer questions such as "When will this queue be drained?" and "Are messages being placed on the queue at a rate sufficient to meet a particular processing schedule?"
 
 
@@ -37,8 +37,8 @@ Our first attempts at a monitoring solution revolved around an assortment of she
  
 *How We Solved the Problem*
 ---------------------------
-We created a [Clojure](http://clojure.org/) library called [monitor-rabbitmq](https://github.com/TheLadders/monitor-rabbitmq), available on **GitHub**.
-It gathers statistics on RabbitMQ queues and nodes, and packages them as [Riemann](http://riemann.io) events. *monitor-rabbitmq* takes care of acquiring RabbitMQ statistics from the RabbitMQ cluster, using the RabbitMQ’s HTTP based [Management API](http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_3_4/priv/www/api/index.html). *Riemann* takes care of aggregating the events and performing the calculations necessary to determine whether an alert should be triggered.
+We created a [Clojure](http://clojure.org/) library called [monitor-rabbitmq](https://github.com/TheLadders/monitor-rabbitmq), available on GitHub.
+It gathers statistics on RabbitMQ queues and nodes, and packages them as [Riemann](http://riemann.io) events. *monitor-rabbitmq* takes care of acquiring RabbitMQ statistics from the RabbitMQ cluster, using the RabbitMQ’s HTTP based [Management API](http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_3_4/priv/www/api/index.html). Riemann takes care of aggregating the events and performing the calculations necessary to determine whether an alert should be triggered.
 
 
 ----------
@@ -79,7 +79,7 @@ It gathers statistics on RabbitMQ queues and nodes, and packages them as [Rieman
 
 
  
-**What does each** *Riemann* **event look like?**
+**What does each** Riemann **event look like?**
 Here is the Clojure representation (a map):
 ```clj
 {:time 1390593087006,
@@ -89,20 +89,20 @@ Here is the Clojure representation (a map):
     :state "ok",
     :tags ["rabbitmq"]}
 ```
-This event, created by the Clojure library, includes a *:host* member which is formed by taking a *rmq-display-name* argument (“our-rabbitmq”) and composing it with the queue (or node) name: “super.awesome.queue”
+This event, created by the Clojure library, includes a ```:host``` member which is formed by taking a ```rmq-display-name argument``` (“our-rabbitmq”) and composing it with the queue (or node) name: “super.awesome.queue”
  
 *An Example*
 ------------
 Let's say that we have a queue which is read by a Storm topology. That queue contains messages which hold matches between jobs and job seekers. The topology must process the messages so that emails notifying job seekers of these job opportunities are composed and sent to an external email service. We want to be alerted if the messages are being consumed from the queue at a rate such that the queue will not be cleared by a certain deadline, say 9:00 AM.
 
-We create a simple Clojure application that calls the *send-nodes-stats-to-riemann* function of our library and then exits. We call this application once a minute. Each call results in a full set of queue statistics being sent to our Riemann server.
+We create a simple Clojure application that calls the ```send-nodes-stats-to-riemann``` function of our library and then exits. We call this application once a minute. Each call results in a full set of queue statistics being sent to our Riemann server.
 
 Meanwhile, on the Riemann side of things, Riemann has been configured to watch the Ack rate of our queue. Riemann accumulates events over a time interval, smoothing out minor variations in the Ack rate, and calculates a projected time for the queue to be emptied. If the Ack rate dips below a certain threshold, it triggers an alert using, in our environment, the [Icinga](https://www.icinga.org) monitoring system.
 
 *Wrapping Up*
 -------------
 
-With *monitor-rabbitmq*, we supply a regular flow of events to our *Riemann* server containing data about our RabbitMQ queues and nodes. By choosing a good base set of statistics to request from the RabbitMQ Management API, a change to our monitoring and alerting requirements usually results in only a change to our *Riemann* configuration.
+With *monitor-rabbitmq*, we supply a regular flow of events to our Riemann server containing data about our RabbitMQ queues and nodes. By choosing a good base set of statistics to request from the RabbitMQ Management API, a change to our monitoring and alerting requirements usually results in only a change to our Riemann configuration.
 
 
 Find this useful? Join the discussion at [Hacker News](https://news.ycombinator.com/item?id=8036593).
