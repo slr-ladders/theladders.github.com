@@ -3,9 +3,8 @@ author: Matt Chesler
 layout: post
 title: "Thunder and Lightning"
 date: 2014-07-23 09:00
-comments: true
 categories: Storm DevOps
-published: false
+published: true
 ---
 {% blockquote --Occam's Razor %}
 The simplest of explanations is more likely to be correct than any other.
