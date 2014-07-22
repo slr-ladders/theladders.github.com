@@ -2,7 +2,7 @@
 author: Matt Chesler
 layout: post
 title: "Thunder and Lightning"
-date: 2014-07-17 10:00
+date: 2014-07-23 09:00
 comments: true
 categories: Storm DevOps
 published: false
