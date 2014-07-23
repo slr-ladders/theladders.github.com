@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it&#8211;Toni Morrison Once upon a time &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/blog/page/3/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div class="blog-index">
+  
+  
+  
+    <article class="article">
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2013/12/a-brewing-storm/">A Brewing Storm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it</p><footer><strong>&#8211;Toni Morrison</strong></footer></blockquote>
+
+
+<p>Once upon a time there was a script. Each morning it sent new jobs to our job seeking customers. It was simple and the data it operated on was relatively small.  As the months turned into years this script grew in complexity and the data grew in size.  And more scripts came to the party and they had data of their own and these new scripts beget data for other scripts, and this small group of scripts extracted and transformed, processed and prepared, working tirelessly every night.</p>
+
+<p>Some worked alone while others fed each other, all growing increasingly more complex.  Occasionally at first and more frequently over time, the scripts started to interfere with each other by competing for resources or not finishing in time for a child script to consume it’s parents data, or worst of all, deadlocking for no apparent reason.</p>
+
+<p>Let’s bring some order we said and used cron to wrangle them at first, then moving to more complex “enterprise” scheduling systems to try and tame the beast, and keep the scripts from clobbering each other or grinding themselves to a crawl.</p>
+
+<p>But the data grew and grew and with it came longer and longer run times.  At this same time our script was getting slower, our users’ expectations and our own ambitions grew.  Could we alert a job seeker the minute a new relevant job entered our system?  Could we alert an employer as soon as job seeker they were interested in updated their profile?</p>
+
+<p>The network of interactions/activity/entities we wanted to grow, monitor and react to and then extract value from was exploding in complexity.  You can picture all of our job seekers, employers and jobs as nodes in a graph, and imagine our teams are furiously trying to connect them in new and interesting ways.  They are using machine learning to light up edges between these nodes, indicating which jobs a particular job seeker might be interested in and which job seekers an employer might like.  Or clustering these entities into similar groups.</p>
+
+<p>Doing all of this between 12am and 6am was getting hard. Hadoop was an option, but processing speed alone wasn’t just the issue.  Some things we wanted to do had to be done in real time, not batch.  A user isn’t going to wait until the nightly run for us to calculate what jobs are appropriate for them.  In addtion, as TheLadders moves into mobile and speed becomes more and more a concern we want the Graph of our Ecosystem to be as current as possible not something that gets updated once a day.</p>
+
+<p>There comes this thing. Storm. It fits into our infrastructure; working nicely with RabbitMQ and interop’ing well with our existing code base.</p>
+
+<p>However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place.</p>
+
+<p>Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the <a href="http://www.manning.com/sallen/">Manning Early Access Program</a> any day now.  We hope you find it useful and we look forward to your feedback on the book.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/4/">&larr; Older</a>
+    
+    <a class="archives" href="/blog/archives">Blog Archives</a>
+    
+      <a class="next" href="/blog/page/2/">Newer &rarr;</a>
+    
+  </div> 
+</div>
+
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping our thick client skinny</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/08/were-hosting-erlang-factory-lite/">We're Hosting the first NYC Erlang Factory Lite on September 14th</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2014 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

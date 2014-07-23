@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>The Evolution of QA at TheLadders - TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="Change means that what was before wasn&#8217;t perfect. People want things to be better.&#8211;Esther Dyson Looking back on my 6+ years at TheLadders &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/2013/05/the-evolution-of-qa-at-theladders/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">The Evolution of QA at TheLadders</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-16T09:04:00-04:00" pubdate data-updated="true">May 16<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>Change means that what was before wasn&#8217;t perfect. People want things to be better.</p><footer><strong>&#8211;Esther Dyson</strong></footer></blockquote>
+
+
+<p>Looking back on my 6+ years at TheLadders, I realize how much has changed. When I first joined the company at the start of 2007, there were five other people on the QA team supporting a team of 12 software developers. We followed a strict waterfall process. Product ideas were generated, researched and solidified before any conversation with the development or QA teams. Product managers would spend a large portion of their time hunkered down at their desks writing specification documents, complete with statements on purpose and scope, workflows, wireframes and interaction rules.</p>
+
+<p>After these documents were approved by business owners, the development, QA, and design teams would meet to walk through the document with the goal of estimating the implementation time. QA played the role of a customer advocate and tried to ensure that there was as little uncertainty in the documentation as possible. Instead of walking out of the meeting with estimates, the Product Manager would usually leave with a list of missing workflows and use cases that they would need to add to the spec before development began.</p>
+
+<p>Eventually a release date would be set. Spec and design mocks in hand, the development team would start building the feature.  The QA team would write test cases. We created long lists of actions and expected outcomes that we would use to manually test the development team’s work. Test automation &ndash; unit, integration, functional, load, et al &ndash; was a distant dream. Our primary interaction with the development team was proving the existence of bugs that they couldn’t reproduce.</p>
+
+<p><img class="center" src="/images/the-evolution-of-qa-at-theladders/it-works-on-my-machine.png"></p>
+
+<p>Even though both the development and QA teams worked off of the same documents, the software never matched the expected behavior according to the test case. Preparing for a release was a never-ending cycle of testing, bug-finding, bug-fixing, and retesting. Fixed release dates and not testing until the end of the development cycle led to releases that were huge events with late, stressful nights leading up to release and late, stressful nights spent cleaning up after it was over!</p>
+
+<p>Between major releases, QA was either responding to customer issues, estimating how long it would take to test an upcoming project, or maintaining our set of regression test case documents in Excel.</p>
+
+<h2>Fast forward to 2009.</h2>
+
+<p>The development team had grown to 35. The QA team had shrunk to 4. We’d transitioned to Scrum a few months previous and shuffled the production teams around to form 4 cross-functional ones. Each team consisted of developers, a QA lead, a designer, a copy editor, and a product manager. The move to Scrum was bumpy as we molded the framework into a process that worked for us but teams had started to find a groove. Ideas were generated and defined within each team, we were checking in with each other often, and delivering value to our customers faster. The teams were working like well-oiled machines&hellip; almost.</p>
+
+<p>Selecting user stories to be undertaken during an iteration had become a team decision, however then the Product Manager and QA rep would work together, without the rest of the team, to define the requirements for each story and flesh them out into use case documents. QA still played the role of customer advocate: working to clearly define expected behavior of each user story in terms of the use case document.</p>
+
+<p>The developers would use these documents to build each user story. Sometimes, they&rsquo;d also write unit tests to cover a few of the more important use case scenarios. Before a story was considered &ldquo;done&rdquo;, a code review would need to be completed by at least two developers. In order to make sure that each story met customer expectations, QA would need to manually test the feature. The need for manual testing didn’t end there. At the end of each iteration, QA would run through the entire regression suite before releasing.</p>
+
+<p>We had made some improvements, but it was clear that we could improve the process if we increased communication of requirements and lessened the amount of manual testing that needed to be done.</p>
+
+<p>We were releasing every two weeks. They were smaller and less stressful than in the past. QA still spent a lot of time manually testing, but it was done throughout the iteration instead of being squeezed in at the end. This meant that QA had a lot more downtime than before. While some of this time was spent doing the work we had always done, we also made sure to spend time learning about new tools and best practices. Over time, we learned a lot about automated functional testing. We experimented with different frameworks, starting with a simple record-and-playback tool, until we learned more about what we needed and which tools might best fit that need. I’ll write a post later to shed some light on what that journey was like, but suffice it to say that it took quite a bit of trial and error!</p>
+
+<h2>Fast forward to now.</h2>
+
+<p>We&rsquo;ve moved beyond Scrum to an adapted Agile process that emphasises cross-functional, independent, and highly collaborative teams. Each team is free to adopt practices that work for them. They have free reign to define the way that they work amongst themselves. There are certain commonalities that hold true across all our teams:</p>
+
+<p><strong>QA plays the role of customer advocate</strong>. We know our customers well and our applications even better. This gives us a unique perspective when defining new user stories that helps our teams deliver better products for our users.</p>
+
+<p><strong>The teams define user stories together</strong>. QA still helps flesh out requirements and acceptance criteria, but with the participation of the rest of the team. Defining requirements as a team helps us make sure that we&rsquo;re all on the same page which in turn helps us work better and faster.</p>
+
+<p><strong>We aren&rsquo;t heavy-handed with the documentation</strong>. We&rsquo;ve found that most of our previous attempts at documentation were wasteful &ndash; and often not as useful to the developers as we thought. Instead, after each team conversation around story requirements QA either writes notes and acceptance criteria on the back of the story card (if the team uses a whiteboard to manage their backlog) or in comments attached to the story in Trello.</p>
+
+<p><strong>We automate tests when it&rsquo;s the smart thing to do</strong>. Manually testing everything definitely was not the best thing for us to do, but <a href="http://xkcd.com/1205/">neither is automating every test</a>. Instead, QA and the developers have frequent conversations around how to appropriately test each user scenario: Can it be sufficiently covered in a unit or integration test? Does it make sense to write an expensive automated functional test that checks the functionality through the browser? How important is this functionality? What&rsquo;s the risk of it breaking? We also keep test coverage at the front of our minds and use different <a href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">strategies</a> to make sure that we can trust the tests that we do automate.</p>
+
+<p><strong>Developers write most of our automated tests</strong>. Whether unit, integration, functional, or load tests, usually it&rsquo;s a developer that&rsquo;s going to write it. QA does pitch in when they can but with one QA lead per team, it&rsquo;s not feasible for them to write all of the automated tests without becoming a bottleneck.</p>
+
+<p><strong>We peer review code</strong> with QA actively participating.</p>
+
+<p><strong>We&rsquo;ve set up continuous integration builds</strong>. All of our unit-level tests run after each commit and all of our automated functional regression tests must pass before each deployment. If a test fails, we fix it.</p>
+
+<p>And of course, QA is still responsible for investigating and responding to customer issues. Some things will never change.</p>
+
+<p>We&rsquo;ve come a long way! But that doesn&rsquo;t mean that we can&rsquo;t get better. As a wise man* once said, consistency requires you to be as ignorant today as you were a year ago. Here at TheLadders, we&rsquo;re always learning.</p>
+
+<p>*Bernard Berenson</p>
+
+<p>Join the discussion over at <a href="http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved">Software Testing Club</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+
+       
+     <span class="byline author vcard">Posted by <span class="fn">
+		<a href="/ourteam/susanneabdelrahman">Susanne Abdelrahman</a></span></span>
+  
+  
+
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-16T09:04:00-04:00" pubdate data-updated="true">May 16<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/how-we-work/'>How we work</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2013/05/the-evolution-of-qa-at-theladders/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2013/05/the-evolution-of-qa-at-theladders/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/05/varnish-in-five-acts/" title="Previous Post: Varnish in Five Acts">&laquo; Varnish in Five Acts</a>
+      
+      
+        <a class="basic-alignment right" href="/2013/07/denormalize-the-datas-for-great-good/" title="Next Post: Denormalize the Datas for Great Good">Denormalize the Datas for Great Good &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping our thick client skinny</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/08/were-hosting-erlang-factory-lite/">We're Hosting the first NYC Erlang Factory Lite on September 14th</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2014 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

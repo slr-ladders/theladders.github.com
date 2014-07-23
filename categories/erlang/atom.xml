@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Erlang | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/erlang/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2014-07-23T08:57:48-04:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[We're Hosting the first NYC Erlang Factory Lite on September 14th]]></title>
+    <link href="http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite/"/>
+    <updated>2013-08-07T16:06:00-04:00</updated>
+    <id>http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite</id>
+    <content type="html"><![CDATA[<p>Thanks to one of our Lead Software Engineers, Derek Brown, TheLadders will be hosting the first <a href="http://www.erlang-factory.com/conference/NYC2013">NYC Erlang Factory Lite</a> on the 14th of September.</p>
+
+<p>If you haven’t heard about Erlang before, it is an open-source programming language that was designed for massive concurrency, making it an ideal candidate for scalability on multicore architectures. The language was invented for telecoms, but due to its unique features it quickly made its way into a range of other verticals with similar requirements – from financial switches, through instant messaging servers, HTTP servers and web frameworks, database engines and so forth. It is used for highly available systems, providing uptime of five nines and allowing live code updates, all at a fraction of the effort required by conventional languages such as C++ and Java. Ericsson, Aol, WhatsApp, Nokia, T-Mobile, Heroku and Basho are a few of the companies that employ Erlang.</p>
+
+<p>At TheLadders, we’re currently using two of the most popular software products written in Erlang: the document-oriented database system Couchbase, and RabbitMQ, an AMQP messaging service. I asked Derek how he found out about Erlang in the first place: &ldquo;I became interested in Erlang while first reading about functional programming, and was drawn to its fault-tolerant capabilities and its unique syntax. Erlang&rsquo;s functional nature is a big draw, coming from an imperative background. On top of that, the Erlang community is active and very open. So a few years later here I am co-organizing the NYC Erlang Meetup and now co-organizing the NYC Erlang Factory Lite.&rdquo;</p>
+
+<p>On the 14th of September New York developers will not only get to find out more about Erlang and its applications to distributed environments, but also to meet two of the language’s inventors. NYC Erlang Factory Lite will also be a chance for the East Coast Erlang community to showcase Erlang and its use in the real world. Adam Denenberg, VP of Engineering at the Huffington Post will talk about the architecture and setup built by the Huffington Post to power their real-time WebSocket-based commenting framework.  Leveraging RabbitMQ, SockJS, Cowboy and Erlang, they were able to build and design a highly scalable, customizable solution to power real-time comments. Christopher Meiklejohn, software engineer at Basho, will provide an introduction to building Riak Core applications. Fred Hebert, engineer on Heroku&rsquo;s Routing Team, will talk about Heroku’s cloud platform composed of heterogeneous components (written in Ruby, Erlang and Go, to name a few) and why a large part of its routing stack is written in Erlang.  Other speakers include Christian Gribneau, CTO of Ology Media, and Mahesh Paolini Subramania, Creator of the first Erlang Cloud PBX. For more info check out the program on the ErlangFactory website: <a href="http://www.erlang-factory.com/conference/NYC2013/programme">http://www.erlang-factory.com/conference/NYC2013/programme</a></p>
+
+<p>The high point of the day will the keynotes of Joe Armstrong and Robert Virding, two of the three inventors of the language. Joe was part of the team who designed and implemented the first version of Erlang and has written several Erlang books including Programming Erlang Software for a Concurrent World. He will be talking about the OTP rationale. OTP is a number of different things: a delivery platform for Erlang and the Erlang VM, a large set of general-purpose libraries and a set of design principles. Robert took part in the original system design and contributed much of the original libraries, as well as to the current compiler. While at the lab he also did a lot of work on the implementation of logic and functional languages and on garbage collection. He also taught Erlang to literally hundreds of developers.  In his talk he will look at the rationale behind Erlang and try to show how many of its important features combine to work together.</p>
+
+<p>For those interested in learning Erlang, Robert Virding will teach a three-day course immediately prior to the Erlang Factory Lite. The course contains all the Erlang basics such as sequential and concurrent programming, alongside error handling. More details on all modules here: <a href="http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress">http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress</a></p>
+
+<p>Early Bird tickets are available at $70 until the 16th of August. After the 16th, the full-price ticket is $90. Half-price student discounts are also available. Places are limited, so if you want to come you should get your ticket now.</p>
+
+<p>If you want to find out more about Erlang, here’s a great introduction to Erlang ‘from behind the trenches’ video: <a href="https://vimeo.com/19806728">https://vimeo.com/19806728</a>. A lot more videos and slides from various Erlang Factory events around the world can be found on the event website: <a href="http://www.erlang-factory.com/">http://www.erlang-factory.com/</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

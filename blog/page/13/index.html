@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="It was the age of wisdom, it was the age of foolishness&#8211;Charles Dickens Introduction I’ve decided to split this blog post up into three &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/blog/page/13/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div class="blog-index">
+  
+  
+  
+    <article class="article">
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/">Riders on the Storm: Take a Long Holiday, Let Your Children Play</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-04T13:52:00-05:00" pubdate data-updated="true">Mar 4<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="center" src="/images/lightning_storm.gif" title="'Lightning Storm'" ></p>
+
+<blockquote><p>It was the age of wisdom, it was the age of foolishness</p><footer><strong>&#8211;Charles Dickens</strong></footer></blockquote>
+
+
+<hr />
+
+<h1>Introduction</h1>
+
+<p>I’ve decided to split this blog post up into three different sections as we have gone through three different phases with our usage of Storm.  The first describes how we used to use Storm at TheLadders.  This is followed by our “wake up call”, forcing us to the realization that how we had been using Storm was not sufficient.  The “wake up call” has led us to our current state of how we now use Storm at TheLadders. But first for those of you who aren’t familiar with Storm, a quick explanation straight from the horse’s mouth:</p>
+
+<blockquote><p>Storm is a distributed real-time computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing real-time computation. Storm is simple, can be used with any programming language, is used by many companies, and is a lot of fun to use!</p><footer><strong>Nathan Marz</strong> <cite><a href='https://github.com/nathanmarz/storm'>Storm Readme</a></cite></footer></blockquote>
+
+
+<hr />
+
+<h1>The Past</h1>
+
+<p>We were early users of Storm, starting out with the Storm 0.5.x releases and later upgrading to 0.6.2.  Our Storm cluster was very basic: Nimbus, Zookeeper with 2 Worker nodes;   5 topologies deployed, but only 3 of them really being exercised.  Many of these topologies were for non-critical portions of our application, as such we weren’t paying much attention to the cluster. The topologies we wrote had well-tested individual components; each of the Spouts and Bolts were written with testability in mind.  However we struggled when it came to end-to-end tests for an entire topology.</p>
+
+<p>Other areas of our Storm related pain were:</p>
+
+<ul>
+<li>Very limited visibility into the overall health of the Storm cluster.  We lacked any monitoring and had very few metrics regarding our cluster.  We relied a lot on tailing the logs of the worker nodes to see how things were behaving.</li>
+<li>We naively configured the topology resources, not really being aware of what resources were being used across the worker nodes.</li>
+<li>A majority of our topologies used RabbitMQ as the entry-point and we had a very basic AMQP Spout implementation.  In fact, the initial AMQP Spout increased CPU usage on our RabbitMQ nodes from 4-10% to 40-45% with very little message throughput.</li>
+<li>Guaranteed message processing was not always enforced (more due to lack of knowledge on the subject than anything).</li>
+</ul>
+
+
+<p>That list looks bad and one might wonder how we got along at all given those shortcomings.  To be honest, everything just “worked”, which was all we needed at that point.  The combination of Nimbus and Zookeeper did a great job of re-deploying topologies anytime “something” happened.  While we would occasionally open up the Storm web admin to see how things were doing, we really didn’t pay much attention to it; everything just worked.  Even the increase in RabbitMQ CPU usage was not considered overly serious because everything continued to work and was fairly stable.  This behavior continued for about a year or so.</p>
+
+<hr />
+
+<h1>The &ldquo;Wake Up Call&rdquo;</h1>
+
+<p>Then came the day when we needed to deploy a new feature in one of our topologies.  We ran the standard release script to deploy a topology through Nimbus, and … nothing…  After some digging, we found that Nimbus had run out of disk space and our topologies had not been pulling messages off of RabbitMQ for an estimated 3 – 7 days.</p>
+
+<p>In addition, shortly after this initial wake up call, we had some one-off topologies that needed to be run for a 24-hour period.  These topologies required a decent number of resources.  They quickly starved the existing topologies of resources and did a good job of bringing Storm to a screeching halt.  It was like watching a caged death match between all of our topologies that left everyone unconscious on the mat.</p>
+
+<p>If something like the 7-10 day outage can go unnoticed for so long, and if we could starve topologies at the drop of a hat, how could we expect to successfully expand our usage of Storm to more critical portions of the application?</p>
+
+<p>We needed to change, and fast!</p>
+
+<hr />
+
+<h1>The Present</h1>
+
+<p>We immediately started figuring out what we didn’t know about Storm and which bits were the most important for immediate success.  Some members of the development team got together with our operations team and worked out monitoring of cluster components. While Operations beefed up what they could, the development team:</p>
+
+<ul>
+<li>Enforced guaranteed message processing in all of our topologies.  This has mainly been done through the use of the BaseBasicBolt, which provides emitting anchored tuples and acking for free. <a href="http://nathanmarz.github.com/storm/doc/backtype/storm/topology/base/BaseBasicBolt.html">(http://nathanmarz.github.com/storm/doc/backtype/storm/topology/base/BaseBasicBolt.html)</a></li>
+<li>Refactored our AMQP Spout implementation to subscribe to a queue instead of using individual “gets”.  This has resulted in pre-Storm 0.6.2 levels of CPU usage on our RabbitMQ nodes (below 10% again).</li>
+<li>Added an additional three worker nodes with more memory and CPU so we don’t have to constantly worry about resource starvation (although this should always be something to consider really).</li>
+<li>Improved our unit testing of configured topologies using the simulated time cluster testing feature in Storm 0.8.1  <a href="https://github.com/xumingming/storm-lib/blob/master/src/jvm/storm/TestingApiDemo.java">(https://github.com/xumingming/storm-lib/blob/master/src/jvm/storm/TestingApiDemo.java)</a>:</li>
+</ul>
+
+
+<hr />
+
+<h1>The Future</h1>
+
+<p>Okay, so I lied.  There is a fourth phase: the future; where we plan to go with Storm.</p>
+
+<p>We plan on upgrading to Storm 0.8.2 very soon.  It has a much-improved web admin that allows for deployment and rebalancing of topologies on the fly.  We hope this simplifies the process of deploying and rebalancing (if needed) of our topologies.</p>
+
+<p>Upgrade to Storm 0.9.x as soon as possible once released.  We hear good things about this release; mainly the metric collecting which will be a huge win in terms of improving visibility into the streams and flow of tuples between Spouts and Bolts.</p>
+
+<p>Finally, we are plan on expanding our topologies to be more than simple queue-to-spout designs.  We are experimenting with using Storm for scheduled batch processes, hoping to have something in production within the next week.</p>
+
+<p>Hopefully this blog gave you a nice overview of how Storm can be used by a company.  I think one of the take-aways can be how easy Storm is to use.  Storm served us for over a year with very little intervention and minimal knowledge on our part; I believe this speaks volumes of Storm’s ease-of-use and reliability.</p>
+
+<p>Stay tuned for some more detailed technical blogs on some of the things we did to improve our Storm usage.</p>
+
+<p>Join the discussion over at <a href="http://www.reddit.com/r/programming/comments/19noko/how_we_use_twitters_storm_part_one/">reddit</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/14/">&larr; Older</a>
+    
+    <a class="archives" href="/blog/archives">Blog Archives</a>
+    
+      <a class="next" href="/blog/page/12/">Newer &rarr;</a>
+    
+  </div> 
+</div>
+
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping our thick client skinny</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/08/were-hosting-erlang-factory-lite/">We're Hosting the first NYC Erlang Factory Lite on September 14th</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2014 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
