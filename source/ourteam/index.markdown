@@ -55,8 +55,6 @@ footer: false
 ****
 {% include ourteam/johnmumm.markdown %}
 ****
-{% include ourteam/drewnichols.markdown %}
-****
 {% include ourteam/emilyobrien.markdown %}
 ****
 {% include ourteam/peter.markdown %}
