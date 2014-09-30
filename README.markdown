@@ -60,6 +60,7 @@ Install bundler
 gem install bundler
 ```
 
+<<<<<<< HEAD
 Install octopress's dependencies:
 
 ```
