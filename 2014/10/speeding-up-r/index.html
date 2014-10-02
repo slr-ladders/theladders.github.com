@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>TheLadders Engineering Stories</title>
+  <title>Speeding Up R - TheLadders Engineering Stories</title>
   <meta name="author" content="TheLadders Engineering">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://dev.theladders.com/">
+  <link rel="canonical" href="http://dev.theladders.com/2014/10/speeding-up-r/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -103,15 +103,12 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 </header>
 	<main id="main" class="main">
 		<div class="content">
-		  <div class="blog-index">
+		  <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article class="article">
-      
   <header>
     
-      <h1 class="entry-title"><a href="/2014/10/speeding-up-r/">Speeding Up R</a></h1>
+      <h1 class="entry-title">Speeding Up R</h1>
     
     
       <p class="meta">
@@ -134,7 +131,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   </header>
 
 
-  <div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
+<div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
 
 <p>A few months ago, we encountered this issue directly. We started working on an algorithm that would analyze any one of our six million jobseekers and find other jobseekers that they’re most similar to. To come up with this list, we’d look through several of the data points we had about the jobseeker, such as their career history and which jobs on our site they had been interested in, and looked for other members who had a similar set of data points. Our first pass at this algorithm in R took about thirty seconds to run for each jobseeker. If we wanted to run it for all six million of our users… well, we couldn’t really wait until 2019 to see the results. We’ve spent the subsequent few weeks speeding up the process so that it now takes less than half a second per jobseeker, and we’ve learned a bunch of helpful tips along the way.</p>
 
@@ -264,21 +261,68 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 
 <p>While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.</p>
 </div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+
+       
+     <span class="byline author vcard">Posted by <span class="fn">
+		<a href="/ourteam/ericfeder">Eric Feder</a></span></span>
   
   
 
 
-    </article>
+      
+
+
+
+
+
+
+
+
   
-  <div class="pagination">
+
+
+<time datetime="2014-10-02T14:51:51-04:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/data-science/'>Data Science</a>, <a class='category' href='/categories/scaling/'>Scaling</a>
+  
+</span>
+
+
+    </p>
     
-      <a class="prev" href="/blog/page/2/">&larr; Older</a>
-    
-    <a class="archives" href="/blog/archives">Blog Archives</a>
-    
-  </div> 
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2014/10/speeding-up-r/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2014/10/speeding-up-r/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
 </div>
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/07/thunder-and-lightning/" title="Previous Post: Thunder and Lightning">&laquo; Thunder and Lightning</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
 
 		</div>
 	</main>

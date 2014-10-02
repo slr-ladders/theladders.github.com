@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Recognizing the need is the primary condition for design.&#8211;Charles Eames You may or may not have noticed, but TheLadders.com just got a huge &hellip;">
+  <meta name="description" content="If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it&#8211;Toni Morrison Once upon a time &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping Our Thick Client Skinny</a></h1>
+      <h1 class="entry-title"><a href="/2013/12/a-brewing-storm/">A Brewing Storm</a></h1>
     
     
       <p class="meta">
@@ -127,109 +127,33 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-10-30T01:37:00-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2013</time>
+<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Recognizing the need is the primary condition for design.</p><footer><strong>&#8211;Charles Eames</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it</p><footer><strong>&#8211;Toni Morrison</strong></footer></blockquote>
 
 
-<p>You may or may not have noticed, but <a href="https://www.theladders.com/">TheLadders.com</a> just got a huge make over. We rewrote the website, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.  <br/>
-iPhone? Check. iPad? Check. MacBook Air? Check. Ginormous iMac screen? Check.</p>
+<p>Once upon a time there was a script. Each morning it sent new jobs to our job seeking customers. It was simple and the data it operated on was relatively small.  As the months turned into years this script grew in complexity and the data grew in size.  And more scripts came to the party and they had data of their own and these new scripts beget data for other scripts, and this small group of scripts extracted and transformed, processed and prepared, working tirelessly every night.</p>
 
-<p><span class='caption-wrapper left small'><img class='caption' src='/images/responsive/ladders-wide.jpeg' width='' height='' alt='New TheLadders.com on a desktop screen with the wide experience' title='New TheLadders.com on a desktop screen with the wide experience'><span class='caption-text'>New TheLadders.com on a desktop screen with the wide experience</span></span></p>
+<p>Some worked alone while others fed each other, all growing increasingly more complex.  Occasionally at first and more frequently over time, the scripts started to interfere with each other by competing for resources or not finishing in time for a child script to consume it’s parents data, or worst of all, deadlocking for no apparent reason.</p>
 
-<p><span class='caption-wrapper left small'><img class='caption' src='/images/responsive/ladders-skinny.png' width='' height='' alt='New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar' title='New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar'><span class='caption-text'>New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: <a href="http://jasonweaver.name/lab/offcanvas/">off canvas</a> sidebar</span></span></p>
+<p>Let’s bring some order we said and used cron to wrangle them at first, then moving to more complex “enterprise” scheduling systems to try and tame the beast, and keep the scripts from clobbering each other or grinding themselves to a crawl.</p>
 
-<h2>Adapt to survive</h2>
+<p>But the data grew and grew and with it came longer and longer run times.  At this same time our script was getting slower, our users’ expectations and our own ambitions grew.  Could we alert a job seeker the minute a new relevant job entered our system?  Could we alert an employer as soon as job seeker they were interested in updated their profile?</p>
 
-<p><span class='caption-wrapper left small'><img class='caption' src='/images/responsive/messy-windows.jpg' width='' height='' alt='Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.' title='Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.'><span class='caption-text'>Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.</span></span>
-Mobile is here, and has been for years. It is only a matter of time before we are forced to adapt the front-end code design in order to survive on all screens. To me, responsive design is not an option; it’s mandatory.</p>
+<p>The network of interactions/activity/entities we wanted to grow, monitor and react to and then extract value from was exploding in complexity.  You can picture all of our job seekers, employers and jobs as nodes in a graph, and imagine our teams are furiously trying to connect them in new and interesting ways.  They are using machine learning to light up edges between these nodes, indicating which jobs a particular job seeker might be interested in and which job seekers an employer might like.  Or clustering these entities into similar groups.</p>
 
-<p>It&rsquo;s not just about fitting inside of a phone screen either. Our site should be flexible and sturdy enough to undergo all sorts crazy behavior: windows shrinking, windows expanding, zoom in, zoom out, and so forth. It’s a wilderness of user actions with legions of new mobile devices to support &hellip; how the heck do we keep up?</p>
+<p>Doing all of this between 12am and 6am was getting hard. Hadoop was an option, but processing speed alone wasn’t just the issue.  Some things we wanted to do had to be done in real time, not batch.  A user isn’t going to wait until the nightly run for us to calculate what jobs are appropriate for them.  In addtion, as TheLadders moves into mobile and speed becomes more and more a concern we want the Graph of our Ecosystem to be as current as possible not something that gets updated once a day.</p>
 
-<h2>One size fits most</h2>
+<p>There comes this thing. Storm. It fits into our infrastructure; working nicely with RabbitMQ and interop’ing well with our existing code base.</p>
 
-<p>TheLadders’ responsive support subscribes to the majority rule. We prioritize the user experience for the majority, and the minority cases are “overlooked.” This means the website is not tested on every phone and tablet &ndash; even newer ones &ndash; because there isn’t enough site traffic. We sacrificed this level of precision hoping to concentrate instead on improving the experience for the majority. <br/>
-<span class='caption-wrapper right extra-small'><img class='caption' src='/images/responsive/device-breakdown.jpeg' width='' height='' alt='Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices.' title='Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices.'><span class='caption-text'>Google Analytics device breakdown. Blue &ndash; iPhone, Green &ndash; iPad, Gray &ndash; undetermined. Other slivers are mostly Samsung Android devices.</span></span></p>
+<p>However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place.</p>
 
-<p><strong>First</strong>, we decided what we were going to support &ndash; devices and screen size ranges:</p>
-
-<ul>
-<li>Devices
-
-<ul>
-<li>iPhone 4S and up (incl. iPad mini)</li>
-<li>iPad 2 and up</li>
-</ul>
-</li>
-<li>Screen size ranges
-
-<ul>
-<li>20em (320px) to 48em (768px) for skinny experience support</li>
-<li>50em (800px) and up for wide experience support</li>
-</ul>
-</li>
-</ul>
-
-
-<p>Together these Apple devices compose approximately 17% of our total page visits (includes hits from both browsers and devices). Of course you should look at your own device and browser breakdowns before deciding on a strategy. But do it early, otherwise you will be spending a lot of time debugging for ~1% of your users.</p>
-
-<p><strong>Second</strong>, we decided on our limitations. I think this saved hours of designer/developer time by acknowledging that not everything will interact exactly as it would on a desktop screen:</p>
-
-<ul>
-<li>Can’t support every mobile device and every screen width.</li>
-<li>Can’t have 100% feature parity between a mobile device and a desktop browser.</li>
-<li>Support for touch gestures (like swipe) costs extra code.</li>
-<li>Modals are not small screen friendly, especially certain date pickers.</li>
-<li>Hover states will be awkward on a touch screen. (If there is a hover state, the first tap is hover and the second tap is click.)</li>
-<li>Performance will suffer on mobile connections.</li>
-</ul>
-
-
-<p><strong>Third</strong>, we decided what techniques to use. Truthfully, each of these points needs its own blog topic, but here’s a quick list for now:</p>
-
-<ul>
-<li><a href="http://jasonweaver.name/lab/offcanvas">Off canvas</a> layout for our “skinny” experience.</li>
-<li><a href="https://developer.mozilla.org/en-US/docs/CSS/Media_queries">Media queries</a> to trigger the skinny vs. wide experience. Used SASS to implement <a href="http://thesassway.com/intermediate/responsive-web-design-in-sass-using-media-queries-in-sass-32">reusable media query break points</a>, making our lives MUCH easier.</li>
-<li>Set <a href="https://developer.mozilla.org/en-US/docs/Mobile/Viewport_meta_tag">width=device-width</a> in viewport metatag.</li>
-<li><a href="http://css-tricks.com/examples/PerfectFluidWidthLayout">Elastic layout</a> for widths.  Use % widths to create a fluid main content area, and a fixed width for the sidebar area.</li>
-<li>Use em. First <a href="http://css-tricks.com/css-font-size">understand</a> what measurement units are out there. There are many reasons to use em, but <a href="http://blog.cloudfour.com/the-ems-have-it-proportional-media-queries-ftw">this article</a> made the best case.</li>
-<li>SVG for responsive images.  We chose to use SVG logos and icons that fall back to PNG sprites if SVG is not supported.</li>
-</ul>
-
-
-<p>Now we should never, ever see a horizontal scroll bar. Scrollbars mean users can’t easily see precious content and get a unfulfilling experience.</p>
-
-<p><span class='caption-wrapper center medium'><img class='caption' src='/images/responsive/sad-scrollbar.png' width='' height='' alt='Ewww horizontal scrollbar' title='Ewww horizontal scrollbar'><span class='caption-text'>Ewww horizontal scrollbar</span></span></p>
-
-<h2>Mobile First?</h2>
-
-<p>Mobile first means to implement your website for mobile devices first, and desktop, etc., second. It helps set boundaries for page weight and complicated layouts that are unfriendly to handhelds.</p>
-
-<p>In theory, mobile first for design and development is a good idea.  It’s a sure-fire way to keep your pages as lightweight as possible. But in practice, our designer created mobile designs simultaneously with desktop designs, remembering to remove superfluous visual elements, ensuring a similar design would work for a small screen. As for development, we coded for the desktop first because we still support IE8 (IE8 doesn’t support media queries).  We built a desktop version first and used media queries to adjust for the mobile version. This way, IE8 screens work without extra media queries. Only mobile and the latest browsers are responsible for triggering media queries.</p>
-
-<p>So we aren’t really mobile first, but it heavily influences how we design the site. This practice works well if the designs are clean, and you are innately stingy with markup.</p>
-
-<h2>Anyway …</h2>
-
-<p><span class='caption-wrapper right extra-small'><img class='caption' src='/images/responsive/rabbit-pair.jpg' width='' height='' alt='Collaborating like arctic hares' title='Collaborating like arctic hares'><span class='caption-text'>Collaborating like arctic hares</span></span>
-My favorite side-effect of going responsive is the close collaboration between designers and developers. It’s hard to articulate screen reactions and device behavior through design comps. During this rewrite our front-end team and design team were pairing regularly throughout the day to determine what responsive meant for TheLadders.</p>
-
-<p>Also, it is important to recognize a responsive website is NOT a substitute for a native phone application.  A browser page and native phone application have completely different rules of conduct, so just because your website is responsive doesn’t mean you don’t need a native application.</p>
-
-<h2>Results</h2>
-
-<p>Our new responsive website is still young, it was only released earlier this year. We’ve just begun to throw serious traffic at it, but I’m confident that it performs and looks better than the old, non-responsive site. We are closely monitoring customer satisfaction and page visits from mobile devices. Hopefully in a couple months we’ll have flattering statistics and feedback to post.</p>
-
-<p>Until then, check it out for yourself: <a href="https://www.theladders.com/">www.theladders.com</a>. While it is by no means perfect&mdash;there are some devices and screen configurations where the experience is less than optimal&mdash;it is far better than the original site both in terms of its responsiveness and clean design.</p>
-
-<p>Join the discussion at <a href="https://news.ycombinator.com/item?id=6641857">Hacker News</a>.</p>
-
-<p><em>Note: In an effort to most accurately describe the current state of our site&rsquo;s responsiveness, this post was edited and updated by Daniel Wislocki. It was originally written by <a href="https://twitter.com/logtailer">Christina Kung</a> in early April, when design was unfinished.</em></p>
+<p>Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the <a href="http://www.manning.com/sallen/">Manning Early Access Program</a> any day now.  We hope you find it useful and we look forward to your feedback on the book.</p>
 </div>
   
   
@@ -258,6 +182,10 @@ My favorite side-effect of going responsive is the close collaboration between d
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+      </li>
+    
+      <li class="post">
         <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
@@ -271,10 +199,6 @@ My favorite side-effect of going responsive is the close collaboration between d
     
       <li class="post">
         <a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping our thick client skinny</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2013/08/were-hosting-erlang-factory-lite/">We're Hosting the first NYC Erlang Factory Lite on September 14th</a>
       </li>
     
   </ul>
