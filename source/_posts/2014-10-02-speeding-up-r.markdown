@@ -90,3 +90,5 @@ Along the same lines, you can force R to utilize all the cores of your machine w
 
 ### 11. Make sure this is all worth it
 While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.
+
+Have a question or comment? [Join the discussion on reddit](http://redd.it/2i4807).
