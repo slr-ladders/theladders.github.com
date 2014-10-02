@@ -2,10 +2,9 @@
 author: Eric Feder
 layout: post
 title: "Speeding Up R"
-date: 2014-10-02 12:42:51 -0400
-comments: true
+date: 2014-10-02 14:51:51 -0400
 categories: [Scaling, Data Science]  
-published: false
+published: true
 ---
 If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.
 
