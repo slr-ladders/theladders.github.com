@@ -15,7 +15,7 @@ We are happy to announce that on April 10th, TheLadders will be hosting
 [Eric Evans](http://domainlanguage.com/about/), the codifier of
 [Domain Driven Design](http://domainlanguage.com/ddd/), for the New
 York City DDD Meetup group. Engineers at TheLadders have long been
-following developments in the DDD community. Some of
+following developments in the DDD community. [Some](/ourteam/kyrisarantakos/) of
 [us](/ourteam/danielwislocki/) have already attended the DDD immersion course,
 [more](/ourteam/kylewinter/) of [us](/ourteam/mattjankowski/) will be attending it shortly, and
 our developers are regular participants in the [NYC DDD Meetup](http://www.dddnyc.org/).
