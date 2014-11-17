@@ -13,6 +13,8 @@ footer: false
 ****
 {% include ourteam/jeremyblock.markdown %}
 ****
+{% include ourteam/tommybrasington.markdown %}
+****
 {% include ourteam/khoachau.markdown %}
 ****
 {% include ourteam/mattchesler.markdown %}
@@ -42,6 +44,8 @@ footer: false
 {% include ourteam/leonliao.markdown %}
 ****
 {% include ourteam/frankmadrie.markdown %}
+****
+{% include ourteam/josemedina.markdown %}
 ****
 {% include ourteam/dmitrimikhailov.markdown %}
 ****
