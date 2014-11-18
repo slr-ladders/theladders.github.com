@@ -4,7 +4,7 @@
   <title><![CDATA[TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2014-11-18T08:55:47-05:00</updated>
+  <updated>2014-11-18T09:06:34-05:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -82,6 +82,8 @@
 </span><span class='line'>smtp_tls_security_level = encrypt
 </span><span class='line'>header_size_limit = 4096000</span></code></pre></td></tr></table></div></figure>
 
+
+<p>Find this post interesting? Join the discussion over on <a href="https://news.ycombinator.com/item?id=8623846">Hacker News</a>.</p>
 ]]></content>
   </entry>
   
