@@ -4,7 +4,7 @@
   <title><![CDATA[Category: DevOps | TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/categories/devops/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2014-11-17T13:57:40-05:00</updated>
+  <updated>2014-11-18T08:55:47-05:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -12,6 +12,69 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Pipes, Tubes, and Email]]></title>
+    <link href="http://dev.theladders.com/2014/11/pipes-tubes-and-email/"/>
+    <updated>2014-11-18T09:00:00-05:00</updated>
+    <id>http://dev.theladders.com/2014/11/pipes-tubes-and-email</id>
+    <content type="html"><![CDATA[<p><blockquote><p>It&rsquo;s not a big truck.  It&rsquo;s a series of tubes.  And if you don&rsquo;t understand, those tubes can be filled and if they are filled, when you put your message in, it gets in line and it&rsquo;s going to be delayed.</p><footer><strong>&mdash;US Senator Ted Stevens (R-Alaska)</strong></footer></blockquote></p>
+
+<h2>Plumbing 101</h2>
+
+<p>Sending email is a major part of our business.  Over the years, TheLadders has moved through several iterations of getting emails out to our millions of job seekers and recruiters.  We&rsquo;ve both built in-house solutions and utilized <a href="http://en.wikipedia.org/wiki/Email_service_provider_(marketing)">Email Service Providers (ESPs)</a>.</p>
+
+<p>Recently, we transitioned onto a new ESP, <a href="http://sendgrid.com">SendGrid</a>.  SendGrid offers us the choice of handing off email via their <a href="https://sendgrid.com/docs/API_Reference/Web_API/index.html">HTTP</a> or <a href="https://sendgrid.com/docs/API_Reference/SMTP_API/index.html">SMTP</a> APIs.  We selected <a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> as our transport mechanism because it allows us the luxury of inserting a layer in our infrastructure to handle queueing and resilience of mail transport before handing messages across to the ESP.  We are also able to achieve higher overall throughput with SMTP than would be possible with the HTTP API.  We&rsquo;re using <a href="http://www.postfix.org">Postfix</a> as our mail transport agent because of its scalability properties, the flexibility of its configuration options and our team&rsquo;s familiarity with running and maintaining the application.</p>
+
+<p>To ensure that our subscribers receive the emails we send them, we divide the different types of messages across multiple sub-user accounts at SendGrid.  This spreads our outbound email across different source IPs depending on the chosen sub-user account and allows us to control the reputation of each IP group.  In addition to the usual challenges that go along with deploying any new infrastructure &mdash; monitor it, scale it, make it highly available &mdash; SendGrid&rsquo;s use of SMTP authentication credentials to determine which sub-user account will handle the sending of a particular message created a new and interesting problem to solve.  How could we allow our application to instruct Postfix which sub-user account to use without building a Postfix cluster for each sub-user account?  Moreover, how could we make that process invisible to our end recipient?</p>
+
+<h2>Don&rsquo;t Clog the Tubes!</h2>
+
+<p>The majority of our email traffic is created by various <a href="/categories/storm/">Storm</a> topologies crunching through our data.  Storm provides the ability to parallelize each step in the process, resulting in fairly rapid generation of email traffic.  We utilize our F5 load balancers in front of a pool of Postfix servers to make our mail transport layer both fault-tolerant and scalable.  During our larger sends, we prefer messages to be sent out with minimal queueing.  We&rsquo;ve found after tuning that we can sustain roughly 7000 messages per second through a single Postfix server before messages begin to queue.  We can easily scale out to additional Postfix servers behind the load balancer to increase our total throughput.</p>
+
+<p><img class="center medium" src="/images/pipes-tubes-and-email/animated_email_flow.gif"></p>
+
+<h2>Pick a Tube</h2>
+
+<p>Postfix provides the <a href="http://www.postfix.org/postconf.5.html#smtp_sasl_password_maps">SASL Password Map</a> mechanism to look up SMTP credentials based on remote hostname or domain.  When coupled with <a href="http://www.postfix.org/postconf.5.html#smtp_sender_dependent_authentication">Sender-dependent Authentication</a>, that lookup can be performed based on the sender address.  We leveraged this combination of options along with <a href="http://tools.ietf.org/html/rfc5233#page-2">plus-sign subaddressing</a> to encode the sub-user account in the message&rsquo;s source address, so an email from <code>user@example.com</code> would actually be sent from <code>user+account@example.com</code>.</p>
+
+<p>We utilize a regular expression map for the password selection that matches the subaddress portion of the sender address and returns the appropriate sub-user account credentials to postfix, with a default for messages that come through without a subaddress.</p>
+
+<p><code>plain SASL Password Map
+/^.*\+user1@example.com$/   user1:password1
+/^.*\+user2@example.com$/   user2:password2
+/^.*$/                      defaultuser:defaultpassword
+</code></p>
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/pick-a-tube.jpg' width='' height='' alt='<a href="https://www.flickr.com/photos/biscuitsmlp/2431615179">Photo</a> by <a href="https://www.flickr.com/photos/biscuitsmlp/">smlp.co.uk</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>' title='<a href="https://www.flickr.com/photos/biscuitsmlp/2431615179">Photo</a> by <a href="https://www.flickr.com/photos/biscuitsmlp/">smlp.co.uk</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>'><span class='caption-text'><a href="https://www.flickr.com/photos/biscuitsmlp/2431615179">Photo</a> by <a href="https://www.flickr.com/photos/biscuitsmlp/">smlp.co.uk</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+
+<h2>Keep Your Tubes Straight</h2>
+
+<p>While our solution works great for allowing our applications to properly route messages to the correct sub-user account, it doesn&rsquo;t necessarily provide the best customer facing appearance.  Our customers don&rsquo;t care what ESP we use, how we perform our sub-user account selection, or which sub-user account sourced their email.  Furthermore, a sudden change in source email address could cause our messages to be filtered incorrectly on the recipient side.  Perhaps a customer has a filter in place to always drop our messages into a specific folder for them to read later.  Maybe they have a strict policy stating that only mail from known addresses will end up in their inbox.  We periodically have to adjust how our outbound email is processed and we have to make those changes as transparent as possible for our customers.  To that end, we are also utilizing Postfix&rsquo;s address rewriting capabilities to ensure that our email source addresses remain consistent.</p>
+
+<p>Postfix provides several opportunities and methods to transform email envelope information <a href="http://www.postfix.org/ADDRESS_REWRITING_README.html">for a variety of purposes</a>.  Our requirement was to transform messages sent from <code>user+account@example.com</code> so that the customer sees the message sourced from <code>user@example.com</code>.  <a href="http://www.postfix.org/postconf.5.html#sender_canonical_maps">Sender canonical maps</a> initially seemed like the ideal solution to this problem.  It worked perfectly to transform the sender address as desired however, the transformation occurred so early in the process that addresses were being rewritten before the subaccount selection was performed.  We finally settled on <a href="http://www.postfix.org/postconf.5.html#smtp_generic_maps">SMTP generic maps</a> as the correct solution since it performs its transformation when mail leaves the machine via SMTP, after all other processing has taken place.  We again use a regular expression to strip the subaccount information from source addresses.</p>
+
+<p><code>plain SMTP Generic Map
+/^(.*)\+(.*)@(.*)$/ ${1}@${3}
+</code></p>
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/the-internet.jpg' width='' height='' alt='<a href="https://www.flickr.com/photos/wheresmysocks/205710716">Photo</a> by <a href="https://www.flickr.com/photos/wheresmysocks/">Kendrick Erickson</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>' title='<a href="https://www.flickr.com/photos/wheresmysocks/205710716">Photo</a> by <a href="https://www.flickr.com/photos/wheresmysocks/">Kendrick Erickson</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>'><span class='caption-text'><a href="https://www.flickr.com/photos/wheresmysocks/205710716">Photo</a> by <a href="https://www.flickr.com/photos/wheresmysocks/">Kendrick Erickson</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+
+<h2>Pipes or Tubes</h2>
+
+<p>Pulling it all together with the <a href="https://sendgrid.com/docs/Integrate/Mail_Servers/postfix.html">recommended Postfix config</a> from SendGrid, results in <code>/etc/postfix/main.cf</code> containing:</p>
+
+<p><code>plain main.cf
+smtp_sasl_auth_enable = yes
+smtp_sender_dependent_authentication = yes
+smtp_sasl_password_maps = pcre:/path/to/sasl_password_map
+smtp_generic_maps = pcre:/path/to/smtp_generic_map
+smtp_sasl_security_options = noanonymous
+smtp_tls_security_level = encrypt
+header_size_limit = 4096000
+</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Thunder and Lightning]]></title>

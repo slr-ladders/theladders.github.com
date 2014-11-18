@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Pipes, Tubes, and Email - TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="It&#8217;s not a big truck. It&#8217;s a series of tubes. And if you don&#8217;t understand, those tubes can be filled and if they are filled, when &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/2014/11/pipes-tubes-and-email/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Pipes, Tubes, and Email</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-18T09:00:00-05:00" pubdate data-updated="true">Nov 18<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>It&#8217;s not a big truck.  It&#8217;s a series of tubes.  And if you don&#8217;t understand, those tubes can be filled and if they are filled, when you put your message in, it gets in line and it&#8217;s going to be delayed.</p><footer><strong>&#8211;US Senator Ted Stevens (R-Alaska)</strong></footer></blockquote>
+
+
+<h2>Plumbing 101</h2>
+
+<p>Sending email is a major part of our business.  Over the years, TheLadders has moved through several iterations of getting emails out to our millions of job seekers and recruiters.  We&rsquo;ve both built in-house solutions and utilized <a href="http://en.wikipedia.org/wiki/Email_service_provider_(marketing)">Email Service Providers (ESPs)</a>.</p>
+
+<p>Recently, we transitioned onto a new ESP, <a href="http://sendgrid.com">SendGrid</a>.  SendGrid offers us the choice of handing off email via their <a href="https://sendgrid.com/docs/API_Reference/Web_API/index.html">HTTP</a> or <a href="https://sendgrid.com/docs/API_Reference/SMTP_API/index.html">SMTP</a> APIs.  We selected <a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> as our transport mechanism because it allows us the luxury of inserting a layer in our infrastructure to handle queueing and resilience of mail transport before handing messages across to the ESP.  We are also able to achieve higher overall throughput with SMTP than would be possible with the HTTP API.  We&rsquo;re using <a href="http://www.postfix.org">Postfix</a> as our mail transport agent because of its scalability properties, the flexibility of its configuration options and our team&rsquo;s familiarity with running and maintaining the application.</p>
+
+<p>To ensure that our subscribers receive the emails we send them, we divide the different types of messages across multiple sub-user accounts at SendGrid.  This spreads our outbound email across different source IPs depending on the chosen sub-user account and allows us to control the reputation of each IP group.  In addition to the usual challenges that go along with deploying any new infrastructure &mdash; monitor it, scale it, make it highly available &mdash; SendGrid&rsquo;s use of SMTP authentication credentials to determine which sub-user account will handle the sending of a particular message created a new and interesting problem to solve.  How could we allow our application to instruct Postfix which sub-user account to use without building a Postfix cluster for each sub-user account?  Moreover, how could we make that process invisible to our end recipient?</p>
+
+<h2>Don&rsquo;t Clog the Tubes!</h2>
+
+<p>The majority of our email traffic is created by various <a href="/categories/storm/">Storm</a> topologies crunching through our data.  Storm provides the ability to parallelize each step in the process, resulting in fairly rapid generation of email traffic.  We utilize our F5 load balancers in front of a pool of Postfix servers to make our mail transport layer both fault-tolerant and scalable.  During our larger sends, we prefer messages to be sent out with minimal queueing.  We&rsquo;ve found after tuning that we can sustain roughly 7000 messages per second through a single Postfix server before messages begin to queue.  We can easily scale out to additional Postfix servers behind the load balancer to increase our total throughput.</p>
+
+<p><img class="center medium" src="/images/pipes-tubes-and-email/animated_email_flow.gif"></p>
+
+<h2>Pick a Tube</h2>
+
+<p>Postfix provides the <a href="http://www.postfix.org/postconf.5.html#smtp_sasl_password_maps">SASL Password Map</a> mechanism to look up SMTP credentials based on remote hostname or domain.  When coupled with <a href="http://www.postfix.org/postconf.5.html#smtp_sender_dependent_authentication">Sender-dependent Authentication</a>, that lookup can be performed based on the sender address.  We leveraged this combination of options along with <a href="http://tools.ietf.org/html/rfc5233#page-2">plus-sign subaddressing</a> to encode the sub-user account in the message&rsquo;s source address, so an email from <code>user@example.com</code> would actually be sent from <code>user+account@example.com</code>.</p>
+
+<p>We utilize a regular expression map for the password selection that matches the subaddress portion of the sender address and returns the appropriate sub-user account credentials to postfix, with a default for messages that come through without a subaddress.</p>
+
+<figure class='code'><figcaption><span>SASL Password Map</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/^.*\+user1@example.com$/   user1:password1
+</span><span class='line'>/^.*\+user2@example.com$/   user2:password2
+</span><span class='line'>/^.*$/                      defaultuser:defaultpassword</span></code></pre></td></tr></table></div></figure>
+
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/pick-a-tube.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/biscuitsmlp/2431615179) by [smlp.co.uk](https://www.flickr.com/photos/biscuitsmlp/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/biscuitsmlp/2431615179) by [smlp.co.uk](https://www.flickr.com/photos/biscuitsmlp/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/biscuitsmlp/2431615179">Photo</a> by <a href="https://www.flickr.com/photos/biscuitsmlp/">smlp.co.uk</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+
+<h2>Keep Your Tubes Straight</h2>
+
+<p>While our solution works great for allowing our applications to properly route messages to the correct sub-user account, it doesn&rsquo;t necessarily provide the best customer facing appearance.  Our customers don&rsquo;t care what ESP we use, how we perform our sub-user account selection, or which sub-user account sourced their email.  Furthermore, a sudden change in source email address could cause our messages to be filtered incorrectly on the recipient side.  Perhaps a customer has a filter in place to always drop our messages into a specific folder for them to read later.  Maybe they have a strict policy stating that only mail from known addresses will end up in their inbox.  We periodically have to adjust how our outbound email is processed and we have to make those changes as transparent as possible for our customers.  To that end, we are also utilizing Postfix&rsquo;s address rewriting capabilities to ensure that our email source addresses remain consistent.</p>
+
+<p>Postfix provides several opportunities and methods to transform email envelope information <a href="http://www.postfix.org/ADDRESS_REWRITING_README.html">for a variety of purposes</a>.  Our requirement was to transform messages sent from <code>user+account@example.com</code> so that the customer sees the message sourced from <code>user@example.com</code>.  <a href="http://www.postfix.org/postconf.5.html#sender_canonical_maps">Sender canonical maps</a> initially seemed like the ideal solution to this problem.  It worked perfectly to transform the sender address as desired however, the transformation occurred so early in the process that addresses were being rewritten before the subaccount selection was performed.  We finally settled on <a href="http://www.postfix.org/postconf.5.html#smtp_generic_maps">SMTP generic maps</a> as the correct solution since it performs its transformation when mail leaves the machine via SMTP, after all other processing has taken place.  We again use a regular expression to strip the subaccount information from source addresses.</p>
+
+<figure class='code'><figcaption><span>SMTP Generic Map</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/^(.*)\+(.*)@(.*)$/ ${1}@${3}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/the-internet.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/wheresmysocks/205710716) by [Kendrick Erickson](https://www.flickr.com/photos/wheresmysocks/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/wheresmysocks/205710716) by [Kendrick Erickson](https://www.flickr.com/photos/wheresmysocks/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/wheresmysocks/205710716">Photo</a> by <a href="https://www.flickr.com/photos/wheresmysocks/">Kendrick Erickson</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+
+<h2>Pipes or Tubes</h2>
+
+<p>Pulling it all together with the <a href="https://sendgrid.com/docs/Integrate/Mail_Servers/postfix.html">recommended Postfix config</a> from SendGrid, results in <code>/etc/postfix/main.cf</code> containing:</p>
+
+<figure class='code'><figcaption><span>main.cf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>smtp_sasl_auth_enable = yes
+</span><span class='line'>smtp_sender_dependent_authentication = yes
+</span><span class='line'>smtp_sasl_password_maps = pcre:/path/to/sasl_password_map
+</span><span class='line'>smtp_generic_maps = pcre:/path/to/smtp_generic_map
+</span><span class='line'>smtp_sasl_security_options = noanonymous
+</span><span class='line'>smtp_tls_security_level = encrypt
+</span><span class='line'>header_size_limit = 4096000</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+
+       
+     <span class="byline author vcard">Posted by <span class="fn">
+		<a href="/ourteam/mattchesler">Matt Chesler</a></span></span>
+  
+  
+
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-18T09:00:00-05:00" pubdate data-updated="true">Nov 18<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/devops/'>DevOps</a>, <a class='category' href='/categories/email/'>Email</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2014/11/pipes-tubes-and-email/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2014/11/pipes-tubes-and-email/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/10/speeding-up-r/" title="Previous Post: Speeding Up R">&laquo; Speeding Up R</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2014 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
