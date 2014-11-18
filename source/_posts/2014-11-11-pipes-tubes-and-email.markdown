@@ -3,10 +3,10 @@ author: Matt Chesler
 layout: post
 title: "Pipes, Tubes, and Email"
 slug: pipes-tubes-and-email
-date: 2014-11-11 09:00
+date: 2014-11-18 09:00
 comments: true
 categories: Email DevOps
-published: false
+published: true
 ---
 {% blockquote --US Senator Ted Stevens (R-Alaska) %}
 It's not a big truck.  It's a series of tubes.  And if you don't understand, those tubes can be filled and if they are filled, when you put your message in, it gets in line and it's going to be delayed.
