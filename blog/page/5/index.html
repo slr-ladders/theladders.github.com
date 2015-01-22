@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it&#8211;Toni Morrison Once upon a time &hellip;">
+  <meta name="description" content="Alice: “How long is forever?”White Rabbit: “Sometimes, just one second.&#8221;&#8211;Lewis Carroll Alice in Wonderland Motivation TheLadders makes &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/12/a-brewing-storm/">A Brewing Storm</a></h1>
+      <h1 class="entry-title"><a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a></h1>
     
     
       <p class="meta">
@@ -127,33 +127,121 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
+<time datetime="2014-07-15T10:24:00-04:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it</p><footer><strong>&#8211;Toni Morrison</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Alice:        “How long is forever?”</p><p>White Rabbit:     “Sometimes, just one second.&#8221;</p><footer><strong>&#8211;Lewis Carroll</strong> <cite>Alice in Wonderland</cite></footer></blockquote>
 
 
-<p>Once upon a time there was a script. Each morning it sent new jobs to our job seeking customers. It was simple and the data it operated on was relatively small.  As the months turned into years this script grew in complexity and the data grew in size.  And more scripts came to the party and they had data of their own and these new scripts beget data for other scripts, and this small group of scripts extracted and transformed, processed and prepared, working tirelessly every night.</p>
+<h2><em>Motivation</em></h2>
 
-<p>Some worked alone while others fed each other, all growing increasingly more complex.  Occasionally at first and more frequently over time, the scripts started to interfere with each other by competing for resources or not finishing in time for a child script to consume it’s parents data, or worst of all, deadlocking for no apparent reason.</p>
+<p>TheLadders makes heavy use of <a href="http://www.rabbitmq.com">RabbitMQ</a> in its operations. RabbitMQ is a messaging broker that we use to connect our applications. Sending and receiving are separate, so the messaging is asynchronous. The asynchronous messaging decouples one application from another. We use RabbitMQ to publish events to multiple subscribers and to queue up work.</p>
 
-<p>Let’s bring some order we said and used cron to wrangle them at first, then moving to more complex “enterprise” scheduling systems to try and tame the beast, and keep the scripts from clobbering each other or grinding themselves to a crawl.</p>
+<ul>
+<li>In some cases, events in our systems are ad hoc, driven by the various activities of our users. Examples of such events include the addition of a job seeker or a job to the system. These events are realized as RabbitMQ messages posted to exchanges. Systems interested in these events read them from queues bound to the exchanges.</li>
+<li>In other cases, a scheduled process posts RabbitMQ messages to an exchange so that a specific system (say, a <a href="https://storm.incubator.apache.org">Storm</a> topology) can process them. An example of this is a system that calculates matches between jobs and job seekers and puts those matches on a queue. A Storm topology reads those matches from the queue and transforms them into emails to be sent by an external email service.</li>
+</ul>
 
-<p>But the data grew and grew and with it came longer and longer run times.  At this same time our script was getting slower, our users’ expectations and our own ambitions grew.  Could we alert a job seeker the minute a new relevant job entered our system?  Could we alert an employer as soon as job seeker they were interested in updated their profile?</p>
 
-<p>The network of interactions/activity/entities we wanted to grow, monitor and react to and then extract value from was exploding in complexity.  You can picture all of our job seekers, employers and jobs as nodes in a graph, and imagine our teams are furiously trying to connect them in new and interesting ways.  They are using machine learning to light up edges between these nodes, indicating which jobs a particular job seeker might be interested in and which job seekers an employer might like.  Or clustering these entities into similar groups.</p>
+<p>In the first scenario above, we are mostly interested in making sure that the queue of ad hoc events has not grown too large, which would indicate a problem with the system that is consuming the messages.</p>
 
-<p>Doing all of this between 12am and 6am was getting hard. Hadoop was an option, but processing speed alone wasn’t just the issue.  Some things we wanted to do had to be done in real time, not batch.  A user isn’t going to wait until the nightly run for us to calculate what jobs are appropriate for them.  In addtion, as TheLadders moves into mobile and speed becomes more and more a concern we want the Graph of our Ecosystem to be as current as possible not something that gets updated once a day.</p>
+<p>In the second scenario, we want to be sure that messages are being published to the queue at a suitable rate, and that the topology that consumes the messages is processing them quickly enough to get the emails out by a particular time.</p>
 
-<p>There comes this thing. Storm. It fits into our infrastructure; working nicely with RabbitMQ and interop’ing well with our existing code base.</p>
+<p>We did not find a suitable ready-to-use solution for this need. As you will see below, we eventually arrived at a solution that combined a <a href="http://clojure.org/">Clojure</a> library for accessing RabbitMQ queue metrics with a <a href="http://riemann.io">Riemann</a> server to process events produced by the library.</p>
 
-<p>However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place.</p>
+<h2><em>First Attempts</em></h2>
 
-<p>Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the <a href="http://www.manning.com/sallen/">Manning Early Access Program</a> any day now.  We hope you find it useful and we look forward to your feedback on the book.</p>
+<p>Our first attempts at a monitoring solution revolved around an assortment of shell scripts that made HTTP requests to the RabbitMQ Management API to discover the lengths of important queues at particular times. If certain thresholds were crossed, alerts were sent to on-call personnel. This approach had a number of drawbacks:</p>
+
+<ul>
+<li>Brittleness: The times of the Management API queries were controlled by when the script was run by cron. The queue length thresholds were often dependent on the sizes of the datasets involved and the speed of the systems which published messages or read them from the queues.</li>
+<li>Measuring Queue Lengths at a Single Point in Time: Checking the queue length at a particular point in time could not provide the information necessary to answer questions such as &ldquo;When will this queue be drained?&rdquo; and &ldquo;Are messages being placed on the queue at a rate sufficient to meet a particular processing schedule?&rdquo;</li>
+</ul>
+
+
+<h2><em>How We Solved the Problem</em></h2>
+
+<p>We created a <a href="http://clojure.org/">Clojure</a> library called <a href="https://github.com/TheLadders/monitor-rabbitmq">monitor-rabbitmq</a>, available on GitHub.
+It gathers statistics on RabbitMQ queues and nodes, and packages them as <a href="http://riemann.io">Riemann</a> events. <em>monitor-rabbitmq</em> takes care of acquiring RabbitMQ statistics from the RabbitMQ cluster, using the RabbitMQ’s HTTP based <a href="http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_3_4/priv/www/api/index.html">Management API</a>. Riemann takes care of aggregating the events and performing the calculations necessary to determine whether an alert should be triggered.</p>
+
+<hr />
+
+<p><em>A Bit More Detail</em></p>
+
+<p><strong>What’s the data flow?</strong></p>
+
+<p><img class="center" src="/images/monitor-rabbitmq2.png" title="'Data Flow graphic'" ></p>
+
+<p><strong>What queue data does</strong> <em>monitor-rabbitmq</em> <strong>gather?</strong> [all rates are messages per second]</p>
+
+<ul>
+<li>Queue Length: number of messages on the queue</li>
+<li>Ack rate: messages acknowledged by the client</li>
+<li>Deliver rate: notifications to the client that there is a message</li>
+<li>Deliver-get rate: combination of deliver and get rates</li>
+<li>Deliver-no-ack rate: notifications to the client that there is a message which does not require acknowledgement</li>
+<li>Get rate: messages synchronously requested by client</li>
+<li>Get-no-ack rate: messages sent to client with no acknowledgement required</li>
+<li>Publish rate: messages published to the queue</li>
+<li>Redeliver rate: messages redelivered to the client after being delivered and not acked</li>
+</ul>
+
+
+<p><strong>What node data does</strong> <em>monitor-rabbitmq</em> <strong>gather?</strong></p>
+
+<ul>
+<li>fd_used: file descriptors used</li>
+<li>fd_total: file descriptors total</li>
+<li>sockets_used</li>
+<li>sockets_total</li>
+<li>mem_used</li>
+<li>mem_limit</li>
+<li>mem_alarm: memory high water mark alarm</li>
+<li>disk_free</li>
+<li>disk_free_limit</li>
+<li>disk_free_alarm: disk free low water mark alarm</li>
+<li>proc_used</li>
+<li>proc_total</li>
+</ul>
+
+
+<p><strong>What does each</strong> Riemann <strong>event look like?</strong>
+Here is the Clojure representation (a map):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='clj'><span class='line'><span class="p">{</span><span class="ss">:time</span> <span class="mi">1390593087006</span>,
+</span><span class='line'>    <span class="ss">:host</span> <span class="s">&quot;our-rabbitmq.super.awesome.queue&quot;</span>,
+</span><span class='line'>    <span class="ss">:service</span> <span class="s">&quot;publish.rate&quot;</span>,
+</span><span class='line'>    <span class="ss">:metric</span> <span class="mf">0.0</span>,
+</span><span class='line'>    <span class="ss">:state</span> <span class="s">&quot;ok&quot;</span>,
+</span><span class='line'>    <span class="ss">:tags</span> <span class="p">[</span><span class="s">&quot;rabbitmq&quot;</span><span class="p">]}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This event, created by the Clojure library, includes a <code>:host</code> member which is formed by taking a <code>rmq-display-name argument</code> (“our-rabbitmq”) and composing it with the queue (or node) name: “super.awesome.queue”</p>
+
+<h2><em>An Example</em></h2>
+
+<p>Let&rsquo;s say that we have a queue which is read by a Storm topology. That queue contains messages which hold matches between jobs and job seekers. The topology must process the messages so that emails notifying job seekers of these job opportunities are composed and sent to an external email service. We want to be alerted if the messages are being consumed from the queue at a rate such that the queue will not be cleared by a certain deadline, say 9:00 AM.</p>
+
+<p>We create a simple Clojure application that calls the <code>send-nodes-stats-to-riemann</code> function of our library and then exits. We call this application once a minute. Each call results in a full set of queue statistics being sent to our Riemann server.</p>
+
+<p>Meanwhile, on the Riemann side of things, Riemann has been configured to watch the Ack rate of our queue. Riemann accumulates events over a time interval, smoothing out minor variations in the Ack rate, and calculates a projected time for the queue to be emptied. If the Ack rate dips below a certain threshold, it triggers an alert using, in our environment, the <a href="https://www.icinga.org">Icinga</a> monitoring system.</p>
+
+<h2><em>Wrapping Up</em></h2>
+
+<p>With <em>monitor-rabbitmq</em>, we supply a regular flow of events to our Riemann server containing data about our RabbitMQ queues and nodes. By choosing a good base set of statistics to request from the RabbitMQ Management API, a change to our monitoring and alerting requirements usually results in only a change to our Riemann configuration.</p>
+
+<p>Find this useful? Join the discussion at <a href="https://news.ycombinator.com/item?id=8036593">Hacker News</a>.</p>
 </div>
   
   
@@ -182,6 +270,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+      </li>
+    
+      <li class="post">
         <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
@@ -195,10 +287,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
       </li>
     
   </ul>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: OSS | TheLadders Engineering Stories]]></title>
+  <link href="http://dev.theladders.com/categories/oss/atom.xml" rel="self"/>
+  <link href="http://dev.theladders.com/"/>
+  <updated>2015-01-22T14:44:20-05:00</updated>
+  <id>http://dev.theladders.com/</id>
+  <author>
+    <name><![CDATA[TheLadders Engineering]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[MMR is not Measles, Mumps, and Rubella]]></title>
+    <link href="http://dev.theladders.com/2015/01/not-measles/"/>
+    <updated>2015-01-22T15:58:00-05:00</updated>
+    <id>http://dev.theladders.com/2015/01/not-measles</id>
+    <content type="html"><![CDATA[<p><blockquote><p>Communication Breakdown, It&rsquo;s always the same,<br/>I&rsquo;m having a nervous breakdown, Drive me insane!</p><footer><strong>&mdash;Led Zeppelin</strong></footer></blockquote></p>
+
+<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
+
+<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
+
+<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
+
+<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:
+<code>
+ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'
+</code>
+This yields data similar to:</p>
+
+<p>```</p>
+
+<h1>extended LDIF</h1>
+
+<p>#</p>
+
+<h1>LDAPv3</h1>
+
+<h1>base &lt;cn=config> with scope subtree</h1>
+
+<h1>filter: (objectclass=nsds5replicationagreement)</h1>
+
+<h1>requesting: ALL</h1>
+
+<p>#</p>
+
+<h1>meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config</h1>
+
+<p>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+cn: meToipa-1.example.com
+objectClass: nsds5replicationagreement
+objectClass: top
+nsDS5ReplicaTransportInfo: LDAP
+description: me to ipa-1.example.com
+nsDS5ReplicaRoot: dc=example,dc=com
+nsDS5ReplicaHost: ipa-1.example.com
+nsds5replicaTimeout: 120
+nsDS5ReplicaPort: 389
+nsDS5ReplicatedAttributeList: (objectclass=<em>) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsDS5ReplicatedAttributeListTotal: (objectclass=</em>) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsds5replicareapactive: 0
+nsds5replicaLastUpdateStart: 20150121214458Z
+nsds5replicaLastUpdateEnd: 20150121214501Z
+nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
+nsds5replicaLastUpdateStatus: 1 Can&rsquo;t acquire busy replica
+nsds5replicaUpdateInProgress: FALSE
+nsds5replicaLastInitStart: 0
+nsds5replicaLastInitEnd: 0</p>
+
+<h1>meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config</h1>
+
+<p>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+cn: meToipa-2.example.com
+objectClass: nsds5replicationagreement
+objectClass: top
+nsDS5ReplicaTransportInfo: LDAP
+description: me to ipa-2.example.com
+nsDS5ReplicaRoot: dc=example,dc=com
+nsDS5ReplicaHost: ipa-2.example.com
+nsds5replicaTimeout: 120
+nsDS5ReplicaPort: 389
+nsDS5ReplicatedAttributeList: (objectclass=<em>) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsDS5ReplicaBindMethod: SASL/GSSAPI
+nsDS5ReplicatedAttributeListTotal: (objectclass=</em>) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+nsds5replicareapactive: 0
+nsds5replicaLastUpdateStart: 20150121214628Z
+nsds5replicaLastUpdateEnd: 0
+nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
+nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
+nsds5replicaUpdateInProgress: TRUE
+nsds5replicaLastInitStart: 20141215154802Z
+nsds5replicaLastInitEnd: 20141215154807Z
+nsds5replicaLastInitStatus: 0 Total update succeeded</p>
+
+<h1>search result</h1>
+
+<p>search: 2
+result: 0 Success</p>
+
+<h1>numResponses: 3</h1>
+
+<h1>numEntries: 2</h1>
+
+<p>```</p>
+
+<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
+
+<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Monitoring RabbitMQ at TheLadders]]></title>
+    <link href="http://dev.theladders.com/2014/07/monitoring-rabbitmq-at-theladders/"/>
+    <updated>2014-07-15T10:24:00-04:00</updated>
+    <id>http://dev.theladders.com/2014/07/monitoring-rabbitmq-at-theladders</id>
+    <content type="html"><![CDATA[<p><blockquote><p>Alice:        “How long is forever?”</p></p><p><p>White Rabbit:     “Sometimes, just one second.&ldquo;</p><footer><strong>&mdash;Lewis Carroll</strong> <cite>Alice in Wonderland</cite></footer></blockquote></p>
+
+<h2><em>Motivation</em></h2>
+
+<p>TheLadders makes heavy use of <a href="http://www.rabbitmq.com">RabbitMQ</a> in its operations. RabbitMQ is a messaging broker that we use to connect our applications. Sending and receiving are separate, so the messaging is asynchronous. The asynchronous messaging decouples one application from another. We use RabbitMQ to publish events to multiple subscribers and to queue up work.</p>
+
+<ul>
+<li>In some cases, events in our systems are ad hoc, driven by the various activities of our users. Examples of such events include the addition of a job seeker or a job to the system. These events are realized as RabbitMQ messages posted to exchanges. Systems interested in these events read them from queues bound to the exchanges.</li>
+<li>In other cases, a scheduled process posts RabbitMQ messages to an exchange so that a specific system (say, a <a href="https://storm.incubator.apache.org">Storm</a> topology) can process them. An example of this is a system that calculates matches between jobs and job seekers and puts those matches on a queue. A Storm topology reads those matches from the queue and transforms them into emails to be sent by an external email service.</li>
+</ul>
+
+
+<p>In the first scenario above, we are mostly interested in making sure that the queue of ad hoc events has not grown too large, which would indicate a problem with the system that is consuming the messages.</p>
+
+<p>In the second scenario, we want to be sure that messages are being published to the queue at a suitable rate, and that the topology that consumes the messages is processing them quickly enough to get the emails out by a particular time.</p>
+
+<p>We did not find a suitable ready-to-use solution for this need. As you will see below, we eventually arrived at a solution that combined a <a href="http://clojure.org/">Clojure</a> library for accessing RabbitMQ queue metrics with a <a href="http://riemann.io">Riemann</a> server to process events produced by the library.</p>
+
+<h2><em>First Attempts</em></h2>
+
+<p>Our first attempts at a monitoring solution revolved around an assortment of shell scripts that made HTTP requests to the RabbitMQ Management API to discover the lengths of important queues at particular times. If certain thresholds were crossed, alerts were sent to on-call personnel. This approach had a number of drawbacks:</p>
+
+<ul>
+<li>Brittleness: The times of the Management API queries were controlled by when the script was run by cron. The queue length thresholds were often dependent on the sizes of the datasets involved and the speed of the systems which published messages or read them from the queues.</li>
+<li>Measuring Queue Lengths at a Single Point in Time: Checking the queue length at a particular point in time could not provide the information necessary to answer questions such as &ldquo;When will this queue be drained?&rdquo; and &ldquo;Are messages being placed on the queue at a rate sufficient to meet a particular processing schedule?&rdquo;</li>
+</ul>
+
+
+<h2><em>How We Solved the Problem</em></h2>
+
+<p>We created a <a href="http://clojure.org/">Clojure</a> library called <a href="https://github.com/TheLadders/monitor-rabbitmq">monitor-rabbitmq</a>, available on GitHub.
+It gathers statistics on RabbitMQ queues and nodes, and packages them as <a href="http://riemann.io">Riemann</a> events. <em>monitor-rabbitmq</em> takes care of acquiring RabbitMQ statistics from the RabbitMQ cluster, using the RabbitMQ’s HTTP based <a href="http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_3_4/priv/www/api/index.html">Management API</a>. Riemann takes care of aggregating the events and performing the calculations necessary to determine whether an alert should be triggered.</p>
+
+<hr />
+
+<p><em>A Bit More Detail</em></p>
+
+<p><strong>What’s the data flow?</strong></p>
+
+<p><img class="center" src="/images/monitor-rabbitmq2.png" title="&lsquo;Data Flow graphic&rsquo;" ></p>
+
+<p><strong>What queue data does</strong> <em>monitor-rabbitmq</em> <strong>gather?</strong> [all rates are messages per second]</p>
+
+<ul>
+<li>Queue Length: number of messages on the queue</li>
+<li>Ack rate: messages acknowledged by the client</li>
+<li>Deliver rate: notifications to the client that there is a message</li>
+<li>Deliver-get rate: combination of deliver and get rates</li>
+<li>Deliver-no-ack rate: notifications to the client that there is a message which does not require acknowledgement</li>
+<li>Get rate: messages synchronously requested by client</li>
+<li>Get-no-ack rate: messages sent to client with no acknowledgement required</li>
+<li>Publish rate: messages published to the queue</li>
+<li>Redeliver rate: messages redelivered to the client after being delivered and not acked</li>
+</ul>
+
+
+<p><strong>What node data does</strong> <em>monitor-rabbitmq</em> <strong>gather?</strong></p>
+
+<ul>
+<li>fd_used: file descriptors used</li>
+<li>fd_total: file descriptors total</li>
+<li>sockets_used</li>
+<li>sockets_total</li>
+<li>mem_used</li>
+<li>mem_limit</li>
+<li>mem_alarm: memory high water mark alarm</li>
+<li>disk_free</li>
+<li>disk_free_limit</li>
+<li>disk_free_alarm: disk free low water mark alarm</li>
+<li>proc_used</li>
+<li>proc_total</li>
+</ul>
+
+
+<p><strong>What does each</strong> Riemann <strong>event look like?</strong>
+Here is the Clojure representation (a map):
+```clj
+{:time 1390593087006,</p>
+
+<pre><code>:host "our-rabbitmq.super.awesome.queue",
+:service "publish.rate",
+:metric 0.0,
+:state "ok",
+:tags ["rabbitmq"]}
+</code></pre>
+
+<p><code>
+This event, created by the Clojure library, includes a</code>:host<code>member which is formed by taking a</code>rmq-display-name argument``` (“our-rabbitmq”) and composing it with the queue (or node) name: “super.awesome.queue”</p>
+
+<h2><em>An Example</em></h2>
+
+<p>Let&rsquo;s say that we have a queue which is read by a Storm topology. That queue contains messages which hold matches between jobs and job seekers. The topology must process the messages so that emails notifying job seekers of these job opportunities are composed and sent to an external email service. We want to be alerted if the messages are being consumed from the queue at a rate such that the queue will not be cleared by a certain deadline, say 9:00 AM.</p>
+
+<p>We create a simple Clojure application that calls the <code>send-nodes-stats-to-riemann</code> function of our library and then exits. We call this application once a minute. Each call results in a full set of queue statistics being sent to our Riemann server.</p>
+
+<p>Meanwhile, on the Riemann side of things, Riemann has been configured to watch the Ack rate of our queue. Riemann accumulates events over a time interval, smoothing out minor variations in the Ack rate, and calculates a projected time for the queue to be emptied. If the Ack rate dips below a certain threshold, it triggers an alert using, in our environment, the <a href="https://www.icinga.org">Icinga</a> monitoring system.</p>
+
+<h2><em>Wrapping Up</em></h2>
+
+<p>With <em>monitor-rabbitmq</em>, we supply a regular flow of events to our Riemann server containing data about our RabbitMQ queues and nodes. By choosing a good base set of statistics to request from the RabbitMQ Management API, a change to our monitoring and alerting requirements usually results in only a change to our Riemann configuration.</p>
+
+<p>Find this useful? Join the discussion at <a href="https://news.ycombinator.com/item?id=8036593">Hacker News</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

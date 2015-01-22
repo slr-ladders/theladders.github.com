@@ -4,7 +4,7 @@
   <title><![CDATA[Category: RabbitMQ | TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/categories/rabbitmq/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-01-09T09:58:41-05:00</updated>
+  <updated>2015-01-22T14:44:20-05:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -97,7 +97,7 @@ Here is the Clojure representation (a map):
 ```clj
 {:time 1390593087006,</p>
 
-<pre><code>:host "our-rabbitmq.super.awesome.queue", 
+<pre><code>:host "our-rabbitmq.super.awesome.queue",
 :service "publish.rate",
 :metric 0.0,
 :state "ok",

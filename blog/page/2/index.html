@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a &hellip;">
+  <meta name="description" content="It&#8217;s not a big truck. It&#8217;s a series of tubes. And if you don&#8217;t understand, those tubes can be filled and if they are filled, when &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2014/10/speeding-up-r/">Speeding Up R</a></h1>
+      <h1 class="entry-title"><a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a></h1>
     
     
       <p class="meta">
@@ -127,144 +127,79 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2014-10-02T14:51:51-04:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
+<time datetime="2014-11-18T09:00:00-05:00" pubdate data-updated="true">Nov 18<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
+  <div class="entry-content"><blockquote><p>It&#8217;s not a big truck.  It&#8217;s a series of tubes.  And if you don&#8217;t understand, those tubes can be filled and if they are filled, when you put your message in, it gets in line and it&#8217;s going to be delayed.</p><footer><strong>&#8211;US Senator Ted Stevens (R-Alaska)</strong></footer></blockquote>
 
-<p>A few months ago, we encountered this issue directly. We started working on an algorithm that would analyze any one of our six million jobseekers and find other jobseekers that they’re most similar to. To come up with this list, we’d look through several of the data points we had about the jobseeker, such as their career history and which jobs on our site they had been interested in, and looked for other members who had a similar set of data points. Our first pass at this algorithm in R took about thirty seconds to run for each jobseeker. If we wanted to run it for all six million of our users… well, we couldn’t really wait until 2019 to see the results. We’ve spent the subsequent few weeks speeding up the process so that it now takes less than half a second per jobseeker, and we’ve learned a bunch of helpful tips along the way.</p>
 
-<p>(Note: Whenever I need to speed up my code, I look back at Hadley Wickham’s <a href="http://adv-r.had.co.nz/Performance.html">Advanced R</a> which is where a lot of these ideas come from and is a fantastic resource.)</p>
+<h2>Plumbing 101</h2>
 
-<h3>1. Use lineprof to find the bottleneck</h3>
+<p>Sending email is a major part of our business.  Over the years, TheLadders has moved through several iterations of getting emails out to our millions of job seekers and recruiters.  We&rsquo;ve both built in-house solutions and utilized <a href="http://en.wikipedia.org/wiki/Email_service_provider_(marketing)">Email Service Providers (ESPs)</a>.</p>
 
-<p>Hadley Wickham created a <a href="https://github.com/hadley/lineprof">useful and easy to use package</a> that you can use to figure out which part of your code is causing the biggest issues and drill down to the specific lines that are taking up most of the runtime. Figuring out which parts of your code are problematic is the first step towards fixing that problem.</p>
+<p>Recently, we transitioned onto a new ESP, <a href="http://sendgrid.com">SendGrid</a>.  SendGrid offers us the choice of handing off email via their <a href="https://sendgrid.com/docs/API_Reference/Web_API/index.html">HTTP</a> or <a href="https://sendgrid.com/docs/API_Reference/SMTP_API/index.html">SMTP</a> APIs.  We selected <a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> as our transport mechanism because it allows us the luxury of inserting a layer in our infrastructure to handle queueing and resilience of mail transport before handing messages across to the ESP.  We are also able to achieve higher overall throughput with SMTP than would be possible with the HTTP API.  We&rsquo;re using <a href="http://www.postfix.org">Postfix</a> as our mail transport agent because of its scalability properties, the flexibility of its configuration options and our team&rsquo;s familiarity with running and maintaining the application.</p>
 
-<h3>2. Attack the slowest cases, but don’t forget about the rest</h3>
+<p>To ensure that our subscribers receive the emails we send them, we divide the different types of messages across multiple sub-user accounts at SendGrid.  This spreads our outbound email across different source IPs depending on the chosen sub-user account and allows us to control the reputation of each IP group.  In addition to the usual challenges that go along with deploying any new infrastructure &mdash; monitor it, scale it, make it highly available &mdash; SendGrid&rsquo;s use of SMTP authentication credentials to determine which sub-user account will handle the sending of a particular message created a new and interesting problem to solve.  How could we allow our application to instruct Postfix which sub-user account to use without building a Postfix cluster for each sub-user account?  Moreover, how could we make that process invisible to our end recipient?</p>
 
-<p>After making some improvements, we found that our algorithm could take anywhere between 0.5 and 6 seconds to run on a jobseeker. For the next iteration, we focused on the slowest 10% and tried to speed each of them up by 1-2 seconds. We repeated this process a few more times, taking a look at the slowest cases and seeing if we could make some big improvements there. However, we also stumbled on an easier but equally effective approach: making small improvements that impact all cases. Speeding up the process by 0.2 seconds for all jobseekers has the same impact of cutting off 2 seconds from just 10% of jobseekers and may be easier to do.</p>
+<h2>Don&rsquo;t Clog the Tubes!</h2>
 
-<h3>3. Using data.table can speed up almost any merge or aggregation</h3>
+<p>The majority of our email traffic is created by various <a href="/categories/storm/">Storm</a> topologies crunching through our data.  Storm provides the ability to parallelize each step in the process, resulting in fairly rapid generation of email traffic.  We utilize our F5 load balancers in front of a pool of Postfix servers to make our mail transport layer both fault-tolerant and scalable.  During our larger sends, we prefer messages to be sent out with minimal queueing.  We&rsquo;ve found after tuning that we can sustain roughly 7000 messages per second through a single Postfix server before messages begin to queue.  We can easily scale out to additional Postfix servers behind the load balancer to increase our total throughput.</p>
 
-<p>Our algorithm requires merging together a bunch of big data frames (for example, ones covering hundreds of thousands of user clicks or job applications) so we quickly searched for a package that could speed things up. We found the <a href="http://datatable.r-forge.r-project.org/">data.table package</a> which was orders of magnitude quicker than the base merge in some cases. However, we realized that there was no reason to limit our use of data.table as speed improvements could be found even on merges of much smaller data frames. Furthermore, any time we needed to run an aggregation over a data frame (usually done with aggregate or tapply), data.table could cut out valuable milliseconds.</p>
+<p><img class="center medium" src="/images/pipes-tubes-and-email/animated_email_flow.gif"></p>
 
-<h3>4. Use microbenchmark to rigorously test out your code</h3>
+<h2>Pick a Tube</h2>
 
-<p>The <a href="http://cran.r-project.org/web/packages/microbenchmark/index.html">microbenchmark package</a> is a far better way to test your R code’s speed than the standard system.time function. Microbenchmark runs each line of code you give it 100 times (by default) and computes summary statistics of those runtimes, allowing you to be confident that any speed improvements you find are not merely the result of random variation.</p>
+<p>Postfix provides the <a href="http://www.postfix.org/postconf.5.html#smtp_sasl_password_maps">SASL Password Map</a> mechanism to look up SMTP credentials based on remote hostname or domain.  When coupled with <a href="http://www.postfix.org/postconf.5.html#smtp_sender_dependent_authentication">Sender-dependent Authentication</a>, that lookup can be performed based on the sender address.  We leveraged this combination of options along with <a href="http://tools.ietf.org/html/rfc5233#page-2">plus-sign subaddressing</a> to encode the sub-user account in the message&rsquo;s source address, so an email from <code>user@example.com</code> would actually be sent from <code>user+account@example.com</code>.</p>
 
-<h3>5. Don’t overfit to a single case</h3>
+<p>We utilize a regular expression map for the password selection that matches the subaddress portion of the sender address and returns the appropriate sub-user account credentials to postfix, with a default for messages that come through without a subaddress.</p>
 
-<p>Good data scientists are cognizant of the tradeoff between training error and test error when building a model. A similar phenomenon can occur when trying to optimize an algorithm for speed. As we were refining our code, we typically tested things out on our own accounts. However, this was a bit dangerous, since we are by no means a representative sample of users of our site. We are unusually active on the site and all have somewhat similar career histories to each other. A change that improves runtime when generating matches for one of us may not have the same impact on users who are less active or belong to a different job function. Make sure to test out any changes on a large, random sample before concluding that your changes have done the trick.</p>
+<figure class='code'><figcaption><span>SASL Password Map</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/^.*\+user1@example.com$/   user1:password1
+</span><span class='line'>/^.*\+user2@example.com$/   user2:password2
+</span><span class='line'>/^.*$/                      defaultuser:defaultpassword</span></code></pre></td></tr></table></div></figure>
 
-<h3>6. The clearest code is not always the fastest code</h3>
 
-<p>Imagine you have a data frame that’s 100,000 rows long where the head looks like this:</p>
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/pick-a-tube.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/biscuitsmlp/2431615179) by [smlp.co.uk](https://www.flickr.com/photos/biscuitsmlp/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/biscuitsmlp/2431615179) by [smlp.co.uk](https://www.flickr.com/photos/biscuitsmlp/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/biscuitsmlp/2431615179">Photo</a> by <a href="https://www.flickr.com/photos/biscuitsmlp/">smlp.co.uk</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<h2>Keep Your Tubes Straight</h2>
+
+<p>While our solution works great for allowing our applications to properly route messages to the correct sub-user account, it doesn&rsquo;t necessarily provide the best customer facing appearance.  Our customers don&rsquo;t care what ESP we use, how we perform our sub-user account selection, or which sub-user account sourced their email.  Furthermore, a sudden change in source email address could cause our messages to be filtered incorrectly on the recipient side.  Perhaps a customer has a filter in place to always drop our messages into a specific folder for them to read later.  Maybe they have a strict policy stating that only mail from known addresses will end up in their inbox.  We periodically have to adjust how our outbound email is processed and we have to make those changes as transparent as possible for our customers.  To that end, we are also utilizing Postfix&rsquo;s address rewriting capabilities to ensure that our email source addresses remain consistent.</p>
+
+<p>Postfix provides several opportunities and methods to transform email envelope information <a href="http://www.postfix.org/ADDRESS_REWRITING_README.html">for a variety of purposes</a>.  Our requirement was to transform messages sent from <code>user+account@example.com</code> so that the customer sees the message sourced from <code>user@example.com</code>.  <a href="http://www.postfix.org/postconf.5.html#sender_canonical_maps">Sender canonical maps</a> initially seemed like the ideal solution to this problem.  It worked perfectly to transform the sender address as desired however, the transformation occurred so early in the process that addresses were being rewritten before the subaccount selection was performed.  We finally settled on <a href="http://www.postfix.org/postconf.5.html#smtp_generic_maps">SMTP generic maps</a> as the correct solution since it performs its transformation when mail leaves the machine via SMTP, after all other processing has taken place.  We again use a regular expression to strip the subaccount information from source addresses.</p>
+
+<figure class='code'><figcaption><span>SMTP Generic Map</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/^(.*)\+(.*)@(.*)$/ ${1}@${3}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/the-internet.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/wheresmysocks/205710716) by [Kendrick Erickson](https://www.flickr.com/photos/wheresmysocks/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/wheresmysocks/205710716) by [Kendrick Erickson](https://www.flickr.com/photos/wheresmysocks/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/wheresmysocks/205710716">Photo</a> by <a href="https://www.flickr.com/photos/wheresmysocks/">Kendrick Erickson</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+
+<h2>Pipes or Tubes</h2>
+
+<p>Pulling it all together with the <a href="https://sendgrid.com/docs/Integrate/Mail_Servers/postfix.html">recommended Postfix config</a> from SendGrid, results in <code>/etc/postfix/main.cf</code> containing:</p>
+
+<figure class='code'><figcaption><span>main.cf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; head(my.df, 10)
-</span><span class='line'>           a         b         c         d
-</span><span class='line'>1         NA        NA 0.4885687        NA
-</span><span class='line'>2         NA        NA 0.1666159        NA
-</span><span class='line'>3         NA        NA 0.3176160        NA
-</span><span class='line'>4         NA 0.9568433 0.4848375        NA
-</span><span class='line'>5  0.8441578 0.3022814        NA        NA
-</span><span class='line'>6  0.4223605        NA        NA        NA
-</span><span class='line'>7         NA 0.7998102        NA        NA
-</span><span class='line'>8         NA 0.8183823        NA        NA
-</span><span class='line'>9         NA        NA        NA 0.1550433
-</span><span class='line'>10 0.1511128 0.4783680        NA        NA</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>smtp_sasl_auth_enable = yes
+</span><span class='line'>smtp_sender_dependent_authentication = yes
+</span><span class='line'>smtp_sasl_password_maps = pcre:/path/to/sasl_password_map
+</span><span class='line'>smtp_generic_maps = pcre:/path/to/smtp_generic_map
+</span><span class='line'>smtp_sasl_security_options = noanonymous
+</span><span class='line'>smtp_tls_security_level = encrypt
+</span><span class='line'>header_size_limit = 4096000</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let’s say what you want to do is replace all of the NA’s with 0’s. So a pretty straightforward function to use would be defined as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNA &lt;- function(df){
-</span><span class='line'>  df[is.na(df)] &lt;- 0
-</span><span class='line'>  return(df)
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That’s concise, easy to understand, and flexible enough to handle most changes that could occur to my.df in the future. Now, take a look at this function:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNAUgly &lt;- function(df){
-</span><span class='line'>  df$a[is.na(df$a)] &lt;- 0
-</span><span class='line'>  df$b[is.na(df$b)] &lt;- 0
-</span><span class='line'>  df$c[is.na(df$c)] &lt;- 0
-</span><span class='line'>  df$d[is.na(df$d)] &lt;- 0
-</span><span class='line'>  return(df)
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It’s not concise, is a little difficult to understand, and is not very flexible, but it’s actually quite a bit quicker:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; microbenchmark(
-</span><span class='line'>+   replaceNA(my.df),
-</span><span class='line'>+   replaceNAUgly(my.df)
-</span><span class='line'>+ )
-</span><span class='line'>Unit: milliseconds
-</span><span class='line'>                           min       lq   median       uq      max neval
-</span><span class='line'>     replaceNA(my.df) 219.7503 241.4529 249.8200 271.3922 316.8102   100
-</span><span class='line'> replaceNAUgly(my.df) 148.9356 159.6738 167.7006 178.1716 234.8962   100</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In the majority of cases, the first function is fine or even preferable. However, if speed is your only concern, you may be able to speed things up if you’re willing to forgo having pretty code.</p>
-
-<h3>7. Think about applying some filters</h3>
-
-<p>We categorize each of our jobseekers into one of fourteen overarching job functions, such as sales, marketing, technology, or finance. If I’m a software engineer, almost all of the jobseekers who are similar to me are likely to belong in technology. Sure, we could think of some cases where someone shares attributes with people in a couple of different job functions, but this is more of an edge case. By comparing each jobseeker with the half-million other jobseekers in their job function instead of the entire set of six million, we could make the algorithm about ten times faster while still capturing the vast majority of the same results, a tradeoff we deemed totally acceptable.</p>
-
-<h3>8. Preprocess, preprocess, preprocess</h3>
-
-<p>One of the steps in our algorithm is to compare the set of titles a jobseeker has had in his/her career with the sets for all other jobseekers. However, sometimes two jobseekers will have had the same title but used different punctuation or capitalization when entering their title (not to mention misspellings or synonyms). As a result, we needed to remove the case and punctuation from each title before a comparison could be done. Our initial instinct was to run this text cleaning process right before doing the comparison, but this meant that we would end up cleaning the same text hundreds of times. Instead, we cleaned all the titles once, stored the results, and did the comparisons on these cleaned titles. You should constantly be on the lookout for places where the algorithm repeats a step multiple times and see if there’s a way to do so just once and then just look up those results when needed.</p>
-
-<h3>9. Rcpp for when you’re really stuck</h3>
-
-<p>If you’ve narrowed down your issue to a single operation and you can’t find a way around it, the <a href="http://dirk.eddelbuettel.com/code/rcpp.html">Rcpp package</a> may be able to help. With Rcpp, you can run parts of your code in C++ without interrupting the flow of the rest of your code. There’s a bit of a learning curve if you’re not familiar with C++, but the improvements could be massive enough to justify the effort. Alternatively, with some diligent Googling, you may be able to find someone who’s already solved your problem using Rcpp.</p>
-
-<h3>10. Parallelize!</h3>
-
-<p>For R users who have never done any sort of parallel computing before, this may seem a bit daunting. However, depending on how your code is structured, it can actually be quite trivial to run tasks on all the cores of your machine in parallel. For instance, if you’re using Linux or a Mac and part of your code is run using lapply, forcing it to run in parallel is as simple as loading the parallel package and replacing lapply with mclapply (i.e. multicore lapply). Parallelization doesn’t guarantee speed improvements, but testing it out shouldn’t require too much effort and is worth considering.</p>
-
-<p>Along the same lines, you can force R to utilize all the cores of your machine when doing any linear algebra operations by using OpenBLAS or ATLAS, though the process of getting it up and running is not as easy. <a href="http://www.stat.cmu.edu/~nmv/2013/07/09/for-faster-r-use-openblas-instead-better-than-atlas-trivial-to-switch-to-on-ubuntu/">Nathan VanHoudnos&#8217; blog post on the topic</a> is a good place to start.</p>
-
-<h3>11. Make sure this is all worth it</h3>
-
-<p>While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.</p>
-
-<p>Have a question or comment? <a href="http://redd.it/2i4807">Join the discussion on reddit</a>.</p>
+<p>Find this post interesting? Join the discussion over on <a href="https://news.ycombinator.com/item?id=8623846">Hacker News</a>.</p>
 </div>
   
   
@@ -293,6 +228,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+      </li>
+    
+      <li class="post">
         <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
@@ -306,10 +245,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2013/12/a-brewing-storm/">A Brewing Storm</a>
       </li>
     
   </ul>

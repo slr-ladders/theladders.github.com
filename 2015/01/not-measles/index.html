@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>MMR is not Measles, Mumps, and Rubella - TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="Communication Breakdown, It&#8217;s always the same,I&#8217;m having a nervous breakdown, Drive me insane!&#8211;Led Zeppelin tl;dr &mdash; Use this &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/2015/01/not-measles/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">MMR Is Not Measles, Mumps, and Rubella</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>Communication Breakdown, It&#8217;s always the same,<br/>I&#8217;m having a nervous breakdown, Drive me insane!</p><footer><strong>&#8211;Led Zeppelin</strong></footer></blockquote>
+
+
+<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
+
+<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
+
+<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
+
+<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This yields data similar to:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># extended LDIF
+</span><span class='line'>#
+</span><span class='line'># LDAPv3
+</span><span class='line'># base &lt;cn=config&gt; with scope subtree
+</span><span class='line'># filter: (objectclass=nsds5replicationagreement)
+</span><span class='line'># requesting: ALL
+</span><span class='line'>#
+</span><span class='line'>
+</span><span class='line'># meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-1.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-1.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-1.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214458Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 20150121214501Z
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
+</span><span class='line'>nsds5replicaLastUpdateStatus: 1 Can't acquire busy replica
+</span><span class='line'>nsds5replicaUpdateInProgress: FALSE
+</span><span class='line'>nsds5replicaLastInitStart: 0
+</span><span class='line'>nsds5replicaLastInitEnd: 0
+</span><span class='line'>
+</span><span class='line'># meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-2.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-2.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-2.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214628Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 0
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
+</span><span class='line'>nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
+</span><span class='line'>nsds5replicaUpdateInProgress: TRUE
+</span><span class='line'>nsds5replicaLastInitStart: 20141215154802Z
+</span><span class='line'>nsds5replicaLastInitEnd: 20141215154807Z
+</span><span class='line'>nsds5replicaLastInitStatus: 0 Total update succeeded
+</span><span class='line'>
+</span><span class='line'># search result
+</span><span class='line'>search: 2
+</span><span class='line'>result: 0 Success
+</span><span class='line'>
+</span><span class='line'># numResponses: 3
+</span><span class='line'># numEntries: 2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
+
+<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+
+       
+     <span class="byline author vcard">Posted by <span class="fn">
+		<a href="/ourteam/mattchesler">Matt Chesler</a></span></span>
+  
+  
+
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/devops/'>DevOps</a>, <a class='category' href='/categories/monitoring/'>Monitoring</a>, <a class='category' href='/categories/oss/'>OSS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2015/01/not-measles/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2015/01/not-measles/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/11/pipes-tubes-and-email/" title="Previous Post: Pipes, Tubes, and Email">&laquo; Pipes, Tubes, and Email</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2015 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
