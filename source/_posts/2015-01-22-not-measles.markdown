@@ -5,7 +5,7 @@ title: "MMR is not Measles, Mumps, and Rubella"
 date: 2015-01-22 15:58
 comments: true
 categories: DevOps Monitoring OSS
-published: false
+published: true
 ---
 
 {% blockquote --Led Zeppelin %}
