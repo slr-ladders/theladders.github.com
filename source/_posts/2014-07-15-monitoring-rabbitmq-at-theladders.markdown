@@ -3,7 +3,7 @@ author: Jon Ruttenberg
 layout: post
 title: "Monitoring RabbitMQ at TheLadders"
 date: 2014-07-15 10:24
-categories: RabbitMQ
+categories: RabbitMQ OSS Monitoring
 published: true
 ---
 {% blockquote --Lewis Carroll, Alice in Wonderland %}
@@ -33,8 +33,8 @@ Our first attempts at a monitoring solution revolved around an assortment of she
  - Measuring Queue Lengths at a Single Point in Time: Checking the queue length at a particular point in time could not provide the information necessary to answer questions such as "When will this queue be drained?" and "Are messages being placed on the queue at a rate sufficient to meet a particular processing schedule?"
 
 
- 
- 
+
+
 *How We Solved the Problem*
 ---------------------------
 We created a [Clojure](http://clojure.org/) library called [monitor-rabbitmq](https://github.com/TheLadders/monitor-rabbitmq), available on GitHub.
@@ -78,19 +78,19 @@ It gathers statistics on RabbitMQ queues and nodes, and packages them as [Rieman
  - proc_total
 
 
- 
+
 **What does each** Riemann **event look like?**
 Here is the Clojure representation (a map):
 ```clj
 {:time 1390593087006,
-    :host "our-rabbitmq.super.awesome.queue", 
+    :host "our-rabbitmq.super.awesome.queue",
     :service "publish.rate",
     :metric 0.0,
     :state "ok",
     :tags ["rabbitmq"]}
 ```
 This event, created by the Clojure library, includes a ```:host``` member which is formed by taking a ```rmq-display-name argument``` (“our-rabbitmq”) and composing it with the queue (or node) name: “super.awesome.queue”
- 
+
 *An Example*
 ------------
 Let's say that we have a queue which is read by a Storm topology. That queue contains messages which hold matches between jobs and job seekers. The topology must process the messages so that emails notifying job seekers of these job opportunities are composed and sent to an external email service. We want to be alerted if the messages are being consumed from the queue at a rate such that the queue will not be cleared by a certain deadline, say 9:00 AM.
