@@ -5,7 +5,6 @@
 If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
 
 And obviously make sure you've got git installed.
-5. **Ships with great plug-ins** some original and others from the Jekyll community &mdash; tested and improved.
 
 **Note**: Octopress requires a minimum Ruby version of `1.9.3-p0`.  
 *You probably won't be able to install Ruby 1.9.3 using RVM on OS X 10.8.5.  
@@ -215,3 +214,17 @@ After it's live, put a link to your post up over on http://news.ycombinator.com/
 3. Separate your sections with a ****.  It gives it a nice horizontal rule that segments the page.
 4. If things get wonky and you don't trust compass is watching your changes properly, rm -rf public and rake generate.  That'll rebuild everything.
 5. If there's something you can't figure out, it's probably here http://octopress.org/docs/
+
+## Deploying
+
+If you're one of the cursed few burdened with the responsibility of merging and deploying blog posts, you could google something like ["deploying octopress to github pages"](http://lmgtfy.com/?q=deploying+octopress+to+github+pages&l=1), or you could follow the steps below:
+
+1. Confirm that you have push/pull privileges for this repository
+2. Clone the repository: ```git clone git@github.com:TheLadders/theladders.github.com.git```
+3. Change to the source branch: ```git checkout source```
+4. Ensure you're working with head (this is more relevant if you already had the repo cloned locally): ```git pull```
+5. If it hasn't already been done, edit the new post, set published to true, push to source
+6. Create a ```_deploy``` subdirectory: ```mkdir -p _deploy```
+7. Clone the repository's master branch to ```_deploy```: ```cd _deploy && git clone git@github.com:TheLadders/theladders.github.com.git```
+8. Regenerate the blog contents: ```bundle exec rake generate```
+9. Deploy the blog (includes an automated commit on master): ```bundle exec rake deploy```
