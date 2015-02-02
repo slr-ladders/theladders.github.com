@@ -1,5 +1,4 @@
 ---
-author: Kyri Sarantakos
 comments: true
 date: 2013-01-31 11:59:09
 layout: post
@@ -10,7 +9,7 @@ categories:
 - Who we are
 ---
 {% blockquote --Gandhi %}
-"You must be the change you wish to see..." 
+"You must be the change you wish to see..."
 {% endblockquote %}
 
 

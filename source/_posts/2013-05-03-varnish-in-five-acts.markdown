@@ -1,5 +1,5 @@
 ---
-author: Sean T Allen 
+author: Sean T Allen
 layout: post
 title: "Varnish in Five Acts"
 date: 2013-05-03 13:21
@@ -11,11 +11,11 @@ published: true
 {% endblockquote %}
 ##Act I: The Players
 
-At TheLadders, we have a number of entity services that clients access via HTTP. Some examples are the job service, the job application service and the topic of this post: the job seeker service. Each service manages the lifecycle of a core entity in our domain. On each request, the service gathers data from multiple data sources to build a complete entity and then serializes that entity to JSON. This is done for every request and is incredibly wasteful when you consider that most of these entities don’t change that often. This was a major bottleneck in our infrastructure. In the case of the job seeker service, the same entity can be requested multiple times per request from our consumer website. 
+At TheLadders, we have a number of entity services that clients access via HTTP. Some examples are the job service, the job application service and the topic of this post: the job seeker service. Each service manages the lifecycle of a core entity in our domain. On each request, the service gathers data from multiple data sources to build a complete entity and then serializes that entity to JSON. This is done for every request and is incredibly wasteful when you consider that most of these entities don’t change that often. This was a major bottleneck in our infrastructure. In the case of the job seeker service, the same entity can be requested multiple times per request from our consumer website.
 
 All this repeated, unnecessary entity object assembly and JSON serialization created scaling problems. Making matters worse, we periodically have batch processes that can increase service load by an order of magnitude. Caching is an easy win here. The question is how.
 
-Initial attempts to cache these entities were done inside the service JVMs, using familiar and popular JVM based caches like EHcache and calls out to memcache. Unfortunately, this left us operating at JVM speeds and the caches were competing with the service logic for memory and threads.  
+Initial attempts to cache these entities were done inside the service JVMs, using familiar and popular JVM based caches like EHcache and calls out to memcache. Unfortunately, this left us operating at JVM speeds and the caches were competing with the service logic for memory and threads.
 
 In addition, our service code was muddled with messy caching logic.  Making the code harder to reuse, and more annoyingly, changes just affecting caching forced us to re-release the entire service.  We didn’t like this mixing of concerns.
 
@@ -30,7 +30,7 @@ When we introduced Varnish to our architecture, we wanted to make sure we were n
 The diagram below shows a typical setup. In a normal scenario, a client accesses Varnish via a load balancer. Varnish in turn farms out the work in round robin fashion to one of four job seeker service nodes. Should Varnish become unavailable, the load balancer stops sending traffic to Varnish and reroutes it to the four job seeker service nodes.
 
 {% img center /images/varnish-in-five-acts/varnish-flow.png %}
- 
+
 Of all our entity services, the job seeker services carries the highest median load. The graph below is the 1 minute request rate on 4 jobseeker service nodes over the 36 hour period before and after Varnish was turned on.
 
 {% img center /images/varnish-in-five-acts/before-after.png %}
@@ -41,7 +41,7 @@ Of all our entity services, the job seeker services carries the highest median l
 
 Cache invalidation is one of the 2 hard problems in computer science along with naming things and off by one errors.
 
-We cache job seeker entity representations until some point in the “far future”, which is great until something about that job seeker changes, then we must invalidate the cached entry. So, how do we do that? 
+We cache job seeker entity representations until some point in the “far future”, which is great until something about that job seeker changes, then we must invalidate the cached entry. So, how do we do that?
 
 Two ways.
 
@@ -53,7 +53,7 @@ All requests that change the state of a job seeker that are made via the service
 x-invalidates: /jobseekers/123
 ```
 
-Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate [John Connolly](http://dev.theladders.com/ourteam/johnconnolly/) learned about this general technique from [Kevin Burns Jr.](https://twitter.com/kevburnsjr) at [http://restfest.org](RESTFest) 2012.  I used Kevin’s post on the [subject](http://blog.kevburnsjr.com/tagged-cache-invalidation) as a jumping off point for our implementation. 
+Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate [@johnconnolly](http://twitter.com/johnconnolly) learned about this general technique from [Kevin Burns Jr.](https://twitter.com/kevburnsjr) at [http://restfest.org](RESTFest) 2012.  I used Kevin’s post on the [subject](http://blog.kevburnsjr.com/tagged-cache-invalidation) as a jumping off point for our implementation.
 
 ###Via Magic:
 
@@ -79,28 +79,28 @@ We have four service servers behind varnish so we create four backend entries an
 backend JS1 {
   .host  = "JS1";
   .port  = "8080";
-  
+
   ...
 }
 
 backend JS2 {
   .host  = "JS2";
   .port  = "8080";
-  
+
   ...
 }
 
 backend JS3 {
   .host  = "JS3";
   .port  = "8080";
-  
+
   ...
 }
 
 backend JS4 {
   .host  = "JS4";
   .port  = "8080";
-  
+
   ...
 }
 
@@ -109,7 +109,7 @@ director nodes round-robin {
   { .backend = JS2 ; }
   { .backend = JS3 ; }
   { .backend = JS4 ; }
-} 
+}
 
 sub vcl_recv {
   set req.backend = nodes;
@@ -122,14 +122,14 @@ sub vcl_hash {
 }
 ```
 
-###Degraded 
+###Degraded
 
-Each backend is setup with a probe url that we use to check its health. If the probe url doesn't return at least one HTTP 200 response within a fifteen second period, we mark that backend as unhealthy. 
+Each backend is setup with a probe url that we use to check its health. If the probe url doesn't return at least one HTTP 200 response within a fifteen second period, we mark that backend as unhealthy.
 
 ``` bash
 backend ... {
    ...
-   
+
   .probe = {
     .url = "/donjohnson/pulse";
     .interval = 5s;
@@ -145,10 +145,10 @@ Varnish has the concept of a grace period, wherein, we can keep content alive in
 ``` bash
 sub vcl_fetch {
   # max time to keep an item in the cache past its ttl
-  # used in conjunction with code in vcl_recv to 
+  # used in conjunction with code in vcl_recv to
   # deal with 'sick' backends
   set beresp.grace = 1h;
-  
+
   ...
 }
 
@@ -169,7 +169,7 @@ sub vcl_recv {
 We do two types of invalidation:
 
 * invalidation based on the 'x-invalidates' header that comes back with a response
-* 'manual' invalidation based on sending the HTTP PURGE verb to a url in the Varnish cache. 
+* 'manual' invalidation based on sending the HTTP PURGE verb to a url in the Varnish cache.
 
 The ability to do a manual purge is limited to a small set of IP addresses that we validate against when a purge request is received.
 
@@ -181,7 +181,7 @@ acl purge {
 
 sub vcl_recv {
   ...
-  
+
   # 'manual' purge
   if (req.request == "PURGE") {
     if (client.ip ~ purge) {
@@ -224,9 +224,9 @@ Update requests include invalidation-related headers. Every request we fetch has
 ``` bash
 sub vcl_fetch {
   ...
-  
+
   set beresp.http.x-url = req.url;
-  
+
   ...
 }
 
@@ -236,12 +236,12 @@ sub vcl_deliver {
 }
 ```
 
-Any 'successful' PUT, POST, DELETE or PATCH response will have its x-invalidates header used as a regular expression to invalidate existing content whose x-url header matches the x-invalidates regex. 
+Any 'successful' PUT, POST, DELETE or PATCH response will have its x-invalidates header used as a regular expression to invalidate existing content whose x-url header matches the x-invalidates regex.
 
 ```
 sub vcl_fetch {
   ...
-  
+
   # cache invalidation
   set beresp.http.x-url = req.url;
   if (req.request == "PUT" || req.request == "POST" || req.request == "DELETE" || req.request == "PATCH") {
@@ -311,7 +311,7 @@ director nodes round-robin {
   { .backend = JS2 ; }
   { .backend = JS3 ; }
   { .backend = JS4 ; }
-} 
+}
 
 # what machines can institute a 'manual' purge
 acl purge {
@@ -327,7 +327,7 @@ sub vcl_hash {
 
 sub vcl_fetch {
   # max time to keep an item in the cache past its ttl
-  # used in conjunction with code in vcl_recv to 
+  # used in conjunction with code in vcl_recv to
   # deal with 'sick' backends
   set beresp.grace = 1h;
 
