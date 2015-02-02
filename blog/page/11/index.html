@@ -183,7 +183,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 </pre></td><td class='code'><pre><code class=''><span class='line'>x-invalidates: /jobseekers/123</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://dev.theladders.com/ourteam/johnconnolly/">John Connolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
+<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://twitter.com/johnconnolly">@johnconnolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
 
 <h3>Via Magic:</h3>
 
@@ -348,7 +348,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>19</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
 </span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to </span>
+</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
 </span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
 </span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
 </span><span class='line'>
@@ -712,7 +712,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 </span><span class='line'>
 </span><span class='line'>sub vcl_fetch <span class="o">{</span>
 </span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to </span>
+</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
 </span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
 </span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
 </span><span class='line'>

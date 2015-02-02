@@ -4,7 +4,7 @@
   <title><![CDATA[TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-01-22T14:44:20-05:00</updated>
+  <updated>2015-02-02T15:11:35-05:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -704,7 +704,7 @@ My favorite side-effect of going responsive is the close collaboration between d
 <p>A few weeks ago, as we were about to launch our <a href="http://app.appsflyer.com/id654867487?pid=TLC_organic">iPhone app</a>, we discovered that one of its core features, Scout, frequently took seconds to render.</p>
 
 <center>
-<span class='caption-wrapper small'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span> 
+<span class='caption-wrapper small'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span>
 </center>
 
 
@@ -713,7 +713,7 @@ My favorite side-effect of going responsive is the close collaboration between d
 <p>Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve <em>one</em> Scout view request).  In cases of higher load, sometimes request times take well over that.</p>
 
 <center>
-<span class='caption-wrapper small'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span> 
+<span class='caption-wrapper small'><img class='caption' src='http://dev.theladders.com/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span>
 </center>
 
 
@@ -923,7 +923,7 @@ My favorite side-effect of going responsive is the close collaboration between d
 </pre></td><td class='code'><pre><code class=''><span class='line'>x-invalidates: /jobseekers/123</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://dev.theladders.com/ourteam/johnconnolly/">John Connolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
+<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://twitter.com/johnconnolly">@johnconnolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
 
 <h3>Via Magic:</h3>
 
@@ -1088,7 +1088,7 @@ My favorite side-effect of going responsive is the close collaboration between d
 <span class='line-number'>19</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
 </span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to </span>
+</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
 </span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
 </span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
 </span><span class='line'>
@@ -1452,7 +1452,7 @@ My favorite side-effect of going responsive is the close collaboration between d
 </span><span class='line'>
 </span><span class='line'>sub vcl_fetch <span class="o">{</span>
 </span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to </span>
+</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
 </span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
 </span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
 </span><span class='line'>

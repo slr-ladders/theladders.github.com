@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Storm | TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/categories/storm/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-01-22T14:44:20-05:00</updated>
+  <updated>2015-02-02T15:11:35-05:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -92,7 +92,7 @@ Once upon a time there was a script. Each morning it sent new jobs to our job se
 <p>A few weeks ago, as we were about to launch our <a href="http://app.appsflyer.com/id654867487?pid=TLC_organic">iPhone app</a>, we discovered that one of its core features, Scout, frequently took seconds to render.</p>
 
 <center>
-<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span> 
+<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span>
 </center>
 
 
@@ -101,7 +101,7 @@ Once upon a time there was a script. Each morning it sent new jobs to our job se
 <p>Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve <em>one</em> Scout view request).  In cases of higher load, sometimes request times take well over that.</p>
 
 <center>
-<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span> 
+<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span>
 </center>
 
 
