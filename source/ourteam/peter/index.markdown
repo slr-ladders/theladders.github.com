@@ -5,4 +5,4 @@ comments: false
 sharing: false
 footer: false
 ---
-{% include ourteam/peterpathirana.markdown %}
+{% include ourteam/peter.markdown %}

@@ -1,8 +1,8 @@
 ---
 layout: page
-title: "matthewgundel"
+title: "Matthew Gundel"
 comments: false
 sharing: false
 footer: false
 ---
-{ include ourteam/matthewgundel.markdown %}
+{% include ourteam/matthewgundel.markdown %}

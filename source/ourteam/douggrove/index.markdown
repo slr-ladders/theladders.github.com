@@ -1,8 +1,8 @@
 ---
 layout: page
-title: "Doug"
+title: "Doug Grove"
 comments: false
 sharing: false
 footer: false
 ---
-{% include ourteam/doug.markdown %}
+{% include ourteam/douggrove.markdown %}

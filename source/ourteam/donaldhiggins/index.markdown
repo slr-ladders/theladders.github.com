@@ -1,8 +1,8 @@
 ---
 layout: page
-title: "Gary Wong"
+title: "Donald Higgins"
 comments: false
 sharing: false
 footer: false
 ---
-{% include ourteam/garywong.markdown %}
+{% include ourteam/donaldhiggins.markdown %}
