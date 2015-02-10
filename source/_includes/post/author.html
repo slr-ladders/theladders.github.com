@@ -5,15 +5,19 @@
 {% else %}
   {% assign author = site.author %}
 {% endif %}
+{% capture multiauthor %}{{ author | is_array }}{% endcapture %}
 {% if author %}
-  {% if author == 'Christina Kung' %}
-     <span class="byline author vcard">Posted by <span class="fn">
-	    {{ author }}</span></span>
-  {% elsif author == site.author %}
-    <span class="byline author vcard">Posted by TheLadders Engineering<span class="fn">
-  {%else%}     
-     <span class="byline author vcard">Posted by <span class="fn">
-		<a href="{{ author | replace: ' ', '' | downcase | prepend: '/ourteam/' | prepend: root_url }}">{{ author }}</a></span></span>{% endif %}
-  
+  {% if author == site.author %}
+    <span class="byline author vcard">Posted by TheLadders Engineering</span>
+  {% else %}
+    <span class="byline author vcard">Posted by
+      {% if multiauthor == 'true' %}
+        {% for individual in author %}
+          <span class="fn"><a href="{{ individual | replace: ' ', '' | downcase | prepend: '/ourteam/' | prepend: root_url }}">{{ individual }}</a></span>
+        {% endfor %}
+      {% else %}
+        <span class="fn"><a href="{{ author | replace: ' ', '' | downcase | prepend: '/ourteam/' | prepend: root_url }}">{{ author }}</a></span>
+      {% endif %}
+    </span>
   {% endif %}
-
+{% endif %}
