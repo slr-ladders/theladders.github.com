@@ -1,0 +1,58 @@
+---
+author: [Andrew Turley, Matt Chesler]
+layout: post
+title: "Conclave"
+date: 2015-02-13 13:13
+comments: true
+categories: [How we work]
+published: false
+---
+
+{% blockquote -- Sham 69 "If The Kids Are United" %}
+ For once in my life I've got something to say
+ I wanna say it now for now is today
+ A love has been given so why not enjoy
+ So let's all grab and let's all enjoy
+{% endblockquote %}
+
+## If We All Stand Together It Will Just Be A Start
+
+Our engineering culture at TheLadders celebrates curiosity, teamwork and knowledge sharing.  The very nature of the loosely-coupled systems that we're building leads to a tendency for our teams to become isolated from each other.  We look to Friday Conclave to combat our isolation and stimulate our collective intellectual curiosity.
+
+What is Friday Conclave you ask?  It's a chance for our engineers to learn something outside of their day-to-day work.  It's an opportunity for us to reconnect as a larger team.  It's a venue for us to share our intellectual curiosity with our colleagues.  Occasionally, it's a means for us to share domain knowledge and keep everyone in the loop on each group's direction and progress.
+
+## Freedom Is Given, Speak How You Feel
+
+The format of Friday Conclave isn't set in stone, but the sessions tend to fall into one of the following categories:
+
+* focused talk
+* lightning talks
+* very special guest
+* video with discussion
+* round table
+
+### Focused Talks
+
+Our longer talks are often the result of someone learning something in the course of doing their job, and then sharing it with the rest of the team.  The talks generally last 45 minutes to an hour and include a question and answer period at the end. Recently an engineer told the story of a bug that he found and fixed that involved a complex interaction between our caching system and one of our business rules. In the process of preparing for the talk he learned even more about the system as he worked out how to explain the issue to people who may not have been familiar with the parts involved.  Past talks have included an overview of HTTP by [Kyle Winter](/ourteam/kylewinter) and a preview of an upcoming [Papers We Love NYC](https://twitter.com/paperswelovenyc) talk on the [Train Algorithm](https://github.com/papers-we-love/papers-we-love/blob/master/garbage_collection/incremental_mature_garbage_collection_using_the_train_algorithm.pdf?raw=true) by [Andrew Turley](/ourteam/andrewturley).
+
+Some of our focused talks have nothing to do with people's current work.  Our engineering team comes from an astonishingly wide variety of backgrounds and team members routinely draw on their prior experience or research as conclave topics.  [Shani Offen](/ourteam/shanioffen) has spoken to the team about Dimensionality Reduction, Singular Value Decompositions, Eigenvectors, and Principal Component Analysis and [Wamiq Ahmed](/ourteam/wamiqahmed) shared his [NIH research](http://www.ncbi.nlm.nih.gov/pubmed/23060342) into the Classification of Bacterial Contamination.
+
+### Lightning Talks
+
+Lightning talks are ten minute talks about any topic. We've had people present on topics as ranging from great figures in the history of science, and the evolution of soccer defensive formations, to esoteric programming languages, and Hindu guilt. As with the focused talks, lightning talks vary greatly in their style and format. Sometimes an attempt is made to bring the topic of discussion back around to software engineering, but more often than not they serve as windows into the way our fellow engineers think and the things they hold dear.
+
+### Very Special Guests
+
+From time to time we bring in guest presenters -- engineers from outside the company who talk about their experience and expertise. [Camille Fournier](http://whilefalse.blogspot.com/) of [Rent the Runway](https://www.renttherunway.com/rtr_home) spoke to us about [Zookeeper](http://zookeeper.apache.org/), and [Zeeshan Lakhani](https://twitter.com/zeeshanlakhani) gave a presentation on how he and his coworkers have used property-based testing in [Clojure](http://clojure.org). These are great ways to meet other engineers and it introduces us to skills and practices with which we may not be familiar.
+
+### Videos with Discussion
+
+When we discover a talk that we feel is relevant to our work, we'll occasionally watch the video together and discuss as a group.  This is particularly applicable when someone returns from a conference and one of the presentations really stuck with them.  Past examples include Jeff Dean's talk from Ricon West 2013, [The Tail at Scale: Achieving Rapid Response Times in Large Online Services](https://www.youtube.com/watch?v=C_PxVdQmfpk) and Donald Reinertsen's talk from Lean Software and Systems Conference 2012, [Decentralizing Control: How Aligned Initiative Conquers Uncertainty](http://vimeo.com/45947817).
+
+### Round Table
+
+Sometimes we don't have an agenda. This isn't a bad thing. We still sit down and talk. If people are feeling particularly reticent we may start by going around and asking everyone to say something about one thing they worked on that week. Other times someone will come in with a story, a complaint, a question, or an issue that needs addressing. Early last year a few of us were trying to figure out how to deal with content caching on our new website. Since ops, platform, and the website team were all sitting there together we decided to hash out the details. Three hours later we emerged with a plan.
+
+## Understand Them and They'll Understand You
+
+Friday Conclave is an excellent manifestation of the engineering culture here at TheLadders.  It provides us a forum to discuss how we build our products, explore new ideas, share points of view, learn about new and "new-to-us" technologies, and engage face-to-face rather than keyboard-to-keyboard.  We always welcome guest presenters and participants.  If you'd like to attend or present at one of our Friday Conclaves in the future, let us know [@TheLaddersDev](https://twitter.com/theladdersdev).
