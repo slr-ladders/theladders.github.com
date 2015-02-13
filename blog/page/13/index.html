@@ -9,7 +9,10 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Whatever you do or dream you can do – begin it. Boldness has genius and power and magic in it.&#8211;Johann Wolfgang von Goethe Just before joining &hellip;">
+  <meta name="description" content="You don&#8217;t have to be great to start, but you have to start to be great.&#8211;Zig Ziglar Despite having read through the
+several
+Clojure
+books &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +114,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/03/theladders-on-boarding-a-retrospective/">TheLadders Onboarding: A Retrospective</a></h1>
+      <h1 class="entry-title"><a href="/2013/04/getting-some-clojure-nrepl-in-a-spring-app/">Getting Some Clojure: nREPL in a Spring App</a></h1>
     
     
       <p class="meta">
@@ -127,36 +130,265 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-03-28T12:00:00-04:00" pubdate data-updated="true">Mar 28<span>th</span>, 2013</time>
+<time datetime="2013-04-02T16:04:00-04:00" pubdate data-updated="true">Apr 2<span>nd</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Whatever you do or dream you can do – begin it. Boldness has genius and power and magic in it.</p><footer><strong>&#8211;Johann Wolfgang von Goethe</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>You don&#8217;t have to be great to start, but you have to start to be great.</p><footer><strong>&#8211;Zig Ziglar</strong></footer></blockquote>
 
 
-<p><img class="center" src="/images/dilbert-onboarding.gif" title="'Onboarding'" ></p>
+<p>Despite having read through the
+<a href="http://www.amazon.com/The-Joy-Clojure-Thinking-Way/dp/1935182641/">several</a>
+<a href="http://www.amazon.com/Clojure-Action-Amit-Rathore/dp/1935182595/">Clojure</a>
+<a href="http://www.amazon.com/Programming-Clojure-Pragmatic-Programmers-Halloway/dp/1934356336/">books</a>
+on my shelf and having played around with
+<a href="http://www.4clojure.com/">4Clojure</a> (user “wislocki”, ranked 2309th
+the last time I checked), I’m not feeling much confidence with the
+language yet. We use embedded <a href="http://www.eclipse.org/jetty/">Jetty</a>
+to run the website on personal development machines, and I figured it
+would be great to be able to play with it interactively in a Clojure
+<a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>
+and get some more hands-on experience.</p>
 
-<p>Just before joining TheLadders, I read a post on their dev blog detailing a new onboarding process for incoming engineers. I was very interested in what I&rsquo;d soon learn about its execution. If you&rsquo;ve not had the chance to read through this post, you can find it <a href="http://dev.theladders.com/2013/02/onboarding/">here</a>.</p>
+<p>Practically speaking, since the website is a Java application, a Scala
+REPL might make more sense, bridging the gap between the
+object-oriented and functional styles more smoothly. But this is a
+Clojure-learning exercise, after all.</p>
 
-<p>The onboarding process could be broken into two main sections. The first started when we were given a few user stories and were asked to build a corresponding system while following some fairly restrictive <a href="https://github.com/TheLadders/object-calisthenics#the-rules">guidelines</a>. These restrictions challenged us to reevaluate our normal architecting techniques and develop less-than-obvious solutions to this problem. The rules allowed us to implement our solution in the language of our own choosing, and I chose Ruby. The chance to showcase my skills for the first time at a new company excited me.</p>
+<p>We’re using
+<a href="http://www.springsource.org/spring-framework">Spring 3.1.x</a>, and I
+initially looked to see if there was any precedence for combining a
+Clojure REPL with Spring. The links I found were mostly out of date or
+not relevant.</p>
 
-<p>The second section spanned the next eight days. We dove into Robert Martin’s SOLID principles video series. After watching, learning, and discussing each one of the the five principles, we proceeded to work on code with real-world <a href="https://github.com/TheLadders/solid-exercises">examples</a> of principle violations. Between these videos and exercises, we met with established engineers at TheLadders to discuss the subject matter and our own philosophies on software craftsmanship.</p>
+<p>I decided that I would use
+<a href="https://github.com/clojure/tools.nrepl">nREPL</a>, since the
+alternative, <a href="https://github.com/technomancy/swank-clojure">Swank</a>, is
+no longer maintained. As we’re using
+<a href="http://static.springsource.org/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java">Spring’s Java configuration system</a>,
+it would have to be started up there. That’s actually pretty
+straightforward. Using
+<a href="https://github.com/clojure/tools.nrepl#embedding-nrepl-starting-a-server">code</a>
+from the nREPL README to start the server, I created the following
+Spring configuration class:</p>
 
-<p>This was the first time I&rsquo;d ever had a formal onboarding. I&rsquo;ve worked for agencies and other product companies, both larger and smaller, before joining TheLadders. This was brand new. I&rsquo;d encourage every software company to seriously consider a process like this for their new engineers. Why? Here are a few reasons:</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">config</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.io.StringReader</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.annotation.PostConstruct</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationContext</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">clojure.lang.Compiler</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">clojure.lang.RT</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NReplConfig</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="c1">// Clojure code to start the server. If you wanted to, you could probably move the port value</span>
+</span><span class='line'>  <span class="c1">// into a Java properties file, and use the @Value annotation to provide it instead.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">NREPL_INIT</span> <span class="o">=</span> <span class="s">&quot;(use &#39;[clojure.tools.nrepl.server :only (start-server stop-server)]) &quot;</span> <span class="o">+</span>
+</span><span class='line'>                                           <span class="s">&quot;(start-server :port 7888)&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Inject</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">ApplicationContext</span>  <span class="n">context</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Annotated with @PostConstruct so that this method is run after the object is instantiated and </span>
+</span><span class='line'>  <span class="c1">// any other dependency injection has taken place.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@PostConstruct</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initializeRepl</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Load the Clojure Runtime class so that the Compiler can properly use it.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&quot;clojure.lang.RT&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Start the nREPL server.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Compiler</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="k">new</span> <span class="n">StringReader</span><span class="o">(</span><span class="n">NREPL_INIT</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Make the Spring context available in the &quot;lw&quot; namespace.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">RT</span><span class="o">.</span><span class="na">var</span><span class="o">(</span><span class="s">&quot;lw&quot;</span><span class="o">,</span> <span class="s">&quot;*context*&quot;</span><span class="o">,</span> <span class="n">context</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<ul>
-<li>I was allowed access to the top engineers in the company, learning not only about the way software was written at the TheLadders but also where and how the team was looking to grow.</li>
-<li>I was able to get a strong feeling for the culture and technologies used as well as prevailing opinions on languages, practices and history. This was also a great opportunity for engineers at TheLadders to learn more about me and get a good picture of my experience and viewpoints.</li>
-<li>It also served as a vacation from production code, deadlines and the stress of the everyday that we encounter wherever we go. We were encouraged to stretch our solutions and see where they took us.</li>
-</ul>
+
+<p>(Thanks to <a href="https://twitter.com/petitlaurent">Laurent Petit</a> of
+<a href="https://code.google.com/p/counterclockwise/">counterclockwise</a>-fame
+for recommending the above class-loading strategy, as well as the the
+suggestion to replace the use of <code>(ns lw)</code> with <code>(in-ns 'lw)</code> in the
+REPL example below.)</p>
+
+<p>With this file in place, running <code>mvn jetty:run</code> starts up both the
+web server and nREPL. While I could have used
+<a href="https://github.com/technomancy/leiningen">Leiningen</a> to connect the
+REPL, I decided to use <a href="http://www.gnu.org/software/emacs/">emacs</a>
+instead. If you’re using <a href="http://batsov.com/">Bozhidar Batsov</a>’s
+<a href="https://github.com/bbatsov/prelude">Prelude configuration</a>, you
+already have support for nREPL installed, otherwise you can get it
+through <a href="http://melpa.milkbox.net/">MELPA</a> or
+<a href="http://marmalade-repo.org/">Marmalade</a> or directly
+<a href="https://github.com/kingtim/nrepl.el">here</a>. After a quick <code>M-x
+nrepl</code>, I can interact with the running server like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">;</span> <span class="n">nREPL</span> <span class="mf">0.1</span><span class="o">.</span><span class="mi">7</span><span class="o">-</span><span class="n">preview</span>
+</span><span class='line'><span class="n">user</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">in</span><span class="o">-</span><span class="n">ns</span> <span class="err">&#39;</span><span class="n">lw</span><span class="o">)</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">Namespace</span> <span class="n">lw</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">context</span><span class="o">*</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">AnnotationConfigWebApplicationContext</span> <span class="n">Root</span> <span class="nl">WebApplicationContext:</span> <span class="n">startup</span> <span class="n">date</span> <span class="o">[</span><span class="n">Thu</span> <span class="n">Mar</span> <span class="mi">28</span> <span class="mi">16</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">12</span> <span class="n">EDT</span> <span class="mi">2013</span><span class="o">];</span> <span class="n">root</span> <span class="n">of</span> <span class="n">context</span> <span class="n">hierarchy</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">def</span> <span class="n">jss</span> <span class="o">(.</span><span class="na">getBean</span> <span class="o">*</span><span class="n">context</span><span class="o">*</span> <span class="n">getBean</span> <span class="s">&quot;jobseekerService&quot;</span><span class="o">))</span>
+</span><span class='line'><span class="err">#&#39;</span><span class="n">lw</span><span class="o">/</span><span class="n">jss</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="n">jss</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">JobseekerService</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">jobseeker</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">JobseekerService</span><span class="err">@</span><span class="mi">1</span><span class="n">f4e3b7c</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">def</span> <span class="n">jsid</span> <span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">jobseeker</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">JobseekerId</span><span class="o">.</span> <span class="mi">7906538</span><span class="o">))</span>
+</span><span class='line'><span class="err">#&#39;</span><span class="n">lw</span><span class="o">/</span><span class="n">jsid</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(.</span><span class="na">get</span> <span class="n">jss</span> <span class="n">jsid</span><span class="o">)</span>
+</span><span class='line'><span class="err">#</span><span class="o">&lt;</span><span class="n">Jobseeker</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">lw</span><span class="o">.</span><span class="na">jobseeker</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">Jobseeker</span><span class="err">@</span><span class="mi">5</span><span class="n">dfcb9fd</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span> <span class="o">(.</span><span class="na">getFirstName</span> <span class="o">(.</span><span class="na">get</span> <span class="n">jss</span> <span class="n">jsid</span><span class="o">))</span>
+</span><span class='line'><span class="s">&quot;Daniel&quot;</span>
+</span><span class='line'><span class="n">lw</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>You may have heard of Rich Hickey’s <a href="http://blip.tv/clojure/hammock-driven-development-4475586">Hammock Driven Development</a>, the idea that spending time away from your code produces unexpected benefits. In the same vein, I&rsquo;ll call what we did for these two weeks Garbage Driven Development. What do I mean when I say garbage? The code written while practicing GDD is never going into production. It’ll never really do anything beyond providing a learning experience and proving a point you’d like to make. You don’t feel pressure to make sure the code fits within a particular context, that it’s easily readable by others, or that it’ll be maintainable going forward. In the end, the code may be quite eloquent or look like garbage, but it doesn&rsquo;t really matter. Try that idea you’ve always thought about but never had time to implement. Buck best practices to see if you can find better ones. When you’re done, it’s garbage. Developers would be well served to routinely make time to focus less on product and more on process.</p>
+<p>Pretty straightforward!</p>
 
-<p>Most of all, this process woke me up from the monotony of just pushing out code and inspired me to learn and pursue more of my own side projects. I&rsquo;ve wanted to read more, explore new languages, and try new ways of doing things. It was an excellent way to frame the start of a new chapter in my life as an engineer.</p>
+<p>The additions to the <code>pom.xml</code> file that enable nREPL support are below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;repositories&gt;</span>
+</span><span class='line'>...
+</span><span class='line'>    <span class="c">&lt;!-- The following gives us access to Clojure libraries like clojure-complete. --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;repository&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;id&gt;</span>clojars.org<span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;url&gt;</span>http://clojars.org/repo<span class="nt">&lt;/url&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/repository&gt;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="nt">&lt;/repositories&gt;</span>
+</span><span class='line'><span class="nt">&lt;dependencies&gt;</span>
+</span><span class='line'>...
+</span><span class='line'>    <span class="c">&lt;!-- Clojure-complete enables tab-completion in the REPL. --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>clojure-complete<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>clojure-complete<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>0.2.3<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>org.clojure<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>clojure<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>1.5.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>org.clojure<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>tools.nrepl<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>0.2.2<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="nt">&lt;/dependencies&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I hope you found this brief write-up useful. I plan on continuing my stumbling exploration, so look for other Clojure-related posts soon.</p>
+
+<p>Join the discussion over on <a href="http://www.reddit.com/r/programming/comments/1bjh69/getting_some_clojure_nrepl_in_a_spring_app/">reddit</a>.</p>
+
+<p><em>April 8th, 2013: Edited in response to suggestions from Laurent Petit.</em></p>
 </div>
   
   
@@ -185,6 +417,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/02/conclave/">Conclave</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
@@ -198,10 +434,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a>
       </li>
     
   </ul>

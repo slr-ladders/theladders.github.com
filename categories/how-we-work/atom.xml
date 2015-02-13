@@ -4,7 +4,7 @@
   <title><![CDATA[Category: How we work | TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/categories/how-we-work/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-02-06T16:04:25-05:00</updated>
+  <updated>2015-02-13T09:25:34-05:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -12,6 +12,60 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Conclave]]></title>
+    <link href="http://dev.theladders.com/2015/02/conclave/"/>
+    <updated>2015-02-13T13:13:00-05:00</updated>
+    <id>http://dev.theladders.com/2015/02/conclave</id>
+    <content type="html"><![CDATA[<p><blockquote><p>For once in my life I&rsquo;ve got something to say<br/> I wanna say it now for now is today<br/> A love has been given so why not enjoy<br/> So let&rsquo;s all grab and let&rsquo;s all enjoy</p><footer><strong>&mdash; Sham 69 &ldquo;If The Kids Are United&rdquo;</strong></footer></blockquote></p>
+
+<h2>If We All Stand Together It Will Just Be A Start</h2>
+
+<p>Our engineering culture at TheLadders celebrates curiosity, teamwork and knowledge sharing.  The very nature of the loosely-coupled systems that we&rsquo;re building leads to a tendency for our teams to become isolated from each other.  We look to Friday Conclave to combat our isolation and stimulate our collective intellectual curiosity.</p>
+
+<p>What is Friday Conclave you ask?  It&rsquo;s a chance for our engineers to learn something outside of their day-to-day work.  It&rsquo;s an opportunity for us to reconnect as a larger team.  It&rsquo;s a venue for us to share our intellectual curiosity with our colleagues.  Occasionally, it&rsquo;s a means for us to share domain knowledge and keep everyone in the loop on each group&rsquo;s direction and progress.</p>
+
+<h2>Freedom Is Given, Speak How You Feel</h2>
+
+<p>The format of Friday Conclave isn&rsquo;t set in stone, but the sessions tend to fall into one of the following categories:</p>
+
+<ul>
+<li>focused talk</li>
+<li>lightning talks</li>
+<li>very special guest</li>
+<li>video with discussion</li>
+<li>round table</li>
+</ul>
+
+
+<h3>Focused Talks</h3>
+
+<p>Our longer talks are often the result of someone learning something in the course of doing their job, and then sharing it with the rest of the team.  The talks generally last 45 minutes to an hour and include a question and answer period at the end. Recently an engineer told the story of a bug that he found and fixed that involved a complex interaction between our caching system and one of our business rules. In the process of preparing for the talk he learned even more about the system as he worked out how to explain the issue to people who may not have been familiar with the parts involved.  Past talks have included an overview of HTTP by <a href="/ourteam/kylewinter">Kyle Winter</a> and a preview of an upcoming <a href="https://twitter.com/paperswelovenyc">Papers We Love NYC</a> talk on the <a href="https://github.com/papers-we-love/papers-we-love/blob/master/garbage_collection/incremental_mature_garbage_collection_using_the_train_algorithm.pdf?raw=true">Train Algorithm</a> by <a href="/ourteam/andrewturley">Andrew Turley</a>.</p>
+
+<p>Some of our focused talks have nothing to do with people&rsquo;s current work.  Our engineering team comes from an astonishingly wide variety of backgrounds and team members routinely draw on their prior experience or research as conclave topics.  <a href="/ourteam/shanioffen">Shani Offen</a> has spoken to the team about Dimensionality Reduction, Singular Value Decompositions, Eigenvectors, and Principal Component Analysis and <a href="/ourteam/wamiqahmed">Wamiq Ahmed</a> shared his <a href="http://www.ncbi.nlm.nih.gov/pubmed/23060342">NIH research</a> into the Classification of Bacterial Contamination.</p>
+
+<h3>Lightning Talks</h3>
+
+<p>Lightning talks are ten minute talks about any topic. We&rsquo;ve had people present on topics as ranging from great figures in the history of science, and the evolution of soccer defensive formations, to esoteric programming languages, and Hindu guilt. As with the focused talks, lightning talks vary greatly in their style and format. Sometimes an attempt is made to bring the topic of discussion back around to software engineering, but more often than not they serve as windows into the way our fellow engineers think and the things they hold dear.</p>
+
+<h3>Very Special Guests</h3>
+
+<p>From time to time we bring in guest presenters &mdash; engineers from outside the company who talk about their experience and expertise. <a href="http://whilefalse.blogspot.com/">Camille Fournier</a> of <a href="https://www.renttherunway.com/rtr_home">Rent the Runway</a> spoke to us about <a href="http://zookeeper.apache.org/">Zookeeper</a>, and <a href="https://twitter.com/zeeshanlakhani">Zeeshan Lakhani</a> gave a presentation on how he and his coworkers have used property-based testing in <a href="http://clojure.org">Clojure</a>. These are great ways to meet other engineers and it introduces us to skills and practices with which we may not be familiar.</p>
+
+<h3>Videos with Discussion</h3>
+
+<p>When we discover a talk that we feel is relevant to our work, we&rsquo;ll occasionally watch the video together and discuss as a group.  This is particularly applicable when someone returns from a conference and one of the presentations really stuck with them.  Past examples include Jeff Dean&rsquo;s talk from Ricon West 2013, <a href="https://www.youtube.com/watch?v=C_PxVdQmfpk">The Tail at Scale: Achieving Rapid Response Times in Large Online Services</a> and Donald Reinertsen&rsquo;s talk from Lean Software and Systems Conference 2012, <a href="http://vimeo.com/45947817">Decentralizing Control: How Aligned Initiative Conquers Uncertainty</a>.</p>
+
+<h3>Round Table</h3>
+
+<p>Sometimes we don&rsquo;t have an agenda. This isn&rsquo;t a bad thing. We still sit down and talk. If people are feeling particularly reticent we may start by going around and asking everyone to say something about one thing they worked on that week. Other times someone will come in with a story, a complaint, a question, or an issue that needs addressing. Early last year a few of us were trying to figure out how to deal with content caching on our new website. Since ops, platform, and the website team were all sitting there together we decided to hash out the details. Three hours later we emerged with a plan.</p>
+
+<h2>Understand Them and They&rsquo;ll Understand You</h2>
+
+<p>Friday Conclave is an excellent manifestation of the engineering culture here at TheLadders.  It provides us a forum to discuss how we build our products, explore new ideas, share points of view, learn about new and &ldquo;new-to-us&rdquo; technologies, and engage face-to-face rather than keyboard-to-keyboard.  We always welcome guest presenters and participants.  If you&rsquo;d like to attend or present at one of our Friday Conclaves in the future, let us know <a href="https://twitter.com/theladdersdev">@TheLaddersDev</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[The Evolution of QA at TheLadders]]></title>
