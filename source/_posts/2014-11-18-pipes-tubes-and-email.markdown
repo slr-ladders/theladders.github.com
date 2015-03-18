@@ -1,5 +1,4 @@
 ---
-author: Matt Chesler
 layout: post
 title: "Pipes, Tubes, and Email"
 slug: pipes-tubes-and-email

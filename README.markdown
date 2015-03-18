@@ -1,12 +1,10 @@
 # How to write a blog post
 
-## Prereqs
-
-### Overview
+## Overview
 
 Development, testing and review of new blog content should be done on `blogdev.laddersoffice.net`
 
-We publish your posts after we merge your pull request.  [@mchesler](https://github.com/mchesler) or [@seantallen](https://github.com/seantallen) will deploy it.
+We publish your posts after we merge your pull request.  Talk to [Sean](http://dev.theladders.com/ourteam/seantallen) about getting your change posted (careful, he'll probably make you do it yourself).
 
 ## Initial setup
 
@@ -81,7 +79,8 @@ published: false
 
 Make sure Bob Loblaw is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
 
-Take a look at the existing categories of other posts and see if yours fits.  If not, ask [@seantallen](https://github.com/seantallen) or [@mchesler](https://github.com/mchesler) about approriate categorization.
+Take a look at the existing categories of other posts and see if yours fits.  If not, ask [Sean](http://dev.theladders.com/ourteam/seantallen) or [Andy](http://dev.theladders.com/ourteam/andrewturley) about approriate categorization.
+
 Lastly, leave the `published: false`.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
 
 Got that?  Good, moving on to content.
@@ -178,7 +177,7 @@ Now you're ready to issue a pull request.  If you're new to doing pull requests,
 
 ## Social
 
-After it's live, put a link to your post up over on http://news.ycombinator.com/ and http://reddit.com/r/programming if appropriate.  After it's up, let [@mchesler](https://github.com/mchesler) know and he'll add it to your post for further discussion.
+After it's live, put a link to your post up over on http://news.ycombinator.com/ and http://reddit.com/r/programming if appropriate.  After it's up, let [Sean](http://dev.theladders.com/ourteam/seantallen) know and he'll add it to your post for further discussion.
 
 ## Protips
 
@@ -187,6 +186,91 @@ After it's live, put a link to your post up over on http://news.ycombinator.com/
 3. Separate your sections with a ****.  It gives it a nice horizontal rule that segments the page.
 4. If things get wonky and you don't trust compass is watching your changes properly, rm -rf public and rake generate.  That'll rebuild everything.
 5. If there's something you can't figure out, it's probably here http://octopress.org/docs/
+
+## Editing Our Team
+
+### New faces
+
+When a new engineer starts at TheLadders, inform them as soon as possible that they're on the hook to put together their own bio to be added to the [Our Team](http://dev.theladders.com/ourteam/) page.  Bios should be provided as [Markdown](https://help.github.com/articles/github-flavored-markdown/).
+
+1. Make sure the new engineer has a gravatar account and that they've added their @theladders.com email address to gravatar.
+2. Put the new engineer's bio in `source/_includes/ourteam/newengineer.markdown` (Replace `newengineer` in this and all following instructions with the new engineer's name)
+3. Create a directory for the new engineer under `source/ourteam`
+4. Create `source/ourteam/[NEW_ENGINEER]/index.markdown` with content based on:
+
+    ```
+---
+layout: page
+title: "New Engineer"
+comments: false
+sharing: false
+footer: false
+---
+{% include ourteam/newengineer.markdown %}
+```
+5. Add a new entry for the engineer in `source/ourteam/index.markdown` like:
+
+    ```
+{% include ourteam/newengineer.markdown %}
+****
+```
+
+*NOTE* Entries are alphabetized by last name.
+
+### Someone left
+
+When a member of the engineering staff leaves the company, their profile should be removed from the site and references to them should be updated.
+
+#### Our Team
+
+1. Remove the departed engineer's profile in `source/_includes/ourteam`
+2. Remove the departed engineer's directory under `source/ourteam`
+3. Remove the section of `source/ourteam/index.markdown` for that person
+
+#### Blog posts
+
+Any blog posts authored by the departed engineer should be have the `author` line in the post header removed to prevent auto-linking to their Our Team profile as shown below:
+
+##### Before
+
+```
+---
+author: Bob Loblaw
+layout: post
+title: "Bob Loblaws Law Blog Post"
+date: 2013-03-07 11:05
+comments: true
+categories: Category1, Category2, Category3
+published: false
+---
+```
+
+##### After
+
+```
+---
+layout: post
+title: "Bob Loblaws Law Blog Post"
+date: 2013-03-07 11:05
+comments: true
+categories: Category1, Category2, Category3
+published: false
+---
+```
+
+References to the author's profile should be updated throughout the blog posts to prevent broken links.  Our rule of thumb for updating references is to replace links to their Our Team page with links to their twitter profile as shown below:
+
+##### Before
+
+```
+My team mate [Matt Chesler](http://dev.theladders.com/ourteam/mattchesler/)
+```
+
+##### After
+
+```
+My team mate [@CheslerMatt](http://twitter.com/cheslermatt)
+```
 
 ## Deploying
 

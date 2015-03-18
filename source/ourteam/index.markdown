@@ -21,8 +21,6 @@ footer: false
 ****
 {% include ourteam/khoachau.markdown %}
 ****
-{% include ourteam/mattchesler.markdown %}
-****
 {% include ourteam/patrickdelfert.markdown %}
 ****
 {% include ourteam/joedeluise.markdown %}
@@ -34,8 +32,6 @@ footer: false
 {% include ourteam/jaygaonkar.markdown %}
 ****
 {% include ourteam/lindagonzalez.markdown %}
-****
-{% include ourteam/douggrove.markdown %}
 ****
 {% include ourteam/matthewgundel.markdown %}
 ****
@@ -64,8 +60,6 @@ footer: false
 {% include ourteam/johnmumm.markdown %}
 ****
 {% include ourteam/eoinoconnor.markdown %}
-****
-{% include ourteam/shanioffen.markdown %}
 ****
 {% include ourteam/omarolmedo.markdown %}
 ****
