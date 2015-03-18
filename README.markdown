@@ -2,17 +2,9 @@
 
 ## Prereqs
 
-If this is the first time you're using ruby to do anything, go and do yourself a favor and install rvm.  https://rvm.io/
+### Overview
 
-And obviously make sure you've got git installed.
-
-**Note**: Octopress requires a minimum Ruby version of `1.9.3-p0`.
-*You probably won't be able to install Ruby 1.9.3 using RVM on OS X 10.8.5.
-Ruby 2.0.0 works OK.*
-
-I've not tried any of this on windows.  This is kid tested OSX and Linux approved.
-
-## Overview
+Development, testing and review of new blog content should be done on `blogdev.laddersoffice.net`
 
 We publish your posts after we merge your pull request.  [@mchesler](https://github.com/mchesler) or [@seantallen](https://github.com/seantallen) will deploy it.
 
@@ -22,30 +14,19 @@ Fork this repo.
 
 https://github.com/TheLadders/theladders.github.com
 
-After it's forked, clone your fork:
+After it's forked, ssh to `blogdev.laddersoffice.net` and clone your fork:
+
 ```
 git clone git@github.com:YourGithubName/theladders.github.com.git
 ```
 
-cd into the source directory.
+NOTE: You will have to make sure your SSH private key is installed in `~/.ssh/id_rsa` before being able to clone the repository
+
+cd into the repository:
+
 ```
 cd theladders.github.com
 ```
-
-If you see this:
-```
-==============================================================================
-= NOTICE                                                                     =
-==============================================================================
-= RVM has encountered a new or modified .rvmrc file in the current directory =
-= This is a shell script and therefore may contain any shell commands.       =
-=                                                                            =
-= Examine the contents of this file carefully to be sure the contents are    =
-= safe before trusting it! ( Choose v[iew] below to view the contents )      =
-==============================================================================
-```
-
-It's okay.  I'm not hacking you.  You'll be okay.  If you don't see it and this is your first time cding into that directory, you haven't installed rvm.  I'm not kidding, install rvm.  https://rvm.io/
 
 Switch to the source branch.
 
@@ -53,13 +34,7 @@ Switch to the source branch.
 git checkout source
 ```
 
-Install bundler
-
-```
-gem install bundler
-```
-
-Install octopress's dependencies:
+Update octopress's dependencies (probably will not do anything):
 
 ```
 bundle install
@@ -72,13 +47,8 @@ Now you're ready to start writing up your blogpost.
 Create a new post and give it your desired title
 
 ```
-rake new_post["Bob Loblaws Law Blog Post"]
+bundle exec rake new_post["Bob Loblaws Law Blog Post"]
 ```
-**N.B.**  *rake may abort due to a conflict between rake 0.9.6 and 0.9.2.2.  Running*
-```
-bundle exec rake new_post...
-```
-*solves the problem.*
 
 You'll see this:
 
@@ -87,7 +57,7 @@ mkdir -p source/_posts
 Creating new post: source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown
 ```
 
-Open up your favorite text editor and edit source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown.  You will see:
+Open up your favorite text editor and edit `source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown`.  You will see:
 
 ```
 ---
@@ -110,13 +80,14 @@ published: false
 ```
 
 Make sure Bob Loblaw is *exactly* the name you have in your http://dev.theladders.com/ourteam profile.  At the end of the post it'll link your byline to your profile page automagically.  Don't break it.
+
 Take a look at the existing categories of other posts and see if yours fits.  If not, ask [@seantallen](https://github.com/seantallen) or [@mchesler](https://github.com/mchesler) about approriate categorization.
-Lastly, leave the published: false.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
+Lastly, leave the `published: false`.  You'll still be able to see it in preview mode, but you'll ensure you don't accidentally publish it by doing so.
 
 Got that?  Good, moving on to content.
 
-
 ## Adding content to your post
+
 Start adding all your fabulous content, start with an image if it's appropriate, and a quote as is our custom:
 ```
 ---
@@ -154,28 +125,29 @@ class Fixnum
 		end
 ```
 </pre>
+
 That's about it.  You're off and running.
 
 ## Preview mode
 
-Work locally. Run
-```
-rake preview
-```
-and it'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render published: false pages, so don't freak out.
-**N.B.**  *rake may abort due to a conflict between rake 0.9.6 and 0.9.2.2.  Running*
-```
-bundle exec rake preview
-```
-*solves the problem.*
+In a second terminal window, ssh to `blogdev.laddersoffice.net`, cd into the repository and run:
 
+```
+bundle exec rake watch
+```
+
+It'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render `published: false` pages, so don't freak out.
+
+You'll be able to view your version of the blog at `http://[YOUR_USER_NAME].blogdev.laddersoffice.net`
 
 ## It's all ready to go
+
 Make sure you've added the new file to be tracked by git:
 
 ```
 git add source/_posts/2013-03-07-bob-loblaws-law-blog-post.markdown
 ```
+
 and any other resources your post depends on:
 
 ```
@@ -189,6 +161,7 @@ git status
 ```
 
 Commit it.
+
 ```
 git commit -m source/images/bob_loblaw.gif source/_posts/2013-03-07-bob-loblaws-law-blog.post.markdown "new post on bob loblaws law blog"
 ```
