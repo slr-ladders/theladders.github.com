@@ -282,6 +282,6 @@ If you're one of the cursed few burdened with the responsibility of merging and 
 4. Ensure you're working with head (this is more relevant if you already had the repo cloned locally): ```git pull```
 5. If it hasn't already been done, edit the new post, set published to true, push to source
 6. Create a ```_deploy``` subdirectory: ```mkdir -p _deploy```
-7. Clone the repository's master branch to ```_deploy```: ```cd _deploy && git clone git@github.com:TheLadders/theladders.github.com.git```
+7. Clone the repository's master branch to ```_deploy```: ```cd _deploy && git clone git@github.com:TheLadders/theladders.github.com.git .```
 8. Regenerate the blog contents: ```bundle exec rake generate```
 9. Deploy the blog (includes an automated commit on master): ```bundle exec rake deploy```
