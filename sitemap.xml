@@ -2,7 +2,7 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://dev.theladders.com/2013/01/new-beginnings/</loc>
-        <lastmod>2015-03-18T14:19:31-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/02/onboarding/</loc>
@@ -46,7 +46,7 @@
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/07/denormalize-the-datas-for-great-good/</loc>
-        <lastmod>2015-03-18T14:19:31-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite/</loc>
@@ -56,11 +56,11 @@
         <loc>
             http://dev.theladders.com/2013/10/responsive-design-keeping-our-thick-client-skinny/
         </loc>
-        <lastmod>2015-03-18T14:19:31-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/12/a-brewing-storm/</loc>
-        <lastmod>2015-03-18T14:19:31-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/07/monitoring-rabbitmq-at-theladders/</loc>
@@ -68,7 +68,7 @@
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/07/thunder-and-lightning/</loc>
-        <lastmod>2015-03-18T15:22:49-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/10/speeding-up-r/</loc>
@@ -76,15 +76,15 @@
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/11/pipes-tubes-and-email/</loc>
-        <lastmod>2015-03-18T15:22:49-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/01/not-measles/</loc>
-        <lastmod>2015-03-18T15:22:49-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/02/conclave/</loc>
-        <lastmod>2015-03-18T15:22:49-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/patrickdelfert/</loc>
@@ -252,7 +252,7 @@
     </url>
     <url>
         <loc>http://dev.theladders.com/</loc>
-        <lastmod>2015-03-18T15:22:49-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/404.html</loc>
@@ -260,7 +260,7 @@
     </url>
     <url>
         <loc>http://dev.theladders.com/blog/archives/</loc>
-        <lastmod>2015-03-18T15:22:49-04:00</lastmod>
+        <lastmod>2015-03-20T09:46:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/robots.txt</loc>
