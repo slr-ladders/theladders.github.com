@@ -1,4 +1,5 @@
 ---
+author: John Connolly
 layout: post
 title: "Denormalize the Datas for Great Good"
 date: 2013-07-08 16:02

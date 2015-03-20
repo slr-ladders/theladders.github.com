@@ -1,10 +1,10 @@
 ---
-author: Daniel Wislocki
+author: [Christina Kung, Daniel Wislocki]
 layout: post
 title: "Responsive Design: Keeping our thick client skinny"
 date: 2013-10-30 1:37
 comments: true
-categories: 
+categories:
 - Responsive Design
 published: true
 ---
@@ -13,28 +13,28 @@ published: true
 Recognizing the need is the primary condition for design.
 {% endblockquote %}
 
-You may or may not have noticed, but [TheLadders.com](https://www.theladders.com/) just got a huge make over. We rewrote the website, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.    
-iPhone? Check. iPad? Check. MacBook Air? Check. Ginormous iMac screen? Check. 
+You may or may not have noticed, but [TheLadders.com](https://www.theladders.com/) just got a huge make over. We rewrote the website, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.
+iPhone? Check. iPad? Check. MacBook Air? Check. Ginormous iMac screen? Check.
 
 {% imgcap left small /images/responsive/ladders-wide.jpeg New TheLadders.com on a desktop screen with the wide experience %}
 
 {% imgcap left small /images/responsive/ladders-skinny.png New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar%}
 
-  
+
 ##Adapt to survive
 
-{% imgcap left small /images/responsive/messy-windows.jpg Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.%} 
+{% imgcap left small /images/responsive/messy-windows.jpg Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.%}
 Mobile is here, and has been for years. It is only a matter of time before we are forced to adapt the front-end code design in order to survive on all screens. To me, responsive design is not an option; it’s mandatory.
 
 It's not just about fitting inside of a phone screen either. Our site should be flexible and sturdy enough to undergo all sorts crazy behavior: windows shrinking, windows expanding, zoom in, zoom out, and so forth. It’s a wilderness of user actions with legions of new mobile devices to support ... how the heck do we keep up?
 
 ##One size fits most
-TheLadders’ responsive support subscribes to the majority rule. We prioritize the user experience for the majority, and the minority cases are “overlooked.” This means the website is not tested on every phone and tablet - even newer ones - because there isn’t enough site traffic. We sacrificed this level of precision hoping to concentrate instead on improving the experience for the majority.   
+TheLadders’ responsive support subscribes to the majority rule. We prioritize the user experience for the majority, and the minority cases are “overlooked.” This means the website is not tested on every phone and tablet - even newer ones - because there isn’t enough site traffic. We sacrificed this level of precision hoping to concentrate instead on improving the experience for the majority.
 {% imgcap right extra-small /images/responsive/device-breakdown.jpeg Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices. %}
 
 **First**, we decided what we were going to support - devices and screen size ranges:
 
-* Devices 
+* Devices
   * iPhone 4S and up (incl. iPad mini)
   * iPad 2 and up
 * Screen size ranges
@@ -68,7 +68,7 @@ Now we should never, ever see a horizontal scroll bar. Scrollbars mean users can
 ##Mobile First?
 Mobile first means to implement your website for mobile devices first, and desktop, etc., second. It helps set boundaries for page weight and complicated layouts that are unfriendly to handhelds.
 
-In theory, mobile first for design and development is a good idea.  It’s a sure-fire way to keep your pages as lightweight as possible. But in practice, our designer created mobile designs simultaneously with desktop designs, remembering to remove superfluous visual elements, ensuring a similar design would work for a small screen. As for development, we coded for the desktop first because we still support IE8 (IE8 doesn’t support media queries).  We built a desktop version first and used media queries to adjust for the mobile version. This way, IE8 screens work without extra media queries. Only mobile and the latest browsers are responsible for triggering media queries. 
+In theory, mobile first for design and development is a good idea.  It’s a sure-fire way to keep your pages as lightweight as possible. But in practice, our designer created mobile designs simultaneously with desktop designs, remembering to remove superfluous visual elements, ensuring a similar design would work for a small screen. As for development, we coded for the desktop first because we still support IE8 (IE8 doesn’t support media queries).  We built a desktop version first and used media queries to adjust for the mobile version. This way, IE8 screens work without extra media queries. Only mobile and the latest browsers are responsible for triggering media queries.
 
 So we aren’t really mobile first, but it heavily influences how we design the site. This practice works well if the designs are clean, and you are innately stingy with markup.
 

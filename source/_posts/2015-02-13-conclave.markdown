@@ -1,5 +1,5 @@
 ---
-author: Andrew Turley
+author: [Matt Chesler,Andrew Turley]
 layout: post
 title: "Conclave"
 date: 2015-02-13 13:13
