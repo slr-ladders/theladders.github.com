@@ -278,10 +278,11 @@ If you're one of the cursed few burdened with the responsibility of merging and 
 
 1. Confirm that you have push/pull privileges for this repository
 2. Clone the repository: ```git clone git@github.com:TheLadders/theladders.github.com.git```
-3. Change to the source branch: ```git checkout source```
-4. Ensure you're working with head (this is more relevant if you already had the repo cloned locally): ```git pull```
-5. If it hasn't already been done, edit the new post, set published to true, push to source
-6. Create a ```_deploy``` subdirectory: ```mkdir -p _deploy```
-7. Clone the repository's master branch to ```_deploy```: ```cd _deploy && git clone git@github.com:TheLadders/theladders.github.com.git .```
-8. Regenerate the blog contents: ```bundle exec rake generate```
-9. Deploy the blog (includes an automated commit on master): ```bundle exec rake deploy```
+3. ```cd theladders.github.com```
+4. Change to the source branch: ```git checkout source```
+5. Ensure you're working with head (this is more relevant if you already had the repo cloned locally): ```git pull```
+6. If it hasn't already been done, edit the new post, set published to true, push to source
+7. Create a ```_deploy``` subdirectory: ```mkdir -p _deploy```
+8. Clone the repository's master branch to ```_deploy```: ```cd _deploy && git clone git@github.com:TheLadders/theladders.github.com.git .```
+9. Regenerate the blog contents: ```bundle exec rake generate```
+10. Deploy the blog (includes an automated commit on master): ```bundle exec rake deploy```
