@@ -2,11 +2,11 @@
 author: 
 layout: post
 title: "CasperJS the Friendly Testing Framework"
-date: 2015-03-25 12:47
+date: 2015-03-25 16:30
 comments: true
 author: Jeremy Block
 categories: testing, javascript 
-published: false
+published: true
 ---
 {% blockquote -- Anonymous %}
 If you don't like testing your product, most likely your customers won't like to test it either.
