@@ -12,7 +12,7 @@ published: false
 If you don't like testing your product, most likely your customers won't like to test it either.
 {% endblockquote%}
 
-When we started our new [job market guide](http://www.theladders.com/careers/search) 
+When we started our new [job market guide](https://www.theladders.com/careers/search) 
 project (a site where career-minded professionals can check out open positions
 and stats such as average compensation), the question of testing came up pretty
 quickly. We had used [Jasmine](http://jasmine.github.io/) for 
