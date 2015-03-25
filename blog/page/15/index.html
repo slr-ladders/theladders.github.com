@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really &hellip;">
+  <meta name="description" content="Whatever you do or dream you can do – begin it. Boldness has genius and power and magic in it.&#8211;Johann Wolfgang von Goethe Just before joining &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/03/trouble-with-googles-immutableset/">Trouble With Google&#8217;s ImmutableSet</a></h1>
+      <h1 class="entry-title"><a href="/2013/03/theladders-on-boarding-a-retrospective/">TheLadders Onboarding: A Retrospective</a></h1>
     
     
       <p class="meta">
@@ -127,31 +127,38 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-03-12T06:10:10-04:00" pubdate data-updated="true">Mar 12<span>th</span>, 2013</time>
+<time datetime="2013-03-28T12:00:00-04:00" pubdate data-updated="true">Mar 28<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
-
-<blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&#8211;Hunter S. Thompson</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Whatever you do or dream you can do – begin it. Boldness has genius and power and magic in it.</p><footer><strong>&#8211;Johann Wolfgang von Goethe</strong></footer></blockquote>
 
 
-<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
+<p><img class="center" src="/images/dilbert-onboarding.gif" title="'Onboarding'" ></p>
 
-<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
-Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
+<p>Just before joining TheLadders, I read a post on their dev blog detailing a new onboarding process for incoming engineers. I was very interested in what I&rsquo;d soon learn about its execution. If you&rsquo;ve not had the chance to read through this post, you can find it <a href="http://dev.theladders.com/2013/02/onboarding/">here</a>.</p>
 
-<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
+<p>The onboarding process could be broken into two main sections. The first started when we were given a few user stories and were asked to build a corresponding system while following some fairly restrictive <a href="https://github.com/TheLadders/object-calisthenics#the-rules">guidelines</a>. These restrictions challenged us to reevaluate our normal architecting techniques and develop less-than-obvious solutions to this problem. The rules allowed us to implement our solution in the language of our own choosing, and I chose Ruby. The chance to showcase my skills for the first time at a new company excited me.</p>
 
+<p>The second section spanned the next eight days. We dove into Robert Martin’s SOLID principles video series. After watching, learning, and discussing each one of the the five principles, we proceeded to work on code with real-world <a href="https://github.com/TheLadders/solid-exercises">examples</a> of principle violations. Between these videos and exercises, we met with established engineers at TheLadders to discuss the subject matter and our own philosophies on software craftsmanship.</p>
+
+<p>This was the first time I&rsquo;d ever had a formal onboarding. I&rsquo;ve worked for agencies and other product companies, both larger and smaller, before joining TheLadders. This was brand new. I&rsquo;d encourage every software company to seriously consider a process like this for their new engineers. Why? Here are a few reasons:</p>
+
+<ul>
+<li>I was allowed access to the top engineers in the company, learning not only about the way software was written at the TheLadders but also where and how the team was looking to grow.</li>
+<li>I was able to get a strong feeling for the culture and technologies used as well as prevailing opinions on languages, practices and history. This was also a great opportunity for engineers at TheLadders to learn more about me and get a good picture of my experience and viewpoints.</li>
+<li>It also served as a vacation from production code, deadlines and the stress of the everyday that we encounter wherever we go. We were encouraged to stretch our solutions and see where they took us.</li>
+</ul>
+
+
+<p>You may have heard of Rich Hickey’s <a href="http://blip.tv/clojure/hammock-driven-development-4475586">Hammock Driven Development</a>, the idea that spending time away from your code produces unexpected benefits. In the same vein, I&rsquo;ll call what we did for these two weeks Garbage Driven Development. What do I mean when I say garbage? The code written while practicing GDD is never going into production. It’ll never really do anything beyond providing a learning experience and proving a point you’d like to make. You don’t feel pressure to make sure the code fits within a particular context, that it’s easily readable by others, or that it’ll be maintainable going forward. In the end, the code may be quite eloquent or look like garbage, but it doesn&rsquo;t really matter. Try that idea you’ve always thought about but never had time to implement. Buck best practices to see if you can find better ones. When you’re done, it’s garbage. Developers would be well served to routinely make time to focus less on product and more on process.</p>
+
+<p>Most of all, this process woke me up from the monotony of just pushing out code and inspired me to learn and pursue more of my own side projects. I&rsquo;ve wanted to read more, explore new languages, and try new ways of doing things. It was an excellent way to frame the start of a new chapter in my life as an engineer.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/2013/03/trouble-with-googles-immutableset/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -178,6 +185,10 @@ Recently we noticed that the time to create one of these caches was gradually in
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
@@ -191,10 +202,6 @@ Recently we noticed that the time to create one of these caches was gradually in
     
       <li class="post">
         <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

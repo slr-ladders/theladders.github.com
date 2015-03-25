@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Communication Breakdown, It&#8217;s always the same,I&#8217;m having a nervous breakdown, Drive me insane!&#8211;Led Zeppelin tl;dr &mdash; Use this &hellip;">
+  <meta name="description" content="For once in my life I&#8217;ve got something to say I wanna say it now for now is today A love has been given so why not enjoy So let&#8217;s all &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/01/not-measles/">MMR Is Not Measles, Mumps, and Rubella</a></h1>
+      <h1 class="entry-title"><a href="/2015/02/conclave/">Conclave</a></h1>
     
     
       <p class="meta">
@@ -127,157 +127,60 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
+<time datetime="2015-02-13T13:13:00-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Communication Breakdown, It&#8217;s always the same,<br/>I&#8217;m having a nervous breakdown, Drive me insane!</p><footer><strong>&#8211;Led Zeppelin</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>For once in my life I&#8217;ve got something to say<br/> I wanna say it now for now is today<br/> A love has been given so why not enjoy<br/> So let&#8217;s all grab and let&#8217;s all enjoy</p><footer><strong>&#8211; Sham 69 &#8220;If The Kids Are United&#8221;</strong></footer></blockquote>
 
 
-<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
+<h2>If We All Stand Together It Will Just Be A Start</h2>
 
-<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
+<p>Our engineering culture at TheLadders celebrates curiosity, teamwork and knowledge sharing.  The very nature of the loosely-coupled systems that we&rsquo;re building leads to a tendency for our teams to become isolated from each other.  We look to Friday Conclave to combat our isolation and stimulate our collective intellectual curiosity.</p>
 
-<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
+<p>What is Friday Conclave you ask?  It&rsquo;s a chance for our engineers to learn something outside of their day-to-day work.  It&rsquo;s an opportunity for us to reconnect as a larger team.  It&rsquo;s a venue for us to share our intellectual curiosity with our colleagues.  Occasionally, it&rsquo;s a means for us to share domain knowledge and keep everyone in the loop on each group&rsquo;s direction and progress.</p>
 
-<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:</p>
+<h2>Freedom Is Given, Speak How You Feel</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'</span></code></pre></td></tr></table></div></figure>
+<p>The format of Friday Conclave isn&rsquo;t set in stone, but the sessions tend to fall into one of the following categories:</p>
 
-
-<p>This yields data similar to:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># extended LDIF
-</span><span class='line'>#
-</span><span class='line'># LDAPv3
-</span><span class='line'># base &lt;cn=config&gt; with scope subtree
-</span><span class='line'># filter: (objectclass=nsds5replicationagreement)
-</span><span class='line'># requesting: ALL
-</span><span class='line'>#
-</span><span class='line'>
-</span><span class='line'># meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config
-</span><span class='line'>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
-</span><span class='line'>cn: meToipa-1.example.com
-</span><span class='line'>objectClass: nsds5replicationagreement
-</span><span class='line'>objectClass: top
-</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
-</span><span class='line'>description: me to ipa-1.example.com
-</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
-</span><span class='line'>nsDS5ReplicaHost: ipa-1.example.com
-</span><span class='line'>nsds5replicaTimeout: 120
-</span><span class='line'>nsDS5ReplicaPort: 389
-</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
-</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsds5replicareapactive: 0
-</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214458Z
-</span><span class='line'>nsds5replicaLastUpdateEnd: 20150121214501Z
-</span><span class='line'>nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
-</span><span class='line'>nsds5replicaLastUpdateStatus: 1 Can't acquire busy replica
-</span><span class='line'>nsds5replicaUpdateInProgress: FALSE
-</span><span class='line'>nsds5replicaLastInitStart: 0
-</span><span class='line'>nsds5replicaLastInitEnd: 0
-</span><span class='line'>
-</span><span class='line'># meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config
-</span><span class='line'>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
-</span><span class='line'>cn: meToipa-2.example.com
-</span><span class='line'>objectClass: nsds5replicationagreement
-</span><span class='line'>objectClass: top
-</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
-</span><span class='line'>description: me to ipa-2.example.com
-</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
-</span><span class='line'>nsDS5ReplicaHost: ipa-2.example.com
-</span><span class='line'>nsds5replicaTimeout: 120
-</span><span class='line'>nsDS5ReplicaPort: 389
-</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
-</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsds5replicareapactive: 0
-</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214628Z
-</span><span class='line'>nsds5replicaLastUpdateEnd: 0
-</span><span class='line'>nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
-</span><span class='line'>nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
-</span><span class='line'>nsds5replicaUpdateInProgress: TRUE
-</span><span class='line'>nsds5replicaLastInitStart: 20141215154802Z
-</span><span class='line'>nsds5replicaLastInitEnd: 20141215154807Z
-</span><span class='line'>nsds5replicaLastInitStatus: 0 Total update succeeded
-</span><span class='line'>
-</span><span class='line'># search result
-</span><span class='line'>search: 2
-</span><span class='line'>result: 0 Success
-</span><span class='line'>
-</span><span class='line'># numResponses: 3
-</span><span class='line'># numEntries: 2</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>focused talk</li>
+<li>lightning talks</li>
+<li>very special guest</li>
+<li>video with discussion</li>
+<li>round table</li>
+</ul>
 
 
-<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
+<h3>Focused Talks</h3>
 
-<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
+<p>Our longer talks are often the result of someone learning something in the course of doing their job, and then sharing it with the rest of the team.  The talks generally last 45 minutes to an hour and include a question and answer period at the end. Recently an engineer told the story of a bug that he found and fixed that involved a complex interaction between our caching system and one of our business rules. In the process of preparing for the talk he learned even more about the system as he worked out how to explain the issue to people who may not have been familiar with the parts involved.  Past talks have included an overview of HTTP by <a href="/ourteam/kylewinter">Kyle Winter</a> and a preview of an upcoming <a href="https://twitter.com/paperswelovenyc">Papers We Love NYC</a> talk on the <a href="https://github.com/papers-we-love/papers-we-love/blob/master/garbage_collection/incremental_mature_garbage_collection_using_the_train_algorithm.pdf?raw=true">Train Algorithm</a> by <a href="/ourteam/andrewturley">Andrew Turley</a>.</p>
+
+<p>Some of our focused talks have nothing to do with people&rsquo;s current work.  Our engineering team comes from an astonishingly wide variety of backgrounds and team members routinely draw on their prior experience or research as conclave topics.  <a href="http://www.linkedin.com/in/shanioffen">Shani Offen</a> has spoken to the team about Dimensionality Reduction, Singular Value Decompositions, Eigenvectors, and Principal Component Analysis and <a href="/ourteam/wamiqahmed">Wamiq Ahmed</a> shared his <a href="http://www.ncbi.nlm.nih.gov/pubmed/23060342">NIH research</a> into the Classification of Bacterial Contamination.</p>
+
+<h3>Lightning Talks</h3>
+
+<p>Lightning talks are ten minute talks about any topic. We&rsquo;ve had people present on topics as ranging from great figures in the history of science, and the evolution of soccer defensive formations, to esoteric programming languages, and Hindu guilt. As with the focused talks, lightning talks vary greatly in their style and format. Sometimes an attempt is made to bring the topic of discussion back around to software engineering, but more often than not they serve as windows into the way our fellow engineers think and the things they hold dear.</p>
+
+<h3>Very Special Guests</h3>
+
+<p>From time to time we bring in guest presenters &mdash; engineers from outside the company who talk about their experience and expertise. <a href="http://whilefalse.blogspot.com/">Camille Fournier</a> of <a href="https://www.renttherunway.com/rtr_home">Rent the Runway</a> spoke to us about <a href="http://zookeeper.apache.org/">Zookeeper</a>, and <a href="https://twitter.com/zeeshanlakhani">Zeeshan Lakhani</a> gave a presentation on how he and his coworkers have used property-based testing in <a href="http://clojure.org">Clojure</a>. These are great ways to meet other engineers and it introduces us to skills and practices with which we may not be familiar.</p>
+
+<h3>Videos with Discussion</h3>
+
+<p>When we discover a talk that we feel is relevant to our work, we&rsquo;ll occasionally watch the video together and discuss as a group.  This is particularly applicable when someone returns from a conference and one of the presentations really stuck with them.  Past examples include Jeff Dean&rsquo;s talk from Ricon West 2013, <a href="https://www.youtube.com/watch?v=C_PxVdQmfpk">The Tail at Scale: Achieving Rapid Response Times in Large Online Services</a> and Donald Reinertsen&rsquo;s talk from Lean Software and Systems Conference 2012, <a href="http://vimeo.com/45947817">Decentralizing Control: How Aligned Initiative Conquers Uncertainty</a>.</p>
+
+<h3>Round Table</h3>
+
+<p>Sometimes we don&rsquo;t have an agenda. This isn&rsquo;t a bad thing. We still sit down and talk. If people are feeling particularly reticent we may start by going around and asking everyone to say something about one thing they worked on that week. Other times someone will come in with a story, a complaint, a question, or an issue that needs addressing. Early last year a few of us were trying to figure out how to deal with content caching on our new website. Since ops, platform, and the website team were all sitting there together we decided to hash out the details. Three hours later we emerged with a plan.</p>
+
+<h2>Understand Them and They&rsquo;ll Understand You</h2>
+
+<p>Friday Conclave is an excellent manifestation of the engineering culture here at TheLadders.  It provides us a forum to discuss how we build our products, explore new ideas, share points of view, learn about new and &ldquo;new-to-us&rdquo; technologies, and engage face-to-face rather than keyboard-to-keyboard.  We always welcome guest presenters and participants.  If you&rsquo;d like to attend or present at one of our Friday Conclaves in the future, let us know <a href="https://twitter.com/theladdersdev">@TheLaddersDev</a>.</p>
 </div>
   
   
@@ -306,6 +209,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
@@ -319,10 +226,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>
