@@ -67,7 +67,7 @@ to take a couple of minutes each time.
 
 The solution I went with was running them in parallel. They're all independent
 so there's no need for any test to wait for any other test to finish. CasperJS
-doesn't officially support parallelization so I jury-riggered something together
+doesn't officially support parallelization so I jury-rigged something together
 with a shell script. It gets each test file, runs them all as background processes
 and redirects their output to temporary files. Once that's done, it cats all the 
 output in order and then uses `grep` to print failures at the end.
