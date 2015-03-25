@@ -8,8 +8,8 @@ author: Jeremy Block
 categories: testing, javascript 
 published: false
 ---
-{% blockquote -- Person Who Said this %}
-The thing that the person said
+{% blockquote -- Anonymous %}
+If you don't like testing your product, most likely your customers won't like to test it either.
 {% endblockquote%}
 
 When we started our new [job market guide](http://www.theladders.com/careers/search) 
