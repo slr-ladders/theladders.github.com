@@ -5,7 +5,7 @@ title: "CasperJS the Friendly Testing Framework"
 date: 2015-03-25 16:30
 comments: true
 author: Jeremy Block
-categories: Testing Javascript 
+categories: Testing JavaScript 
 published: true
 ---
 {% blockquote -- Anonymous %}
