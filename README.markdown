@@ -15,7 +15,7 @@ https://github.com/TheLadders/theladders.github.com
 After it's forked, ssh to `blogdev.laddersoffice.net` and clone your fork:
 
 ```
-git clone git@github.com:YourGithubName/theladders.github.com.git
+git clone git@github.com:YourGithubName/theladders.github.com.git ~/theladders.github.com
 ```
 
 NOTE: You will have to make sure your SSH private key is installed in `~/.ssh/id_rsa` before being able to clone the repository
