@@ -15,9 +15,10 @@ The thing that the person said
 When we started our new [job market guide](http://www.theladders.com/careers/search) 
 project (a site where career-minded professionals can check out open positions
 and stats such as average compensation), the question of testing came up pretty
-quickly. We had successfully used [Jasmine](http://jasmine.github.io/) for 
-JavaScript unit testing on a previous project so we kept using that where we could.
-But for end-to-end tests and other things in the browser, we needed something more.
+quickly. We had used [Jasmine](http://jasmine.github.io/) for 
+JavaScript unit testing on a previous project so we kept using it, but it wasn't enough.
+Our Jasmine tests could pass, but the site might not actually work. We needed
+end-to-end tests.
 
 One of the new tools we found was [CasperJS](http://casperjs.org/). It's a neat
 JavaScript project that uses [PhantomJS](http://phantomjs.org/) to open a headless
@@ -69,7 +70,7 @@ so there's no need for any test to wait for any other test to finish. CasperJS
 doesn't officially support parallelization so I jury-riggered something together
 with a shell script. It gets each test file, runs them all as background processes
 and redirects their output to temporary files. Once that's done, it cats all the 
-output in order and then uses grep to print failures at the end.
+output in order and then uses `grep` to print failures at the end.
 
 Here's some sample output after the test suite has run:
 ```bash
@@ -127,7 +128,9 @@ same method to run them in parallel. Like with casper tests, individually they'r
 pretty quick, but running them all sequentially can be slow. Running them in 
 parallel is a big time saver.
 
-Using these tools, our confidence in our testing has gone way up. We no longer need
- to manually check styles on every page because PhantomCSS will show us all the 
-changes. We don't need to click through the signup flow every time because CasperJS
-does that for us.
+Now that we are using CasperJS and PhantomJS, our confidence when releasing has 
+gone way up. We no longer need to manually check styles on every page because 
+PhantomCSS will show us every change. We don’t need to click through flows because 
+CasperJS does that for us. We've been releasing new bug-free features at a consistent 
+rate that wouldn't be possible if we were still manually testing.
+
