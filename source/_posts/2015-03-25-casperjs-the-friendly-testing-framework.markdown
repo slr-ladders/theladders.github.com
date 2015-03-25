@@ -73,7 +73,7 @@ and redirects their output to temporary files. Once that's done, it cats all the
 output in order and then uses `grep` to print failures at the end.
 
 Here's some sample output after the test suite has run:
-```bash
+```text
 Test file: /casper/tests/no_search_results_test.js
 # search no results test
 PASS no-jobs-search-ok: Saw no jobs container
