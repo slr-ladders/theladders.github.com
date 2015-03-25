@@ -117,7 +117,7 @@ wanted to be able to catch problems like that without manually looking at
 every page. Fortunately, there's a tool for that: 
 [PhantomCSS](https://github.com/Huddle/PhantomCSS).
 
-PhantomCSS builds on top of CasperJS. You use it to take screenshots of your 
+PhantomCSS builds on top of CasperJS. It takes screenshots of your 
 site and then after you've done work, it takes new screenshots. It then compares 
 the two and highlights any changes. This can be incredibly useful. For example, 
 suppose you're changing the header on one pager to be centered. If this accidentally 
