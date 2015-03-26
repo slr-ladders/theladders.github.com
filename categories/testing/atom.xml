@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Testing | TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/categories/testing/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-03-25T15:57:28-04:00</updated>
+  <updated>2015-03-26T11:42:41-04:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -40,7 +40,7 @@ function emailCaptureTopFormTest() {</p>
 
 <pre><code>casper.then(givenCareersPage);
 casper.then(whenEmailFormIsFilledOut);
-casper.then(thenConfirmationIsShow);
+casper.then(thenConfirmationIsShown);
 </code></pre>
 
 <p>}</p>
@@ -63,10 +63,10 @@ casper.click('[data-js="email-capture__top-submit"]');
 
 <p>function thenConfirmationIsShown() {</p>
 
-<pre><code>casper.waituntilVisible('[data-js="email-capture__confirmation"]', 
+<pre><code>casper.waituntilVisible('[data-js="email-capture__confirmation"]',
         util.success("email confirmation ok"),
-        util.failWithScreenshot("email-confirmation-fail", 
-                                "email confirmation didn't appear", 
+        util.failWithScreenshot("email-confirmation-fail",
+                                "email confirmation didn't appear",
                                 SCREENSHOT_OPTIONS));
 </code></pre>
 
@@ -87,7 +87,7 @@ to take a couple of minutes each time.</p>
 
 <p>The solution I went with was running them in parallel. They&rsquo;re all independent
 so there&rsquo;s no need for any test to wait for any other test to finish. CasperJS
-doesn&rsquo;t officially support parallelization so I jury-riggered something together
+doesn&rsquo;t officially support parallelization so I jury-rigged something together
 with a shell script. It gets each test file, runs them all as background processes
 and redirects their output to temporary files. Once that&rsquo;s done, it cats all the
 output in order and then uses <code>grep</code> to print failures at the end.</p>

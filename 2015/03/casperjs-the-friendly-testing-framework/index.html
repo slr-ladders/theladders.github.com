@@ -176,7 +176,7 @@ CasperJS for end-to-end testing and we&rsquo;re automating the test runs with
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">emailCaptureTopFormTest</span><span class="p">()</span> <span class="p">{</span>
 </span><span class='line'>    <span class="nx">casper</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">givenCareersPage</span><span class="p">);</span>
 </span><span class='line'>    <span class="nx">casper</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">whenEmailFormIsFilledOut</span><span class="p">);</span>
-</span><span class='line'>    <span class="nx">casper</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">thenConfirmationIsShow</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">casper</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">thenConfirmationIsShown</span><span class="p">);</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="kd">function</span> <span class="nx">givenCareersPage</span><span class="p">()</span> <span class="p">{</span>
@@ -215,7 +215,7 @@ to take a couple of minutes each time.</p>
 
 <p>The solution I went with was running them in parallel. They&rsquo;re all independent
 so there&rsquo;s no need for any test to wait for any other test to finish. CasperJS
-doesn&rsquo;t officially support parallelization so I jury-riggered something together
+doesn&rsquo;t officially support parallelization so I jury-rigged something together
 with a shell script. It gets each test file, runs them all as background processes
 and redirects their output to temporary files. Once that&rsquo;s done, it cats all the
 output in order and then uses <code>grep</code> to print failures at the end.</p>
@@ -332,7 +332,7 @@ rate that wouldn&rsquo;t be possible if we were still manually testing.</p>
 
 <span class="categories">
   
-    <a class='category' href='/categories/javascript/'>Javascript</a>, <a class='category' href='/categories/testing/'>Testing</a>
+    <a class='category' href='/categories/javascript/'>JavaScript</a>, <a class='category' href='/categories/testing/'>Testing</a>
   
 </span>
 
