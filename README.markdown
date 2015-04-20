@@ -137,7 +137,7 @@ bundle exec rake watch
 
 It'll watch for changes and update every time you save.  Very handy.  When in preview mode it will also render `published: false` pages, so don't freak out.
 
-You'll be able to view your version of the blog at `http://[YOUR_USER_NAME].blogdev.laddersoffice.net`
+You'll be able to view your version of the blog at `http://[YOUR_QA_USER_NAME].blogdev.laddersoffice.net`
 
 ## It's all ready to go
 
