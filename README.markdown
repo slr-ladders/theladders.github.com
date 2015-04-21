@@ -186,6 +186,7 @@ After it's live, put a link to your post up over on http://news.ycombinator.com/
 3. Separate your sections with a ****.  It gives it a nice horizontal rule that segments the page.
 4. If things get wonky and you don't trust compass is watching your changes properly, rm -rf public and rake generate.  That'll rebuild everything.
 5. If there's something you can't figure out, it's probably here http://octopress.org/docs/
+6. Syntax errors will silently fail for a post with publish set to false.  If your post isn't being updated or not appearing at all, try setting publish to true and regenerate.  You should see then see the syntax errors.
 
 ## Editing Our Team
 
