@@ -192,10 +192,22 @@ After it's live, put a link to your post up over on http://news.ycombinator.com/
 
 ### New faces
 
-When a new engineer starts at TheLadders, inform them as soon as possible that they're on the hook to put together their own bio to be added to the [Our Team](http://dev.theladders.com/ourteam/) page.  Bios should be provided as [Markdown](https://help.github.com/articles/github-flavored-markdown/).
+When a new engineer starts at TheLadders, inform them as soon as possible that they're on the hook to put together their own bio to be added to the [Our Team](http://dev.theladders.com/ourteam/) page.
 
 1. Make sure the new engineer has a gravatar account and that they've added their @theladders.com email address to gravatar.
-2. Put the new engineer's bio in `source/_includes/ourteam/newengineer.markdown` (Replace `newengineer` in this and all following instructions with the new engineer's name)
+2. Put the new engineer's bio in `source/_includes/ourteam/newengineer.markdown` (replace `newengineer` in this and all following instructions with the new engineer's name). Bios should be written in HTML using the following format:
+   
+    ```
+    
+    <div class="profile-container">
+        <div class="profile-thumb">
+            {% gravatar newengineer@theladders.com %}
+        </div>
+        <div class="profile-content">
+            <strong>New Engineer</strong> has a bio. It goes here.
+        </div>
+    </div>
+```
 3. Create a directory for the new engineer under `source/ourteam`
 4. Create `source/ourteam/[NEW_ENGINEER]/index.markdown` with content based on:
 
