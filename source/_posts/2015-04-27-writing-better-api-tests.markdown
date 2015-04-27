@@ -4,7 +4,9 @@ layout: post
 title: "Writing better API tests"
 date: 2015-04-27 17:41
 comments: true
-categories: Storm
+categories: 
+- Testing
+- API
 published: true
 ---
 
