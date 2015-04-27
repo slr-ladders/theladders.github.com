@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="The simplest of explanations is more likely to be correct than any other.&#8211;Occam&#8217;s Razor Braving the Storm At TheLadders, we operate a &hellip;">
+  <meta name="description" content="If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a></h1>
+      <h1 class="entry-title"><a href="/2014/10/speeding-up-r/">Speeding Up R</a></h1>
     
     
       <p class="meta">
@@ -127,47 +127,144 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2014-07-23T09:00:00-04:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2014</time>
+<time datetime="2014-10-02T14:51:51-04:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>The simplest of explanations is more likely to be correct than any other.</p><footer><strong>&#8211;Occam&#8217;s Razor</strong></footer></blockquote>
+  <div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
+
+<p>A few months ago, we encountered this issue directly. We started working on an algorithm that would analyze any one of our six million jobseekers and find other jobseekers that they’re most similar to. To come up with this list, we’d look through several of the data points we had about the jobseeker, such as their career history and which jobs on our site they had been interested in, and looked for other members who had a similar set of data points. Our first pass at this algorithm in R took about thirty seconds to run for each jobseeker. If we wanted to run it for all six million of our users… well, we couldn’t really wait until 2019 to see the results. We’ve spent the subsequent few weeks speeding up the process so that it now takes less than half a second per jobseeker, and we’ve learned a bunch of helpful tips along the way.</p>
+
+<p>(Note: Whenever I need to speed up my code, I look back at Hadley Wickham’s <a href="http://adv-r.had.co.nz/Performance.html">Advanced R</a> which is where a lot of these ideas come from and is a fantastic resource.)</p>
+
+<h3>1. Use lineprof to find the bottleneck</h3>
+
+<p>Hadley Wickham created a <a href="https://github.com/hadley/lineprof">useful and easy to use package</a> that you can use to figure out which part of your code is causing the biggest issues and drill down to the specific lines that are taking up most of the runtime. Figuring out which parts of your code are problematic is the first step towards fixing that problem.</p>
+
+<h3>2. Attack the slowest cases, but don’t forget about the rest</h3>
+
+<p>After making some improvements, we found that our algorithm could take anywhere between 0.5 and 6 seconds to run on a jobseeker. For the next iteration, we focused on the slowest 10% and tried to speed each of them up by 1-2 seconds. We repeated this process a few more times, taking a look at the slowest cases and seeing if we could make some big improvements there. However, we also stumbled on an easier but equally effective approach: making small improvements that impact all cases. Speeding up the process by 0.2 seconds for all jobseekers has the same impact of cutting off 2 seconds from just 10% of jobseekers and may be easier to do.</p>
+
+<h3>3. Using data.table can speed up almost any merge or aggregation</h3>
+
+<p>Our algorithm requires merging together a bunch of big data frames (for example, ones covering hundreds of thousands of user clicks or job applications) so we quickly searched for a package that could speed things up. We found the <a href="http://datatable.r-forge.r-project.org/">data.table package</a> which was orders of magnitude quicker than the base merge in some cases. However, we realized that there was no reason to limit our use of data.table as speed improvements could be found even on merges of much smaller data frames. Furthermore, any time we needed to run an aggregation over a data frame (usually done with aggregate or tapply), data.table could cut out valuable milliseconds.</p>
+
+<h3>4. Use microbenchmark to rigorously test out your code</h3>
+
+<p>The <a href="http://cran.r-project.org/web/packages/microbenchmark/index.html">microbenchmark package</a> is a far better way to test your R code’s speed than the standard system.time function. Microbenchmark runs each line of code you give it 100 times (by default) and computes summary statistics of those runtimes, allowing you to be confident that any speed improvements you find are not merely the result of random variation.</p>
+
+<h3>5. Don’t overfit to a single case</h3>
+
+<p>Good data scientists are cognizant of the tradeoff between training error and test error when building a model. A similar phenomenon can occur when trying to optimize an algorithm for speed. As we were refining our code, we typically tested things out on our own accounts. However, this was a bit dangerous, since we are by no means a representative sample of users of our site. We are unusually active on the site and all have somewhat similar career histories to each other. A change that improves runtime when generating matches for one of us may not have the same impact on users who are less active or belong to a different job function. Make sure to test out any changes on a large, random sample before concluding that your changes have done the trick.</p>
+
+<h3>6. The clearest code is not always the fastest code</h3>
+
+<p>Imagine you have a data frame that’s 100,000 rows long where the head looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; head(my.df, 10)
+</span><span class='line'>           a         b         c         d
+</span><span class='line'>1         NA        NA 0.4885687        NA
+</span><span class='line'>2         NA        NA 0.1666159        NA
+</span><span class='line'>3         NA        NA 0.3176160        NA
+</span><span class='line'>4         NA 0.9568433 0.4848375        NA
+</span><span class='line'>5  0.8441578 0.3022814        NA        NA
+</span><span class='line'>6  0.4223605        NA        NA        NA
+</span><span class='line'>7         NA 0.7998102        NA        NA
+</span><span class='line'>8         NA 0.8183823        NA        NA
+</span><span class='line'>9         NA        NA        NA 0.1550433
+</span><span class='line'>10 0.1511128 0.4783680        NA        NA</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Braving the Storm</h2>
+<p>Let’s say what you want to do is replace all of the NA’s with 0’s. So a pretty straightforward function to use would be defined as:</p>
 
-<p>At TheLadders, we operate a fully virtualized environment consisting of slightly less than a thousand virtual machines across our Development, QA, and Production environments.  We manage these systems with <a href="http://puppetlabs.com">Puppet</a> and <a href="http://theforeman.org">Foreman</a>, which enables us to rapidly deploy new systems when necessary, as well as maintain our systems predictably throughout their lifecycles.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNA &lt;- function(df){
+</span><span class='line'>  df[is.na(df)] &lt;- 0
+</span><span class='line'>  return(df)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
-<p>One of the tools we <a href="http://dev.theladders.com/categories/storm/">rely on heavily</a> is <a href="https://storm.incubator.apache.org">Storm</a>, a distributed, real-time computation system.  Storm provides us with a framework that we use to constantly crunch data about the millions of job seekers and jobs in our environment.  This enables us to provide our job seekers with relevant information about the best jobs available to them at any given time.  When we build new Storm nodes, Puppet takes a very minimal OS install, lays down our standard configuration, then installs Storm, starts the Storm process and ensures it will start after reboot.</p>
 
-<h2>Dark Skies Ahead</h2>
+<p>That’s concise, easy to understand, and flexible enough to handle most changes that could occur to my.df in the future. Now, take a look at this function:</p>
 
-<p>We operate several Storm clusters across QA and Production spanning Storm versions 0.8 and 0.9.  Over the past several months, we&rsquo;ve experienced intermittent issues within the clusters where individual nodes stopped behaving properly.  The issues occur more frequently in our Production environment, which we attribute to the orders of magnitude higher volumes of traffic traversing Production.  We&rsquo;ve also seen this particular issue in both our 0.8 and 0.9 clusters.  Until recently, the problem has occurred so infrequently that it was much quicker and easier to shut down and rebuild the problem nodes than invest significant time nailing down the root cause.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNAUgly &lt;- function(df){
+</span><span class='line'>  df$a[is.na(df$a)] &lt;- 0
+</span><span class='line'>  df$b[is.na(df$b)] &lt;- 0
+</span><span class='line'>  df$c[is.na(df$c)] &lt;- 0
+</span><span class='line'>  df$d[is.na(df$d)] &lt;- 0
+</span><span class='line'>  return(df)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
-<p>Last month, we rebuilt our 0.9 Production cluster from the ground up and immediately began seeing topologies fail to start on multiple workers.  The issue was clouded by the fact that we saw several different errors occurring, including too many files open, DNS resolution failures, Java class not found errors, heartbeat file not found, etc.</p>
 
-<p><span class='caption-wrapper center medium'><img class='caption' src='/images/thunder-and-lightning/stormy-city.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/29311691@N05/7653430352) by [H.L.I.T.](https://www.flickr.com/photos/29311691@N05/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/29311691@N05/7653430352) by [H.L.I.T.](https://www.flickr.com/photos/29311691@N05/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/29311691@N05/7653430352">Photo</a> by <a href="https://www.flickr.com/photos/29311691@N05/">H.L.I.T.</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+<p>It’s not concise, is a little difficult to understand, and is not very flexible, but it’s actually quite a bit quicker:</p>
 
-<h2>When it Rains, it Pours</h2>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; microbenchmark(
+</span><span class='line'>+   replaceNA(my.df),
+</span><span class='line'>+   replaceNAUgly(my.df)
+</span><span class='line'>+ )
+</span><span class='line'>Unit: milliseconds
+</span><span class='line'>                           min       lq   median       uq      max neval
+</span><span class='line'>     replaceNA(my.df) 219.7503 241.4529 249.8200 271.3922 316.8102   100
+</span><span class='line'> replaceNAUgly(my.df) 148.9356 159.6738 167.7006 178.1716 234.8962   100</span></code></pre></td></tr></table></div></figure>
 
-<p>Since we were seeing multiple errors occurring without any obviously predictable pattern, we started the investigation by trying to reproduce or verify the individual errors on the nodes where we saw the issues in the Nimbus interface.  Despite complaints from Storm of DNS resolution issues, we were unable to find any issues with our DNS system or name resolution on any of the nodes in the cluster, even when performing many lookups in rapid succession.</p>
 
-<p>After eliminating DNS as a root cause, we surmised that the real problem was limits on open file handles and that the other errors &mdash; Java class not found, heartbeat file not found and DNS resolution failure &mdash; were just different manifestations of the process’ inability to open a file handle or socket.  One change that Puppet makes to our systems is to increase the open file handle limits for the storm user/process from the default of 1024 to 256k.  We do this by setting the <code>nofile</code> option in <code>/etc/security/limits.conf</code>.  We verified on every host that the Storm user had properly set file handle limits.  Observing the workers when they were experiencing the issue proved difficult because Storm dynamically assigns workers to nodes at process startup and processes are not sticky.  This means that in our situation, where processes were starting and dying very quickly, it was extremely challenging to be logged into the host watching the process and gathering useful data in the few seconds between startup and death.  One approach to avoid this problem was to shut down workers to eliminate unused worker slots, thus limiting the potential destinations for new processes.  After a prolonged struggle with observing a process as it died, we were finally able to see that the worker process itself was limited to the default 1024 file handles.  We confirmed this suspicion by watching <code>/proc/&lt;PID&gt;/limits</code> to confirm that all Storm related processes were limited to 1024 open file handles on the affected hosts.</p>
+<p>In the majority of cases, the first function is fine or even preferable. However, if speed is your only concern, you may be able to speed things up if you’re willing to forgo having pretty code.</p>
 
-<h2>Every Cloud has a Silver Lining</h2>
+<h3>7. Think about applying some filters</h3>
 
-<p>Now that we had observed a worker process with a 1024 open file handle limit, we moved on to determining how this could happen and why it seemed to occur only on certain nodes.  We noted that rebooting a host did not resolve the issue and further that rebooting a working node caused it to cease functioning properly.  After quite a bit of experimentation, we found that manually restarting the Storm supervisor on an affected host allowed the node to function properly again, at least until the next reboot.</p>
+<p>We categorize each of our jobseekers into one of fourteen overarching job functions, such as sales, marketing, technology, or finance. If I’m a software engineer, almost all of the jobseekers who are similar to me are likely to belong in technology. Sure, we could think of some cases where someone shares attributes with people in a couple of different job functions, but this is more of an edge case. By comparing each jobseeker with the half-million other jobseekers in their job function instead of the entire set of six million, we could make the algorithm about ten times faster while still capturing the vast majority of the same results, a tradeoff we deemed totally acceptable.</p>
 
-<p>We recently altered our new machine deployment to reboot the host between running Puppet and putting the machine in service.  Whereas previously the Storm supervisor would be started by Puppet and function normally, the supervisor is now being started by init on boot.</p>
+<h3>8. Preprocess, preprocess, preprocess</h3>
 
-<p>We ultimately determined that the root cause of this issue is that processes started by init don&rsquo;t go through pam, so limits set in <code>/etc/security/limits.conf</code>, which is utilized by <code>pam_limits.so</code>, are not applied to processes started on boot.</p>
+<p>One of the steps in our algorithm is to compare the set of titles a jobseeker has had in his/her career with the sets for all other jobseekers. However, sometimes two jobseekers will have had the same title but used different punctuation or capitalization when entering their title (not to mention misspellings or synonyms). As a result, we needed to remove the case and punctuation from each title before a comparison could be done. Our initial instinct was to run this text cleaning process right before doing the comparison, but this meant that we would end up cleaning the same text hundreds of times. Instead, we cleaned all the titles once, stored the results, and did the comparisons on these cleaned titles. You should constantly be on the lookout for places where the algorithm repeats a step multiple times and see if there’s a way to do so just once and then just look up those results when needed.</p>
 
-<p>We chose to solve this issue by following the RHEL convention of configuration in /etc/sysconfig and modifying the storm supervisor init script to load <code>/etc/sysconfig/storm</code> if it exists.  Our <code>/etc/sysconfig/storm</code> contains a single line for the time being, increasing the <code>nofile</code> limit to 256k.  This method provides us with the flexibility to augment the configuration in the future with minimal impact.</p>
+<h3>9. Rcpp for when you’re really stuck</h3>
 
-<p>Once Puppet deployed this change to our entire environment, we verified via <code>/proc/&lt;PID&gt;/limits</code> that the Storm supervisors had picked up the changes both when started by hand/Puppet and when started on boot.</p>
+<p>If you’ve narrowed down your issue to a single operation and you can’t find a way around it, the <a href="http://dirk.eddelbuettel.com/code/rcpp.html">Rcpp package</a> may be able to help. With Rcpp, you can run parts of your code in C++ without interrupting the flow of the rest of your code. There’s a bit of a learning curve if you’re not familiar with C++, but the improvements could be massive enough to justify the effort. Alternatively, with some diligent Googling, you may be able to find someone who’s already solved your problem using Rcpp.</p>
+
+<h3>10. Parallelize!</h3>
+
+<p>For R users who have never done any sort of parallel computing before, this may seem a bit daunting. However, depending on how your code is structured, it can actually be quite trivial to run tasks on all the cores of your machine in parallel. For instance, if you’re using Linux or a Mac and part of your code is run using lapply, forcing it to run in parallel is as simple as loading the parallel package and replacing lapply with mclapply (i.e. multicore lapply). Parallelization doesn’t guarantee speed improvements, but testing it out shouldn’t require too much effort and is worth considering.</p>
+
+<p>Along the same lines, you can force R to utilize all the cores of your machine when doing any linear algebra operations by using OpenBLAS or ATLAS, though the process of getting it up and running is not as easy. <a href="http://www.stat.cmu.edu/~nmv/2013/07/09/for-faster-r-use-openblas-instead-better-than-atlas-trivial-to-switch-to-on-ubuntu/">Nathan VanHoudnos&#8217; blog post on the topic</a> is a good place to start.</p>
+
+<h3>11. Make sure this is all worth it</h3>
+
+<p>While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.</p>
+
+<p>Have a question or comment? <a href="http://redd.it/2i4807">Join the discussion on reddit</a>.</p>
 </div>
   
   
@@ -196,6 +293,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
@@ -209,10 +310,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
   </ul>
