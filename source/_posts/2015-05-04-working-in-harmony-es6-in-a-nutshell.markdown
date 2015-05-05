@@ -5,7 +5,7 @@ title: "Working in Harmony: ES6 in a nutshell"
 date: 2015-05-04 16:05
 comments: true
 categories: JavaScript
-published: false
+published: true
 ---
 
 {% blockquote --Douglas Crockford, JavaScript: The Good Parts %}
