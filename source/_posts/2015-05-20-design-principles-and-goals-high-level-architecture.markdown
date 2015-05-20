@@ -7,7 +7,12 @@ comments: true
 categories: 
 published: false
 ---
-# Series Intro
+
+{% blockquote --Robin Longstride %}
+If you're building for the future, you need to keep your foundations strong
+{% endblockquote %}
+
+# Rebuilding for the Future
 
 A few years ago, we began rebuilding the member experience on theladders.com from almost the ground up.  It was previously a typical Spring MVC/JSP request based application, but it was decided that we would start over with a different client/server model.  The end result is a Single Page Application - a JavaScript thick(er) client and a RESTful web service.  It went fully live in September of 2012 (which means this post is long overdue), and set the stage for how we would build our customer facing web services to come.  The architecture, design goals, and principles we’ve held in rebuilding our server also came to light in the web services we build for our mobile applications, and have matured and come full circle since the rebuild was first launched.  We’re going to post a small series over the next week sharing some of those details.
 
