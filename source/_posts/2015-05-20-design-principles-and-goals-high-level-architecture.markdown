@@ -11,7 +11,7 @@ published: false
 {% blockquote --Robin Longstride %}
 If you're building for the future, you need to keep your foundations strong
 {% endblockquote %}
-(yea that's a Robin Hood quote)
+
 # Rebuilding for the Future
 
 A few years ago, we began rebuilding the member experience on theladders.com from almost the ground up.  It was previously a typical Spring MVC/JSP request based application, but it was decided that we would start over with a different client/server model.  The end result is a Single Page Application - a JavaScript thick(er) client and a RESTful web service.  It went fully live in September of 2012 (which means this post is long overdue), and set the stage for how we would build our customer facing web services to come.  The architecture, design goals, and principles we’ve held in rebuilding our server also came to light in the web services we build for our mobile applications, and have matured and come full circle since the rebuild was first launched.  We’re going to post a small series over the next few days sharing some of those details.
@@ -29,6 +29,7 @@ Our client is a Single Page Application leveraging Backbone.js.  There are only 
 
 The server is a stateless RESTful web service, utilizing Jersey as our web layer framework, Spring for Dependency Injection, and a variety of things for data access (we read/write data from different kinds of stores).  The bulk of our business rules and data processing lives here, with business decisions typically communicated to the client via Hypermedia links.  It frequently talks to other “core domain” web services and applies processing on top, so we typically refer to it as an orchestration service.  It was written in Java 7, which brought up several challenges in trying to conform to our principles that we’ll cover later on.
 
+****
 ## High Level Architecture
 We’ll start with a high level view of our general application architecture.  It’s a typical N-tier application, where we view the business tier as being further subdivided in half.  We’ll call the three major layers Presentation, Business, and Storage, with the Business Layer also distinguishing between Application and Domain.  Presentation usually refers to a layer dealing with UI concerns, but in the case of a RESTful service it’s our web/API layer.
 
@@ -211,5 +212,6 @@ public class JobMatchesWorkflow
 }
 ```
 
+****
 ## Wrapping up
 That about sums up some of our high level philosophies, architecture, and control flow.  We’ve set up an environment where layer responsibilities are clearly separated, the workflow steps of completing a task are managed in one place and separate from the details of how those steps are carried out, and placed our domain models at the heart of our system.  Our next post will share some details of our trip back to OO and how we implement the logic behind those steps.
