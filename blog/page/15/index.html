@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="“Take a load off Annie. Take a load for free. Take a load off Annie. And you put the load right on me.” &#8211; Robbie Robertson Act I: The Players &hellip;">
+  <meta name="description" content="Change means that what was before wasn&#8217;t perfect. People want things to be better.&#8211;Esther Dyson Looking back on my 6+ years at TheLadders &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/05/varnish-in-five-acts/">Varnish in Five Acts</a></h1>
+      <h1 class="entry-title"><a href="/2013/05/the-evolution-of-qa-at-theladders/">The Evolution of QA at TheLadders</a></h1>
     
     
       <p class="meta">
@@ -127,652 +127,65 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-05-03T13:21:00-04:00" pubdate data-updated="true">May 3<span>rd</span>, 2013</time>
+<time datetime="2013-05-16T09:04:00-04:00" pubdate data-updated="true">May 16<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>“Take a load off Annie. Take a load for free. Take a load off Annie. And you put the load right on me.” &#8211; Robbie Robertson</p></blockquote>
+  <div class="entry-content"><blockquote><p>Change means that what was before wasn&#8217;t perfect. People want things to be better.</p><footer><strong>&#8211;Esther Dyson</strong></footer></blockquote>
 
 
-<h2>Act I: The Players</h2>
+<p>Looking back on my 6+ years at TheLadders, I realize how much has changed. When I first joined the company at the start of 2007, there were five other people on the QA team supporting a team of 12 software developers. We followed a strict waterfall process. Product ideas were generated, researched and solidified before any conversation with the development or QA teams. Product managers would spend a large portion of their time hunkered down at their desks writing specification documents, complete with statements on purpose and scope, workflows, wireframes and interaction rules.</p>
 
-<p>At TheLadders, we have a number of entity services that clients access via HTTP. Some examples are the job service, the job application service and the topic of this post: the job seeker service. Each service manages the lifecycle of a core entity in our domain. On each request, the service gathers data from multiple data sources to build a complete entity and then serializes that entity to JSON. This is done for every request and is incredibly wasteful when you consider that most of these entities don’t change that often. This was a major bottleneck in our infrastructure. In the case of the job seeker service, the same entity can be requested multiple times per request from our consumer website.</p>
+<p>After these documents were approved by business owners, the development, QA, and design teams would meet to walk through the document with the goal of estimating the implementation time. QA played the role of a customer advocate and tried to ensure that there was as little uncertainty in the documentation as possible. Instead of walking out of the meeting with estimates, the Product Manager would usually leave with a list of missing workflows and use cases that they would need to add to the spec before development began.</p>
 
-<p>All this repeated, unnecessary entity object assembly and JSON serialization created scaling problems. Making matters worse, we periodically have batch processes that can increase service load by an order of magnitude. Caching is an easy win here. The question is how.</p>
+<p>Eventually a release date would be set. Spec and design mocks in hand, the development team would start building the feature.  The QA team would write test cases. We created long lists of actions and expected outcomes that we would use to manually test the development team’s work. Test automation &ndash; unit, integration, functional, load, et al &ndash; was a distant dream. Our primary interaction with the development team was proving the existence of bugs that they couldn’t reproduce.</p>
 
-<p>Initial attempts to cache these entities were done inside the service JVMs, using familiar and popular JVM based caches like EHcache and calls out to memcache. Unfortunately, this left us operating at JVM speeds and the caches were competing with the service logic for memory and threads.</p>
+<p><img class="center" src="/images/the-evolution-of-qa-at-theladders/it-works-on-my-machine.png"></p>
 
-<p>In addition, our service code was muddled with messy caching logic.  Making the code harder to reuse, and more annoyingly, changes just affecting caching forced us to re-release the entire service.  We didn’t like this mixing of concerns.</p>
+<p>Even though both the development and QA teams worked off of the same documents, the software never matched the expected behavior according to the test case. Preparing for a release was a never-ending cycle of testing, bug-finding, bug-fixing, and retesting. Fixed release dates and not testing until the end of the development cycle led to releases that were huge events with late, stressful nights leading up to release and late, stressful nights spent cleaning up after it was over!</p>
 
-<p>We thought we could do better if we used external read through caches. It&rsquo;s easy to slide them between existing clients and services. With caching outside the service, it get released only when their logic changes not because we’re tuning caching.</p>
+<p>Between major releases, QA was either responding to customer issues, estimating how long it would take to test an upcoming project, or maintaining our set of regression test case documents in Excel.</p>
 
-<p>For reasons too numerous to cover in this post we chose <a href="https://www.varnish-cache.org/about">Varnish</a> as our read through cache.</p>
+<h2>Fast forward to 2009.</h2>
 
-<hr />
+<p>The development team had grown to 35. The QA team had shrunk to 4. We’d transitioned to Scrum a few months previous and shuffled the production teams around to form 4 cross-functional ones. Each team consisted of developers, a QA lead, a designer, a copy editor, and a product manager. The move to Scrum was bumpy as we molded the framework into a process that worked for us but teams had started to find a groove. Ideas were generated and defined within each team, we were checking in with each other often, and delivering value to our customers faster. The teams were working like well-oiled machines&hellip; almost.</p>
 
-<h2>Act II: The Architecture</h2>
+<p>Selecting user stories to be undertaken during an iteration had become a team decision, however then the Product Manager and QA rep would work together, without the rest of the team, to define the requirements for each story and flesh them out into use case documents. QA still played the role of customer advocate: working to clearly define expected behavior of each user story in terms of the use case document.</p>
 
-<p>When we introduced Varnish to our architecture, we wanted to make sure we were not adding a single point of failure. Simply put, if the cache layer goes down, our infrastructure should continue running. Performance might be degraded, but we should continue to be able to serve content to clients.</p>
+<p>The developers would use these documents to build each user story. Sometimes, they&rsquo;d also write unit tests to cover a few of the more important use case scenarios. Before a story was considered &ldquo;done&rdquo;, a code review would need to be completed by at least two developers. In order to make sure that each story met customer expectations, QA would need to manually test the feature. The need for manual testing didn’t end there. At the end of each iteration, QA would run through the entire regression suite before releasing.</p>
 
-<p>The diagram below shows a typical setup. In a normal scenario, a client accesses Varnish via a load balancer. Varnish in turn farms out the work in round robin fashion to one of four job seeker service nodes. Should Varnish become unavailable, the load balancer stops sending traffic to Varnish and reroutes it to the four job seeker service nodes.</p>
+<p>We had made some improvements, but it was clear that we could improve the process if we increased communication of requirements and lessened the amount of manual testing that needed to be done.</p>
 
-<p><img class="center" src="/images/varnish-in-five-acts/varnish-flow.png"></p>
+<p>We were releasing every two weeks. They were smaller and less stressful than in the past. QA still spent a lot of time manually testing, but it was done throughout the iteration instead of being squeezed in at the end. This meant that QA had a lot more downtime than before. While some of this time was spent doing the work we had always done, we also made sure to spend time learning about new tools and best practices. Over time, we learned a lot about automated functional testing. We experimented with different frameworks, starting with a simple record-and-playback tool, until we learned more about what we needed and which tools might best fit that need. I’ll write a post later to shed some light on what that journey was like, but suffice it to say that it took quite a bit of trial and error!</p>
 
-<p>Of all our entity services, the job seeker services carries the highest median load. The graph below is the 1 minute request rate on 4 jobseeker service nodes over the 36 hour period before and after Varnish was turned on.</p>
+<h2>Fast forward to now.</h2>
 
-<p><img class="center" src="/images/varnish-in-five-acts/before-after.png"></p>
+<p>We&rsquo;ve moved beyond Scrum to an adapted Agile process that emphasises cross-functional, independent, and highly collaborative teams. Each team is free to adopt practices that work for them. They have free reign to define the way that they work amongst themselves. There are certain commonalities that hold true across all our teams:</p>
 
-<hr />
+<p><strong>QA plays the role of customer advocate</strong>. We know our customers well and our applications even better. This gives us a unique perspective when defining new user stories that helps our teams deliver better products for our users.</p>
 
-<h2>Act III: Cache Invalidation</h2>
+<p><strong>The teams define user stories together</strong>. QA still helps flesh out requirements and acceptance criteria, but with the participation of the rest of the team. Defining requirements as a team helps us make sure that we&rsquo;re all on the same page which in turn helps us work better and faster.</p>
 
-<p>Cache invalidation is one of the 2 hard problems in computer science along with naming things and off by one errors.</p>
+<p><strong>We aren&rsquo;t heavy-handed with the documentation</strong>. We&rsquo;ve found that most of our previous attempts at documentation were wasteful &ndash; and often not as useful to the developers as we thought. Instead, after each team conversation around story requirements QA either writes notes and acceptance criteria on the back of the story card (if the team uses a whiteboard to manage their backlog) or in comments attached to the story in Trello.</p>
 
-<p>We cache job seeker entity representations until some point in the “far future”, which is great until something about that job seeker changes, then we must invalidate the cached entry. So, how do we do that?</p>
+<p><strong>We automate tests when it&rsquo;s the smart thing to do</strong>. Manually testing everything definitely was not the best thing for us to do, but <a href="http://xkcd.com/1205/">neither is automating every test</a>. Instead, QA and the developers have frequent conversations around how to appropriately test each user scenario: Can it be sufficiently covered in a unit or integration test? Does it make sense to write an expensive automated functional test that checks the functionality through the browser? How important is this functionality? What&rsquo;s the risk of it breaking? We also keep test coverage at the front of our minds and use different <a href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">strategies</a> to make sure that we can trust the tests that we do automate.</p>
 
-<p>Two ways.</p>
+<p><strong>Developers write most of our automated tests</strong>. Whether unit, integration, functional, or load tests, usually it&rsquo;s a developer that&rsquo;s going to write it. QA does pitch in when they can but with one QA lead per team, it&rsquo;s not feasible for them to write all of the automated tests without becoming a bottleneck.</p>
 
-<h3>Via Header:</h3>
+<p><strong>We peer review code</strong> with QA actively participating.</p>
 
-<p>All requests that change the state of a job seeker that are made via the service attach a header in the response called &ldquo;x-invalidates&rdquo; that looks something like:</p>
+<p><strong>We&rsquo;ve set up continuous integration builds</strong>. All of our unit-level tests run after each commit and all of our automated functional regression tests must pass before each deployment. If a test fails, we fix it.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>x-invalidates: /jobseekers/123</span></code></pre></td></tr></table></div></figure>
+<p>And of course, QA is still responsible for investigating and responding to customer issues. Some things will never change.</p>
 
+<p>We&rsquo;ve come a long way! But that doesn&rsquo;t mean that we can&rsquo;t get better. As a wise man* once said, consistency requires you to be as ignorant today as you were a year ago. Here at TheLadders, we&rsquo;re always learning.</p>
 
-<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://twitter.com/johnconnolly">@johnconnolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
+<p>*Bernard Berenson</p>
 
-<h3>Via Magic:</h3>
-
-<p>Once upon a time, we had a database administrator named Gennady. Gennady wrote a <a href="http://www.dinodigusa.com/images/Magic1.gif">PHP script that reads MySQL’s binary logs</a>, looking for changes to a set of predefined tables. When it sees an update, it finds the primary key for the row and fires off an invalidation request. In our case, a purge of the cached jobseeker url in Varnish. This allows us to invalidate cached job seeker entities even when the update was performed via legacy code that interacts directly with the database rather than through the service.</p>
-
-<p>If you were to do this manually, it would look something like:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -X PURGE varnish-jobseeker/jobseekers/123</span></code></pre></td></tr></table></div></figure>
-
-
-<hr />
-
-<h2>Act IV: Configuration Spelunking</h2>
-
-<p>So, how did we do it? I’m going to break down our configuration into its parts and cover the general role each part plays. From here on out, I’m assuming you understand the basics of how Varnish works and how you configure it. Also, there is some repetition in our configuration that isn’t required, it just makes it easier for our configuration management tool, puppet, to create the final output.</p>
-
-<h3>Load Balancing</h3>
-
-<p>We have four service servers behind varnish so we create four backend entries and then set up a director to round robin between them. Then in vcl_recv, we set our director named &lsquo;nodes&rsquo; to be the backend that we will use to fetch content.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend JS1 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS1&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS2 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS2&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS3 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS3&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS4 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS4&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>director nodes round-robin <span class="o">{</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS1 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS2 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS3 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS4 ; <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  <span class="nb">set </span>req.backend <span class="o">=</span> nodes;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># store in cache only by url, not backend host</span>
-</span><span class='line'>sub vcl_hash <span class="o">{</span>
-</span><span class='line'>  hash_data<span class="o">(</span>req.url<span class="o">)</span>;
-</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="nb">hash</span><span class="o">)</span>;
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Degraded</h3>
-
-<p>Each backend is setup with a probe url that we use to check its health. If the probe url doesn&rsquo;t return at least one HTTP 200 response within a fifteen second period, we mark that backend as unhealthy.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend ... <span class="o">{</span>
-</span><span class='line'>   ...
-</span><span class='line'>
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Varnish has the concept of a grace period, wherein, we can keep content alive in our cache past the TTL based on the health status of our backends. In our case, when the all backends are down, we keep cached items alive for an extra hour. During this time, we operate in a degraded status. Read requests for cached items will be handled while write requests will fail because there is no backend service to handle them.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
-</span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># extra ttl for cached objects based on backend health</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>!req.backend.healthy<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 1h;
-</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 15s;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Invalidation</h3>
-
-<p>We do two types of invalidation:</p>
-
-<ul>
-<li>invalidation based on the &lsquo;x-invalidates&rsquo; header that comes back with a response</li>
-<li>&lsquo;manual&rsquo; invalidation based on sending the HTTP PURGE verb to a url in the Varnish cache.</li>
-</ul>
-
-
-<p>The ability to do a manual purge is limited to a small set of IP addresses that we validate against when a purge request is received.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>acl purge <span class="o">{</span>
-</span><span class='line'>  <span class="s2">&quot;localhost&quot;</span>;
-</span><span class='line'>  <span class="s2">&quot;10.10.10.10&quot;</span>;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span>client.ip ~ purge<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>       <span class="k">return</span><span class="o">(</span>lookup<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    error 405 <span class="s2">&quot;Not allowed.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The actual mechanics of doing the purge are fairly simple. If the url attempted to be purged exists, purge it and return a 200.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_hit <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 200 <span class="s2">&quot;Purged.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If it doesn&rsquo;t, return a 404 response code:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_miss <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 404 <span class="s2">&quot;Not in cache.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Update requests include invalidation-related headers. Every request we fetch has, inside of Varnish, its request url stored in a special x-url header. This will be used as the url to check the x-invalidates header against. As this header is purely for our internal use, we remove it before delivering items to a client:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_deliver <span class="o">{</span>
-</span><span class='line'>  <span class="c"># clear internal cache invalidation header before sending to client</span>
-</span><span class='line'>  <span class="nb">unset </span>resp.http.x-url;
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Any &lsquo;successful&rsquo; PUT, POST, DELETE or PATCH response will have its x-invalidates header used as a regular expression to invalidate existing content whose x-url header matches the x-invalidates regex.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># cache invalidation</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PUT&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;POST&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;DELETE&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;PATCH&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span>  <span class="o">(</span>beresp.status &gt;<span class="o">=</span> 200 <span class="o">&amp;&amp;</span> beresp.status &lt; 400<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>     ban<span class="o">(</span><span class="s2">&quot;obj.http.x-url ~ &quot;</span> + beresp.http.x-invalidates<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<hr />
-
-<h2>Act V: The final product</h2>
-
-<p>And finally, we put it all together into a complete file (note, we use Varnish 3, the semantics around ban/purge changed from v2 to v3):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend JS1 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS1&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS2 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS2&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS3 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS3&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS4 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS4&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>director nodes round-robin <span class="o">{</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS1 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS2 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS3 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS4 ; <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># what machines can institute a &#39;manual&#39; purge</span>
-</span><span class='line'>acl purge <span class="o">{</span>
-</span><span class='line'>  <span class="s2">&quot;localhost&quot;</span>;
-</span><span class='line'>  <span class="s2">&quot;192.1.1.4&quot;</span>;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># store in cache only by url, not backend host</span>
-</span><span class='line'>sub vcl_hash <span class="o">{</span>
-</span><span class='line'>  hash_data<span class="o">(</span>req.url<span class="o">)</span>;
-</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="nb">hash</span><span class="o">)</span>;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
-</span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># cache invalidation</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PUT&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;POST&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;DELETE&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;PATCH&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span>  <span class="o">(</span>beresp.status &gt;<span class="o">=</span> 200 <span class="o">&amp;&amp;</span> beresp.status &lt; 400<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>     ban<span class="o">(</span><span class="s2">&quot;obj.http.x-url ~ &quot;</span> + beresp.http.x-invalidates<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  <span class="nb">set </span>req.backend <span class="o">=</span> nodes;
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span>client.ip ~ purge<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>       <span class="k">return</span><span class="o">(</span>lookup<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    error 405 <span class="s2">&quot;Not allowed.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># extra ttl for cached objects based on backend health</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>!req.backend.healthy<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 1h;
-</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 15s;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_deliver <span class="o">{</span>
-</span><span class='line'>  <span class="c"># clear internal cache invalidation header before sending to client</span>
-</span><span class='line'>  <span class="nb">unset </span>resp.http.x-url;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_hit <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 200 <span class="s2">&quot;Purged.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_miss <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 404 <span class="s2">&quot;Not in cache.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Hidden Track Bonus Act:</h2>
-
-<p><img class="center" src="/images/varnish-in-five-acts/varnish-all-the-things.jpg"></p>
-
-<p>Join the discussion over at <a href="https://news.ycombinator.com/item?id=5651874">Hacker News</a>.</p>
+<p>Join the discussion over at <a href="http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved">Software Testing Club</a>.</p>
 </div>
   
   
@@ -801,6 +214,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
       </li>
     
@@ -814,10 +231,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2015/02/conclave/">Conclave</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
   </ul>
