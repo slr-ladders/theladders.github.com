@@ -2,7 +2,7 @@
 author: Kyle Winter
 layout: post
 title: "Design Principles and Goals - High Level Architecture"
-date: 2015-05-19 15:47
+date: 2015-05-20 15:47
 comments: true
 categories: 
 published: false
@@ -27,9 +27,12 @@ The server is a stateless RESTful web service, utilizing Jersey as our web layer
 ## High Level Architecture
 We’ll start with a high level view of our general application architecture.  It’s a typical N-tier application, where we view the business tier as being further subdivided in half.  We’ll call the three major layers Presentation, Business, and Storage, with the Business Layer also distinguishing between Application and Domain.  Presentation usually refers to a layer dealing with UI concerns, but in the case of a RESTful service it’s our web/API layer.
 
+{% img center /images/new-lw-design/nlw-application-architecture.png 'High Level Architecture' %}
+
 **Presentation**
 
 Key Components
+
 * Resource
   * The web/presentation component. We use Jersey, so we’ve taken to calling them Resources.  Spring MVC would call them Controllers.  These should handle pulling/pushing data from/to a request/response, possibly user facing validation, etc.  This component (and related friends) is the only place that web framework imports may be used, such as Jersey classes.  And that’s it - ideally methods on these components are one liners calling out to a Workflow.  Any logic not dealing with web specifics should live in the workflow/domain/service components.
 * Representation
@@ -38,18 +41,20 @@ Key Components
 **Business**
 
 Key Components
+
 * Workflow
   * Also called Application Layer, Use Case, or Service Facade - this represents the entry point of a business task/use-case. Most of the time, these should not directly implement solutions, but rather be a high level coordinator of other objects (it can be viewed as a facade over finer grained models/services). A workflow shouldn’t be reused by any other business components.  Reusing them from other resources is okay if the use-case is really the same. Should never be used by lower components. These ultimately answer to their use-case.
 * Domain Models
   * The heart of our application.  When we say Domain Model, we don’t mean a class with a bunch of getters and setters.  Quite the opposite - we shun getters and setters in these classes, and make exceptions where practical.  These classes hold most of the logic and decisions of our application.  Instead of exposing getters and being about data, they expose meaningful methods about behavior.
 * Services (Domain or Infrastructure)
-  *These are meant to be highly reusable components - building blocks for other parts of the system. They are meant to encapsulate logic/actions that don't necessarily belong in the domain, or to any single domain model. These ultimately answer to re-usability and/or the domain.
+  * These are meant to be highly reusable components - building blocks for other parts of the system. They are meant to encapsulate logic/actions that don't necessarily belong in the domain, or to any single domain model. These ultimately answer to re-usability and/or the domain.
 
 **Storage**
 
 Key Components
+
 * Repository (typically called AllSomethings)
-  * Represents a store for an entity (an 'aggregate root' in DDD terms). The store could be whatever (relational DB, file, in memory, backed by a RESTful web service). This maybe handle reads/writes/queries directly and/or delegate them to internal members (like if it needed 2 DAOs to create an entity). Think of it as a slightly higher level concept of a DAO. The repository might execute SQL queries itself, it might coordinate another DAO or 2 to execute SQL queries, or it might not even use a database at all - maybe it hits another web service. What's important about a repository is what it represents - a store for a particular model.  Repositories are really viewed as a collection of models that happens to persist between restarts.  An object returned from a Repository should be fully instantiated with everything it needs.
+  * Represents a store for an entity (an 'aggregate root' in DDD terms). The store could be whatever (relational DB, file, in memory, backed by a RESTful web service). This may handle reads/writes/queries directly and/or delegate them to internal members (like if it needed 2 DAOs to create an entity). Think of it as a slightly higher level concept of a DAO. The repository might execute SQL queries itself, it might coordinate another DAO or 2 to execute SQL queries, or it might not even use a database at all - maybe it hits another web service. What's important about a repository is what it represents - a store for a particular model.  Repositories are really viewed as a collection of models that happens to persist between restarts.  An object returned from a Repository should be fully instantiated with everything it needs.
   * We follow the “collection of models” mentality when naming repositories and their methods as well.  Where you might typically see something like jobseekerDao.insert(jobseeker), we would write either allJobseekers.add(jobseeker) or jobseeker.addTo(allJobseekers).
   * The naming convention of AllSomethings allows for some really interesting method names that read more naturally in high level code, like our workflow for searching users:
     * Users matchingUsers = allUsers.matching(query).except(currentUser).sorted(by(Name.lastThenFirst()));
