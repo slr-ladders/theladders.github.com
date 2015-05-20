@@ -5,7 +5,7 @@ title: "Design Principles and Goals (Part 1) - High Level Architecture"
 date: 2015-05-20 15:47
 comments: true
 categories: how-we-work
-published: false
+published: true 
 ---
 
 {% blockquote --Robin Longstride %}
