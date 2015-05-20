@@ -129,6 +129,7 @@ We want our application code to make sense regardless of whether or not there’
 
 ## Typical Usage Scenario
 The handling of a GET request typically looks like this:
+
 * The request comes in and gets picked up by a Jersey resource.  This handles the unmarshalling of any data, request parameter extraction, and/or retrieval of the “current user” identification if necessary.  It then immediately passes control to a Workflow for the specific use case at hand.
 * The Workflow looks up one or more models from the Repositories
 * The Workflow coordinates the model(s) to complete the task at hand
