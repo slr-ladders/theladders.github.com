@@ -1,7 +1,7 @@
 ---
 author: Kyle Winter
 layout: post
-title: "Design Principles and Goals - High Level Architecture"
+title: "Design Principles and Goals (Part 1) - High Level Architecture"
 date: 2015-05-20 15:47
 comments: true
 categories: 
