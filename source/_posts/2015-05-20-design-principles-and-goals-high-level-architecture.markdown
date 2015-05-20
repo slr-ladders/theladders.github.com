@@ -48,7 +48,7 @@ Key Components
 Key Components
 
 * Workflow
-  * Also called Application Layer, Use Case, or Service Facade - this represents the entry point of a business task/use-case. Most of the time, these should not directly implement solutions, but rather be a high level coordinator of other objects (it can be viewed as a facade over finer grained models/services). A workflow shouldn’t be reused by any other business components.  Reusing them from other resources is okay if the use-case is really the same. Should never be used by lower components. These ultimately answer to their use-case.
+  * Also called Application Layer, Use Case, or Service Facade - this represents the entry point of a business task/use-case. Most of the time, these should not directly implement solutions, but rather be a high level coordinator of other objects (it can be viewed as a facade over finer grained models/services). This is a great candidate for a business acceptance/integration test.  A workflow shouldn’t be reused by any other business components.  Reusing them from other resources is okay if the use-case is really the same. Should never be used by lower components. These ultimately answer to their use-case.
 * Domain Models
   * The heart of our application.  When we say Domain Model, we don’t mean a class with a bunch of getters and setters.  Quite the opposite - we shun getters and setters in these classes, and make exceptions where practical.  These classes hold most of the logic and decisions of our application.  Instead of exposing getters and being about data, they expose meaningful methods about behavior.
 * Services (Domain or Infrastructure)
