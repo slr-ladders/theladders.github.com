@@ -132,6 +132,35 @@ Because our models are behavior driven (and often polymorphic), they frequently 
 
 We want our application code to make sense regardless of whether or not there’s a database.  We read data from a variety of different stores: relational DB tables, key/value stores like Riak/Couchbase/Memcached, other web services, etc.  In some applications, we have a “standalone” mode where everything is just held in memory.  We like to avoid having the storage layer mechanism leaking out and affecting our other code - we want to be able to swap different implementations in/out at will, with minimal impact.
 
+It's common to find something similar to:
+
+```
+public interface AllSomethings
+{
+  void add(Something something):
+  void remove(Something something);
+  Somethings createdBy(UserId userId);
+  Somethings postedBefore(Date date);
+}
+ 
+@Repository
+@Profile("standalone")
+public class AllSomethingsInMemory implements AllSomethings
+{
+  private Set<Something> somethings;
+  ...
+}
+ 
+@Repository
+@Profile("default")
+public class AllSomethingsInMySql implements AllSomethings
+{
+  @Inject
+  private SomethingsSql sql;
+  ...
+}
+```
+
 ### Presenting models
 This is a RESTful web API, so at some point we've got to expose data.  But we said we're anti-getters on our domain models, so how do we do it?  One of the responsibilities of a model is not to expose each property individual, but rather present itself in some fashion.  Many times this is just a represention() or toRepresentation() method that returns the presentation layer class, and sometimes we introduce an interface if we want to decouple the model from the presentation class or response being sent back.  We'll dig a little more into our Presenter interfaces in our next post.
 
