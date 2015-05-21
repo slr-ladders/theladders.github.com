@@ -8,6 +8,10 @@ categories: [Object Oriented Programming]
 published: false
 ---
 
+{% blockquote -- Edsger Dijkstra %}
+Being abstract is something profoundly different from being vague... The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise.
+{% endblockquote %}
+
 Welcome to part two of our series on the design principles and goals behind our newer customer facing web services.  In [Part 1](/2015-05-20-design-principles-and-goals-high-level-architecture.markdown) we covered our [High Level Archicture](/2015-05-20-design-principles-and-goals-high-level-architecture.markdown) and talked about how domain models are the heart of our systems.  We'll pick up there, and go into some more detail in how we build those models, how they focus on behavior, and how we serialize them for the API endpoints.
 
 # Getting Back to OO roots
