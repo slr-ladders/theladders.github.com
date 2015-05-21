@@ -4,7 +4,7 @@ layout: post
 title: "Design Principles and Goals (Part 2) - A Trip Back to OO"
 date: 2015-05-21 12:02
 comments: true
-categories: 
+categories: [Object Oriented Programming]
 published: false
 ---
 
