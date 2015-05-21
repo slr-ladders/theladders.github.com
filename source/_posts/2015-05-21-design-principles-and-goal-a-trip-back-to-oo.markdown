@@ -271,6 +271,7 @@ canApply() {
 canUpgrade() { return true; }
 ```
 We have an explicit rule that we are only allowed to ask if a user is basic/premium/freemium/etc for two reasons:
+
 * copy and branding, since it might say the word “Basic” or “Premium”
 * a factory is creating a polymorphic model
 
