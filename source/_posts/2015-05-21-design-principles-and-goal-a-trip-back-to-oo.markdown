@@ -179,9 +179,11 @@ if (status == Status.APPROVED) {
 but instead ask the enum the question directly via status.isApproved(), or even better tell it to do something (tell don't ask).
 
 Two enum checks is a sign that there’s a more meaningful concept hiding there
+```java
 if (day == Day.SATURDAY || day == Day.SUNDAY) {
   // do something
 }
+```
 the above is hiding a very important concept, something like day.isOnTheWeekend();
 
 Who says enums have to be void of logic?  Logic belongs where it belongs, regardless of whether the class is a typical class or an enum.  Enums should be viewed as just a way to restrict input values, and possibly make the internal implementation of the class easier.  Here’s an example of one of our enums:
