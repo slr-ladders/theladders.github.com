@@ -214,4 +214,4 @@ public class JobMatchesWorkflow
 
 ****
 ## Wrapping up
-That about sums up some of our high level philosophies, architecture, and control flow.  We’ve set up an environment where layer responsibilities are clearly separated, the workflow steps of completing a task are managed in one place and separate from the details of how those steps are carried out, and placed our domain models at the heart of our system.  Our next post will share some details of our trip back to OO and how we implement the logic behind those steps.
+That about sums up some of our high level philosophies, architecture, and control flow.  We’ve set up an environment where layer responsibilities are clearly separated, the workflow steps of completing a task are managed in one place and separate from the details of how those steps are carried out, and placed our domain models at the heart of our system.  Our next post will share some details of [Our Trip Back to OO](/2015-05-21-design-principles-and-goals-our trip back to OO.markdown) and how we implement the logic behind those steps.
