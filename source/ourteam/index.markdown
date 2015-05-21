@@ -33,8 +33,6 @@ footer: false
 ****
 {% include ourteam/lindagonzalez.markdown %}
 ****
-{% include ourteam/matthewgundel.markdown %}
-****
 {% include ourteam/donaldhiggins.markdown %}
 ****
 {% include ourteam/pinakjain.markdown %}
