@@ -298,7 +298,14 @@ return salary < limit;
 compared to
 ```
 return serviceJobseeker.getSalary().query(isBelow(limit)).otherwise(false);
-
+```
+or even better:
+```
+return serviceJobseeker.salary(isBelow(limit)).otherwise(false);
+``` 
+There is a tradeoff though, particularly for Java 7 and below - we have to create a Google Guava function, which is ugly.  We're willing to accept this little bit of ugliness and tuck it away at the bottom of the class, or in its own class itself (much less of a problem in Java 8).
+SalaryPredicates:
+```
 public static Predicate<Salary> isBelow(final int limit)
 {
  return new Predicate<Salary>()
@@ -311,11 +318,8 @@ public static Predicate<Salary> isBelow(final int limit)
   };
 }
 ```
-or even better:
-```
-return serviceJobseeker.salary(isBelow(limit)).otherwise(false);
-``` 
-When talking about being expressive in code, readability, and separating mechanics from meaning – we’ve made a nice improvement.  There are a lot of mechanics in the first example, mixed in between the code that enforces the business rules.  The last example is short and sweet, and only contains the parts we really care about.
+
+When talking about being expressive in code, readability, and separating mechanics from meaning – we’ve made a nice improvement.  There are some mechanics in the first example, mixed in between the code that enforces the business rules.  The last example is short and sweet, and only contains the parts we really care about.  This really starts to become beneficial when you have to manipulate optional data more than once as it passes through the system.
 
 ### JDK8
 Some of our web services are running on JDK8, which introduces its own Optional class, first class functions, and lambda expressions.  This makes conforming to this rule much much easier.  Jackson also has a JDK8 module that understands Optional, so our representation/serialization classes can use them directly, and much of our code has no reason to use nulls whatsoever from end to end.
