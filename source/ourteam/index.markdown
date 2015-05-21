@@ -77,8 +77,6 @@ footer: false
 ****
 {% include ourteam/adamwatters.markdown %}
 ****
-{% include ourteam/kylewinter.markdown %}
-****
 {% include ourteam/garywong.markdown %}
 ****
 {% include ourteam/kathleenyanolatos.markdown %}
