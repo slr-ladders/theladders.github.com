@@ -9,7 +9,8 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="It was the age of wisdom, it was the age of foolishness&#8211;Charles Dickens Introduction I’ve decided to split this blog post up into three &hellip;">
+  <meta name="description" content="&#8230; when the Man comes around.&#8211;Johnny Cash We are happy to announce that on April 10th, TheLadders will be hosting
+Eric Evans, the codifier &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +112,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/">Riders on the Storm: Take a Long Holiday, Let Your Children Play</a></h1>
+      <h1 class="entry-title"><a href="/2013/03/eric-evans-is-coming-to-theladders/">Eric Evans Is Coming to TheLadders</a></h1>
     
     
       <p class="meta">
@@ -127,88 +128,246 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-03-04T13:52:00-05:00" pubdate data-updated="true">Mar 4<span>th</span>, 2013</time>
+<time datetime="2013-03-08T10:09:00-05:00" pubdate data-updated="true">Mar 8<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p><img class="center" src="/images/lightning_storm.gif" title="'Lightning Storm'" ></p>
-
-<blockquote><p>It was the age of wisdom, it was the age of foolishness</p><footer><strong>&#8211;Charles Dickens</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>&#8230; when the Man comes around.</p><footer><strong>&#8211;Johnny Cash</strong></footer></blockquote>
 
 
-<hr />
+<p>We are happy to announce that on April 10th, TheLadders will be hosting
+<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
+<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
+York City DDD Meetup group. Engineers at TheLadders have long been
+following developments in the DDD community. Some of
+<a href="/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
+<a href="/ourteam/kylewinter/">more</a> of <a href="/ourteam/mattjankowski/">us</a> will be attending it shortly, and
+our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
 
-<h1>Introduction</h1>
+<p>For those of you who might be unfamiliar with DDD, its goal is the
+design of software that creates business value. DDD guides technical
+and domain experts to collaboratively create a mental model of the
+central business concepts. This model is then used to drive
+design. This sounds like common sense: developers work with people who
+know about the business to make software that works to solve its
+problems. What could be more straightforward?  And yet, the complexity
+inherent in the business world and software engineering make it
+difficult to create software that is supple and adaptable to changing
+needs. DDD provides a framework for thinking about, creating, and
+communicating mental models. And that requires the learning of new
+skills and ideas. It isn’t an easy process, but we have found that it
+is rewarding for both the business and developers.</p>
 
-<p>I’ve decided to split this blog post up into three different sections as we have gone through three different phases with our usage of Storm.  The first describes how we used to use Storm at TheLadders.  This is followed by our “wake up call”, forcing us to the realization that how we had been using Storm was not sufficient.  The “wake up call” has led us to our current state of how we now use Storm at TheLadders. But first for those of you who aren’t familiar with Storm, a quick explanation straight from the horse’s mouth:</p>
+<h1>A Little of Our Experience with DDD</h1>
 
-<blockquote><p>Storm is a distributed real-time computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing real-time computation. Storm is simple, can be used with any programming language, is used by many companies, and is a lot of fun to use!</p><footer><strong>Nathan Marz</strong> <cite><a href='https://github.com/nathanmarz/storm'>Storm Readme</a></cite></footer></blockquote>
+<p>While creating our new website, we’ve tried to remain focused on
+“communicating mental models”. One way this can be done is through
+DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
+communicate the contract between the domain model and its
+users. Judging from the vast amount of code out there, this simple
+idea is counterintuitive. Our own legacy codebase is no exception. For
+example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Subscription</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">AutoRenewFlags</span> <span class="nf">getAutoRenewFlag</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAutoRenewFlag</span><span class="o">(</span><span class="n">AutoRenewFlags</span> <span class="n">autoRenewFlag</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">autoRenewFlag</span> <span class="o">=</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getUnsubscribeReason</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUnsubscribeReason</span><span class="o">(</span><span class="kt">int</span> <span class="n">unsubscribeReason</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">unsubscribeReason</span> <span class="o">=</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<hr />
+<p>This is an example of what in DDD is called an “anemic domain
+model”. The Subscription class is a key part of the domain, yet not
+only does it communicate nothing to the user about its usage, it in
+fact does nothing. Values can be retrieved and set, but what then? How
+do I actually unsubscribe someone? What prevents me from using any
+arbitrary integer for the “unsubscribe reason”? What about changing
+auto-renewal to null? There is no explicit contract here, and the user
+of this object is given no guidance or constraints. By contrast, we’ve
+worked hard in our newer code to avoid creating anemic domain models
+and instead create objects that are not only useful, but clear in
+their usage. Here is another example, this time from the new
+Subscription class:</p>
 
-<h1>The Past</h1>
-
-<p>We were early users of Storm, starting out with the Storm 0.5.x releases and later upgrading to 0.6.2.  Our Storm cluster was very basic: Nimbus, Zookeeper with 2 Worker nodes;   5 topologies deployed, but only 3 of them really being exercised.  Many of these topologies were for non-critical portions of our application, as such we weren’t paying much attention to the cluster. The topologies we wrote had well-tested individual components; each of the Spouts and Bolts were written with testability in mind.  However we struggled when it came to end-to-end tests for an entire topology.</p>
-
-<p>Other areas of our Storm related pain were:</p>
-
-<ul>
-<li>Very limited visibility into the overall health of the Storm cluster.  We lacked any monitoring and had very few metrics regarding our cluster.  We relied a lot on tailing the logs of the worker nodes to see how things were behaving.</li>
-<li>We naively configured the topology resources, not really being aware of what resources were being used across the worker nodes.</li>
-<li>A majority of our topologies used RabbitMQ as the entry-point and we had a very basic AMQP Spout implementation.  In fact, the initial AMQP Spout increased CPU usage on our RabbitMQ nodes from 4-10% to 40-45% with very little message throughput.</li>
-<li>Guaranteed message processing was not always enforced (more due to lack of knowledge on the subject than anything).</li>
-</ul>
-
-
-<p>That list looks bad and one might wonder how we got along at all given those shortcomings.  To be honest, everything just “worked”, which was all we needed at that point.  The combination of Nimbus and Zookeeper did a great job of re-deploying topologies anytime “something” happened.  While we would occasionally open up the Storm web admin to see how things were doing, we really didn’t pay much attention to it; everything just worked.  Even the increase in RabbitMQ CPU usage was not considered overly serious because everything continued to work and was fairly stable.  This behavior continued for about a year or so.</p>
-
-<hr />
-
-<h1>The &ldquo;Wake Up Call&rdquo;</h1>
-
-<p>Then came the day when we needed to deploy a new feature in one of our topologies.  We ran the standard release script to deploy a topology through Nimbus, and … nothing…  After some digging, we found that Nimbus had run out of disk space and our topologies had not been pulling messages off of RabbitMQ for an estimated 3 – 7 days.</p>
-
-<p>In addition, shortly after this initial wake up call, we had some one-off topologies that needed to be run for a 24-hour period.  These topologies required a decent number of resources.  They quickly starved the existing topologies of resources and did a good job of bringing Storm to a screeching halt.  It was like watching a caged death match between all of our topologies that left everyone unconscious on the mat.</p>
-
-<p>If something like the 7-10 day outage can go unnoticed for so long, and if we could starve topologies at the drop of a hat, how could we expect to successfully expand our usage of Storm to more critical portions of the application?</p>
-
-<p>We needed to change, and fast!</p>
-
-<hr />
-
-<h1>The Present</h1>
-
-<p>We immediately started figuring out what we didn’t know about Storm and which bits were the most important for immediate success.  Some members of the development team got together with our operations team and worked out monitoring of cluster components. While Operations beefed up what they could, the development team:</p>
-
-<ul>
-<li>Enforced guaranteed message processing in all of our topologies.  This has mainly been done through the use of the BaseBasicBolt, which provides emitting anchored tuples and acking for free. <a href="http://nathanmarz.github.com/storm/doc/backtype/storm/topology/base/BaseBasicBolt.html">(http://nathanmarz.github.com/storm/doc/backtype/storm/topology/base/BaseBasicBolt.html)</a></li>
-<li>Refactored our AMQP Spout implementation to subscribe to a queue instead of using individual “gets”.  This has resulted in pre-Storm 0.6.2 levels of CPU usage on our RabbitMQ nodes (below 10% again).</li>
-<li>Added an additional three worker nodes with more memory and CPU so we don’t have to constantly worry about resource starvation (although this should always be something to consider really).</li>
-<li>Improved our unit testing of configured topologies using the simulated time cluster testing feature in Storm 0.8.1  <a href="https://github.com/xumingming/storm-lib/blob/master/src/jvm/storm/TestingApiDemo.java">(https://github.com/xumingming/storm-lib/blob/master/src/jvm/storm/TestingApiDemo.java)</a>:</li>
-</ul>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Subscription</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>   <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOn</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOff</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">CanceledSubscription</span> <span class="nf">unsubscribe</span><span class="o">(</span><span class="n">UnsubscribeReason</span> <span class="n">unsubscribeReason</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<hr />
+<p>In this case we’ve attempted to make the contract clear. Calling the
+unsubscribe method actually unsubscribes the customer, returning a
+CanceledSubscription. The “unsubscribe reason” is now strongly typed,
+clearly communicating which values are allowed. Auto-renewal changes
+yield a new immutable Subscription object, and can be chained together
+with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
+settings.</p>
 
-<h1>The Future</h1>
+<p>Another example of an anemic domain model, lacking an
+intention-revealing interface, comes from the old Payment class in our
+legacy codebase:</p>
 
-<p>Okay, so I lied.  There is a fourth phase: the future; where we plan to go with Storm.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="kt">int</span> <span class="n">paymentId</span><span class="o">,</span>
+</span><span class='line'>               <span class="kt">int</span> <span class="n">paymentActionType</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">BigDecimal</span> <span class="n">amount</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">String</span> <span class="n">approvalCode</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">String</span> <span class="n">transactionReference</span><span class="o">,</span>
+</span><span class='line'>               <span class="kt">int</span> <span class="n">creditCardId</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentId</span> <span class="o">=</span> <span class="n">paymentId</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentActionType</span> <span class="o">=</span> <span class="n">paymentActionType</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">amount</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">approvalCode</span> <span class="o">=</span> <span class="n">approvalCode</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">creditCardId</span> <span class="o">=</span> <span class="n">creditCardId</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">transactionReference</span> <span class="o">=</span> <span class="n">transactionReference</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>We plan on upgrading to Storm 0.8.2 very soon.  It has a much-improved web admin that allows for deployment and rebalancing of topologies on the fly.  We hope this simplifies the process of deploying and rebalancing (if needed) of our topologies.</p>
 
-<p>Upgrade to Storm 0.9.x as soon as possible once released.  We hear good things about this release; mainly the metric collecting which will be a huge win in terms of improving visibility into the streams and flow of tuples between Spouts and Bolts.</p>
+<p>This class contains only the constructor you see here, and getters for
+each of the fields created. It turns out that it’s used as a parameter
+object, and nothing more. There’s no guidance as to it’s valid
+construction, and no hint about its usage. Yet obviously handling
+subscription payments is an important part of the subscription domain,
+and we want the contracts around the model of that domain clear and
+easy to understand. Here’s our attempt at accomplishing those goals in
+the new codebase:</p>
 
-<p>Finally, we are plan on expanding our topologies to be more than simple queue-to-spout designs.  We are experimenting with using Storm for scheduled batch processes, hoping to have something in production within the next week.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="n">PaymentAmount</span> <span class="n">paymentAmount</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">JobseekerId</span> <span class="n">jobseekerId</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">PaymentActionType</span> <span class="n">paymentActionType</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">ReportGroup</span> <span class="n">reportGroup</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Hopefully this blog gave you a nice overview of how Storm can be used by a company.  I think one of the take-aways can be how easy Storm is to use.  Storm served us for over a year with very little intervention and minimal knowledge on our part; I believe this speaks volumes of Storm’s ease-of-use and reliability.</p>
 
-<p>Stay tuned for some more detailed technical blogs on some of the things we did to improve our Storm usage.</p>
+<p>The first difference is actually one that’s not visible from the code
+itself. As we’ve developed the new site, we’ve agreed that all
+arguments to methods or constructors are required; no passing of
+nulls. If an argument is truly optional, a separate method or
+constructor is added that excludes it. We want our code to be
+confident, and this contract means that methods and constructors “say
+what they mean and mean what they say”. In the legacy codebase, nulls
+were passed liberally to and fro, and you could never be quite sure
+which arguments were truly required.</p>
 
-<p>Join the discussion over at <a href="http://www.reddit.com/r/programming/comments/19noko/how_we_use_twitters_storm_part_one/">reddit</a>.</p>
+<p>Another change is the promotion of this class from a mere parameter
+object to an active participant in the domain model:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Receipt</span> <span class="nf">makeWith</span><span class="o">(</span><span class="n">PaymentMethod</span> <span class="n">method</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">method</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Receipt</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">.</span><span class="na">asAmountPaid</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">recordWith</span><span class="o">(</span><span class="n">PaymentRecorder</span> <span class="n">paymentRecorder</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">paymentRecorder</span><span class="o">.</span><span class="na">record</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Instead of being passed around to “manager” objects and DAOs, a
+Payment object can actually make a payment and create records of
+itself. It seems only natural.</p>
+
+<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
+this post barely scratches the surface. And as a team we know we still
+have much farther to go in its mastery, but the time we’ve spent in
+study and practice have been well worth the effort so far.</p>
+
+<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
+presentation and discussion.</p>
 </div>
   
   
@@ -237,6 +396,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
       </li>
     
@@ -250,10 +413,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
   </ul>
