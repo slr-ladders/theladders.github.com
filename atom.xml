@@ -4,7 +4,7 @@
   <title><![CDATA[TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-05-21T17:28:44-04:00</updated>
+  <updated>2015-05-21T17:36:51-04:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -525,7 +525,8 @@ Most of the time, this boils down to just creating different representations of 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<blockquote><p>compared to</p></blockquote>
+<p>
+compared to</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">getSalary</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">)).</span><span class="na">otherwise</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
@@ -939,7 +940,7 @@ SalaryPredicates:</p>
 
 <h2>Wrapping up</h2>
 
-<p>That about sums up some of our high level philosophies, architecture, and control flow.  We’ve set up an environment where layer responsibilities are clearly separated, the workflow steps of completing a task are managed in one place and separate from the details of how those steps are carried out, and placed our domain models at the heart of our system.  Our next post will share some details of <a href="http://dev.theladders.com/2015/05/design-principles-and-goals-our-trip-back-to-OO">Our Trip Back to OO</a> and how we implement the logic behind those steps.</p>
+<p>That about sums up some of our high level philosophies, architecture, and control flow.  We’ve set up an environment where layer responsibilities are clearly separated, the workflow steps of completing a task are managed in one place and separate from the details of how those steps are carried out, and placed our domain models at the heart of our system.  Our next post will share some details of <a href="http://dev.theladders.com/2015/05/design-principles-and-goals-a-trip-back-to-oo">Our Trip Back to OO</a> and how we implement the logic behind those steps.</p>
 ]]></content>
   </entry>
   
