@@ -323,3 +323,6 @@ When talking about being expressive in code, readability, and separating mechani
 
 ### JDK8
 Some of our web services are running on JDK8, which introduces its own Optional class, first class functions, and lambda expressions.  This makes conforming to this rule much much easier.  Jackson also has a JDK8 module that understands Optional, so our representation/serialization classes can use them directly, and much of our code has no reason to use nulls whatsoever from end to end.
+
+## Wrapping up
+We've talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow's post, we'll dig a little deeper into being expressive in code, and how we like to write our code line by line.
