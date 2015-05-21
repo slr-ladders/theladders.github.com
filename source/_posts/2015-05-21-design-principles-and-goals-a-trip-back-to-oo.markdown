@@ -12,7 +12,7 @@ published: false
 Being abstract is something profoundly different from being vague... The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise.
 {% endblockquote %}
 
-Welcome to part two of our series on the design principles and goals behind our newer customer facing web services.  In [Part 1](/2015-05-20-design-principles-and-goals-high-level-architecture.markdown) we covered our [High Level Archicture](/2015-05-20-design-principles-and-goals-high-level-architecture.markdown) and talked about how domain models are the heart of our systems.  We'll pick up there, and go into some more detail in how we build those models, how they focus on behavior, and how we serialize them for the API endpoints.
+Welcome to part two of our series on the design principles and goals behind our newer customer facing web services.  In [Part 1](/2015/05/design-principles-and-goals-high-level-architecture) we covered our [High Level Archicture](/2015/05/design-principles-and-goals-high-level-architecture/) and talked about how domain models are the heart of our systems.  We'll pick up there, and go into some more detail in how we build those models, how they focus on behavior, and how we serialize them for the API endpoints.
 
 # Getting Back to OO roots
 It’s no great secret that today’s world is full of procedural Java code and engineers that have been taught that encapsulation means having getters and setters to hide properties (hey...I used to be one of em once upon a time).
