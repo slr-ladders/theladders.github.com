@@ -23,7 +23,7 @@ The visitor pattern has been around for a long time, and allows us to let the co
 
 The textbook example of a Visitor relies directly on compiler type checks, something like:
 
-```
+```java
 public interface ShapeVisitor 
 {
   void visit(Circle circle);
@@ -44,13 +44,13 @@ public class Circle implements VisitableShape
   }
 }
 ```
-```
+```java
 VisitableShape shape = …
 shape.accept(visitor);
 ```
 
 A lot of times we take this a little bit further, and our Visitor will also be a data contract of what’s expected for each case, and also return something.  In the case of displaying someone’s activity feed, we have something like:
-```
+```java
 public interface Presenter<T>
 {
   T profileSaveOn(DateTime eventDate);
@@ -97,7 +97,7 @@ We also frequently use a flavor of the visitor pattern to enforce business rules
 
 So what might that look like?  We have an interface that represents the possible states of a Recruiter that we care about:
 
-```
+```java
 public interface Presenter<T>
 {
   T validRecruiter(RecruiterData recruiterData);
@@ -108,7 +108,7 @@ public interface Presenter<T>
 RecruiterData is just a Data Transfer Object that contains the recruiter’s data.  This Presenter interface allows us to contain the rules for what “valid” means within the Recruiter class itself, while allowing(and forcing) applications to consider what happens when a Recruiter is invalid.
 
 Recruiter:
-```
+```java
   public <T> T presentedWith(Presenter<T> presenter)
   {
     if (isVisible())
@@ -128,7 +128,7 @@ This allows our Recruiter class to be more about behavior and enforcing our busi
 ### Presenters for hiding dependencies
 This same concept is how we keep Jersey isolated to the web components.  Our business tier depends on a JobPresenter interface, and the Jersey resource passes in an implementation that happens to use Jersey classes:
 
-```
+```java
 public interface JobPresenter<T>
 {
   T success(JobRepresentation jobRepresentation);
@@ -151,7 +151,7 @@ public class JerseyJobPresenter implements JobPresenter<Response>
 
 ```
 we then have code in the Workflow that looks like:
-```
+```java
     JobRepresentation jobRepresentation = job.representationFor(jobseeker);
 
     if (PayWall.isHitFor(jobseeker, job))
@@ -168,7 +168,7 @@ Ahh enums.  Yes enums get their own special little blurb, because enums are spec
 ### No public type checking
 The fact that a class is an enum should be an implementation detail, not a contract.  It also makes it hard to add new enum values, and violates the Open Closed Principle.  Therefore, the only class that should compare enum instance equality is the enum class.  That means that other classes should not do something like:
 
-```
+```java
 if (status == Status.APPROVED) {
   // do something
 }
@@ -182,7 +182,7 @@ if (day == Day.SATURDAY || day == Day.SUNDAY) {
 the above is hiding a very important concept, something like day.isOnTheWeekend();
 
 Who says enums have to be void of logic?  Logic belongs where it belongs, regardless of whether the class is a typical class or an enum.  Enums should be viewed as just a way to restrict input values, and possibly make the internal implementation of the class easier.  Here’s an example of one of our enums:
-```
+```java
 public enum ProfileStatus
 {
   NO_PROFILE(0),
@@ -225,7 +225,7 @@ public enum ProfileStatus
 Once upon a time the INCOMPLETE, PENDING, and PENDING_ESCALATED were checked against with == by another class, and it was hard to figure out what was really going on.  Now we’ve introduced names for what that grouping is - something that can be expedited - and contained that within this class.  This leaves the calling code more expressive:
 
 Profile:
-```
+```java
   private boolean statusAllowsVisibility()
   {
     return profileStatus.isApproved() || profileStatus.isExpeditedBy(expeditedProfileStatus);
@@ -238,8 +238,8 @@ If we want to add another type (which we did, called Freemium), we now have to g
  
 Meaning – What does it mean to have a Basic, Premium, or Freemium account?  In order to answer that in our old system, you have to go find the 100s of conditionals that do something different in each case.  The meaning was held implicitly in the code that called methods like isBasic(), crippling our ability to meaningfully describe the difference between the accounts.
  
-The answer?  Model the behavior of each type of account, and make the meaning explicit.  Instead of
-```
+The answer?  Model the **behavior** of each type of account, and make the meaning **explicit**.  Instead of
+```java
 If (user.isBasic()) {
  	.. can’t apply ..
 } else {
@@ -247,7 +247,7 @@ If (user.isBasic()) {
 }
 ```
 just ask the question of a polymorphic object – can they apply?
-```
+```java
 if (permissions.canApply()) {
     .. can apply ..
 } else {
@@ -262,8 +262,8 @@ PremiumPermissions
 canApply() { return true; }
 canUpgrade() { return false; }
 ```
-This encapsulates the meaning of Basic vs. Premium in type specific models, and also alleviates problems that the Open Closed Principle highlights.  Determining whether or not users can apply to a job has now become an explicit part of our domain model.  If we need to add another type (like Freemium), all we have to do is create a new FreemiumPermissions class and describe what it means to be Freemium.
-```
+This encapsulates the meaning of Basic vs. Premium in type specific models, and also alleviates problems that the Open Closed Principle highlights.  Determining whether or not users can apply to a job has now become an explicit part of our domain model.  If we need to add another type (like Freemium), all we have to do is create a new FreemiumPermissions class and _**describe what it means**_ to be Freemium.
+```java
 FreemiumPermissions
 canApply() {
     return numberOfApplicationsThisWeek() < 3;
@@ -288,7 +288,7 @@ The Null Object pattern is also valuable, but is really only useful for behavior
 So in light of returning things that might not exist, either return a Maybe, Null Object, or throw an exception.  Keep null checking at the system boundaries, and we never have to wonder where along the line something is or isn’t null.
  
 Example for jobseeker salary:
-``` 
+```java
 Salary salary = serviceJobseeker.getSalary();
  
 if (salary == null)
@@ -297,16 +297,16 @@ if (salary == null)
 return salary < limit;
 ``` 
 compared to
-```
+```java
 return serviceJobseeker.getSalary().query(isBelow(limit)).otherwise(false);
 ```
 or even better:
-```
+```java
 return serviceJobseeker.salary(isBelow(limit)).otherwise(false);
 ``` 
 There is a tradeoff though, particularly for Java 7 and below - we have to create a Google Guava function, which is ugly.  We're willing to accept this little bit of ugliness and tuck it away at the bottom of the class, or in its own class itself (much less of a problem in Java 8).
 SalaryPredicates:
-```
+```java
 public static Predicate<Salary> isBelow(final int limit)
 {
  return new Predicate<Salary>()
