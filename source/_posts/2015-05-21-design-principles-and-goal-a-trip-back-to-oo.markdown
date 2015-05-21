@@ -8,9 +8,12 @@ categories:
 published: false
 ---
 
+Welcome to part two of our series on the design principles and goals behind our newer customer facing web services.  In [Part 1](/2015-05-20-design-principles-and-goals-high-level-architecture.markdown) we covered our [High Level Archicture](/2015-05-20-design-principles-and-goals-high-level-architecture.markdown) and talked about how domain models are the heart of our systems.  We'll pick up there, and go into some more detail in how we build those models, how they focus on behavior, and how we serialize them for the API endpoints.
+
+# Getting Back to OO roots
 It’s no great secret that today’s world is full of procedural Java code and engineers that have been taught that encapsulation means having getters and setters to hide properties (hey...I used to be one of em once upon a time).
 
-In the past we’ve blogged about our onboarding process, which involves an Object Calisthenics exercise and Uncle Bob’s SOLID videos.  What good would all that be if we left it at exercises and discussions?  We put a lot of that to work in our newer customer facing web services.
+In the past we’ve blogged about our onboarding process, which involves an [Object Calisthenics exercise](https://github.com/TheLadders/object-calisthenics) and [Uncle Bob’s SOLID videos](https://github.com/TheLadders/solid-exercises).  What good would all that be if we left it at exercises and discussions?  We put a lot of that to work in our newer customer facing web services.
 
 ## Use Polymorphic classes instead of conditionals
 Rather than relying on conditionals and asking data related questions of our models, we try to rely more on interfaces and subtypes for behavior and “tell don’t ask.”  Hidden “type checks” are the worst offenders, and usually a prime candidate for polymorphic models that expose better meaning.  What do I mean by a hidden type check?  Things like customer.isGoldLevelMember(), vehicle.hasFourWheels(), person.isChild().  Those are really asking about what “type” of thing we’re talking about.  We’ll get into more about exposing meaning over type checks in the “Making implicit concepts explicit” section.  Along with polymorphism comes the good ole…
