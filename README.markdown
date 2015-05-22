@@ -18,7 +18,7 @@ After it's forked, ssh to `blogdev.laddersoffice.net` and clone your fork:
 git clone git@github.com:YourGithubName/theladders.github.com.git ~/theladders.github.com
 ```
 
-NOTE: You will have to make sure your SSH private key is installed in `~/.ssh/id_rsa` before being able to clone the repository. This must be the private key associated with the public key that GitHub is aware of, which may not necessarily be the private key that you use to log into machines on our network. If you have more than one set of keys, make sure you're using the right one.
+NOTE: You will have to make sure your SSH **private** key is installed in `~/.ssh/id_rsa` on blogdev.laddersoffice.net before being able to clone the repository. This must be the private key associated with the public key that GitHub is aware of, which may not necessarily be the private key that you use to log into machines on our network. If you have more than one set of keys, make sure you're using the right one.
 
 cd into the repository:
 
