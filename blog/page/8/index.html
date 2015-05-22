@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="It&#8217;s not a big truck. It&#8217;s a series of tubes. And if you don&#8217;t understand, those tubes can be filled and if they are filled, when &hellip;">
+  <meta name="description" content="Communication Breakdown, It&#8217;s always the same,I&#8217;m having a nervous breakdown, Drive me insane!&#8211;Led Zeppelin tl;dr &mdash; Use this &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a></h1>
+      <h1 class="entry-title"><a href="/2015/01/not-measles/">MMR Is Not Measles, Mumps, and Rubella</a></h1>
     
     
       <p class="meta">
@@ -127,79 +127,157 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2014-11-18T09:00:00-05:00" pubdate data-updated="true">Nov 18<span>th</span>, 2014</time>
+<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>It&#8217;s not a big truck.  It&#8217;s a series of tubes.  And if you don&#8217;t understand, those tubes can be filled and if they are filled, when you put your message in, it gets in line and it&#8217;s going to be delayed.</p><footer><strong>&#8211;US Senator Ted Stevens (R-Alaska)</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Communication Breakdown, It&#8217;s always the same,<br/>I&#8217;m having a nervous breakdown, Drive me insane!</p><footer><strong>&#8211;Led Zeppelin</strong></footer></blockquote>
 
 
-<h2>Plumbing 101</h2>
+<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
 
-<p>Sending email is a major part of our business.  Over the years, TheLadders has moved through several iterations of getting emails out to our millions of job seekers and recruiters.  We&rsquo;ve both built in-house solutions and utilized <a href="http://en.wikipedia.org/wiki/Email_service_provider_(marketing)">Email Service Providers (ESPs)</a>.</p>
+<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
 
-<p>Recently, we transitioned onto a new ESP, <a href="http://sendgrid.com">SendGrid</a>.  SendGrid offers us the choice of handing off email via their <a href="https://sendgrid.com/docs/API_Reference/Web_API/index.html">HTTP</a> or <a href="https://sendgrid.com/docs/API_Reference/SMTP_API/index.html">SMTP</a> APIs.  We selected <a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> as our transport mechanism because it allows us the luxury of inserting a layer in our infrastructure to handle queueing and resilience of mail transport before handing messages across to the ESP.  We are also able to achieve higher overall throughput with SMTP than would be possible with the HTTP API.  We&rsquo;re using <a href="http://www.postfix.org">Postfix</a> as our mail transport agent because of its scalability properties, the flexibility of its configuration options and our team&rsquo;s familiarity with running and maintaining the application.</p>
+<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
 
-<p>To ensure that our subscribers receive the emails we send them, we divide the different types of messages across multiple sub-user accounts at SendGrid.  This spreads our outbound email across different source IPs depending on the chosen sub-user account and allows us to control the reputation of each IP group.  In addition to the usual challenges that go along with deploying any new infrastructure &mdash; monitor it, scale it, make it highly available &mdash; SendGrid&rsquo;s use of SMTP authentication credentials to determine which sub-user account will handle the sending of a particular message created a new and interesting problem to solve.  How could we allow our application to instruct Postfix which sub-user account to use without building a Postfix cluster for each sub-user account?  Moreover, how could we make that process invisible to our end recipient?</p>
+<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:</p>
 
-<h2>Don&rsquo;t Clog the Tubes!</h2>
-
-<p>The majority of our email traffic is created by various <a href="/categories/storm/">Storm</a> topologies crunching through our data.  Storm provides the ability to parallelize each step in the process, resulting in fairly rapid generation of email traffic.  We utilize our F5 load balancers in front of a pool of Postfix servers to make our mail transport layer both fault-tolerant and scalable.  During our larger sends, we prefer messages to be sent out with minimal queueing.  We&rsquo;ve found after tuning that we can sustain roughly 7000 messages per second through a single Postfix server before messages begin to queue.  We can easily scale out to additional Postfix servers behind the load balancer to increase our total throughput.</p>
-
-<p><img class="center medium" src="/images/pipes-tubes-and-email/animated_email_flow.gif"></p>
-
-<h2>Pick a Tube</h2>
-
-<p>Postfix provides the <a href="http://www.postfix.org/postconf.5.html#smtp_sasl_password_maps">SASL Password Map</a> mechanism to look up SMTP credentials based on remote hostname or domain.  When coupled with <a href="http://www.postfix.org/postconf.5.html#smtp_sender_dependent_authentication">Sender-dependent Authentication</a>, that lookup can be performed based on the sender address.  We leveraged this combination of options along with <a href="http://tools.ietf.org/html/rfc5233#page-2">plus-sign subaddressing</a> to encode the sub-user account in the message&rsquo;s source address, so an email from <code>user@example.com</code> would actually be sent from <code>user+account@example.com</code>.</p>
-
-<p>We utilize a regular expression map for the password selection that matches the subaddress portion of the sender address and returns the appropriate sub-user account credentials to postfix, with a default for messages that come through without a subaddress.</p>
-
-<figure class='code'><figcaption><span>SASL Password Map</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>/^.*\+user1@example.com$/   user1:password1
-</span><span class='line'>/^.*\+user2@example.com$/   user2:password2
-</span><span class='line'>/^.*$/                      defaultuser:defaultpassword</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'</span></code></pre></td></tr></table></div></figure>
 
 
-<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/pick-a-tube.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/biscuitsmlp/2431615179) by [smlp.co.uk](https://www.flickr.com/photos/biscuitsmlp/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/biscuitsmlp/2431615179) by [smlp.co.uk](https://www.flickr.com/photos/biscuitsmlp/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/biscuitsmlp/2431615179">Photo</a> by <a href="https://www.flickr.com/photos/biscuitsmlp/">smlp.co.uk</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
+<p>This yields data similar to:</p>
 
-<h2>Keep Your Tubes Straight</h2>
-
-<p>While our solution works great for allowing our applications to properly route messages to the correct sub-user account, it doesn&rsquo;t necessarily provide the best customer facing appearance.  Our customers don&rsquo;t care what ESP we use, how we perform our sub-user account selection, or which sub-user account sourced their email.  Furthermore, a sudden change in source email address could cause our messages to be filtered incorrectly on the recipient side.  Perhaps a customer has a filter in place to always drop our messages into a specific folder for them to read later.  Maybe they have a strict policy stating that only mail from known addresses will end up in their inbox.  We periodically have to adjust how our outbound email is processed and we have to make those changes as transparent as possible for our customers.  To that end, we are also utilizing Postfix&rsquo;s address rewriting capabilities to ensure that our email source addresses remain consistent.</p>
-
-<p>Postfix provides several opportunities and methods to transform email envelope information <a href="http://www.postfix.org/ADDRESS_REWRITING_README.html">for a variety of purposes</a>.  Our requirement was to transform messages sent from <code>user+account@example.com</code> so that the customer sees the message sourced from <code>user@example.com</code>.  <a href="http://www.postfix.org/postconf.5.html#sender_canonical_maps">Sender canonical maps</a> initially seemed like the ideal solution to this problem.  It worked perfectly to transform the sender address as desired however, the transformation occurred so early in the process that addresses were being rewritten before the subaccount selection was performed.  We finally settled on <a href="http://www.postfix.org/postconf.5.html#smtp_generic_maps">SMTP generic maps</a> as the correct solution since it performs its transformation when mail leaves the machine via SMTP, after all other processing has taken place.  We again use a regular expression to strip the subaccount information from source addresses.</p>
-
-<figure class='code'><figcaption><span>SMTP Generic Map</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>/^(.*)\+(.*)@(.*)$/ ${1}@${3}</span></code></pre></td></tr></table></div></figure>
-
-
-<p><span class='caption-wrapper center medium'><img class='caption' src='/images/pipes-tubes-and-email/the-internet.jpg' width='' height='' alt='[Photo](https://www.flickr.com/photos/wheresmysocks/205710716) by [Kendrick Erickson](https://www.flickr.com/photos/wheresmysocks/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)' title='[Photo](https://www.flickr.com/photos/wheresmysocks/205710716) by [Kendrick Erickson](https://www.flickr.com/photos/wheresmysocks/) / [CC BY 2.0](http://creativecommons.org/licenses/by/2.0/)'><span class='caption-text'><a href="https://www.flickr.com/photos/wheresmysocks/205710716">Photo</a> by <a href="https://www.flickr.com/photos/wheresmysocks/">Kendrick Erickson</a> / <a href="http://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></span></span></p>
-
-<h2>Pipes or Tubes</h2>
-
-<p>Pulling it all together with the <a href="https://sendgrid.com/docs/Integrate/Mail_Servers/postfix.html">recommended Postfix config</a> from SendGrid, results in <code>/etc/postfix/main.cf</code> containing:</p>
-
-<figure class='code'><figcaption><span>main.cf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>smtp_sasl_auth_enable = yes
-</span><span class='line'>smtp_sender_dependent_authentication = yes
-</span><span class='line'>smtp_sasl_password_maps = pcre:/path/to/sasl_password_map
-</span><span class='line'>smtp_generic_maps = pcre:/path/to/smtp_generic_map
-</span><span class='line'>smtp_sasl_security_options = noanonymous
-</span><span class='line'>smtp_tls_security_level = encrypt
-</span><span class='line'>header_size_limit = 4096000</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># extended LDIF
+</span><span class='line'>#
+</span><span class='line'># LDAPv3
+</span><span class='line'># base &lt;cn=config&gt; with scope subtree
+</span><span class='line'># filter: (objectclass=nsds5replicationagreement)
+</span><span class='line'># requesting: ALL
+</span><span class='line'>#
+</span><span class='line'>
+</span><span class='line'># meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-1.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-1.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-1.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214458Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 20150121214501Z
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
+</span><span class='line'>nsds5replicaLastUpdateStatus: 1 Can't acquire busy replica
+</span><span class='line'>nsds5replicaUpdateInProgress: FALSE
+</span><span class='line'>nsds5replicaLastInitStart: 0
+</span><span class='line'>nsds5replicaLastInitEnd: 0
+</span><span class='line'>
+</span><span class='line'># meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-2.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-2.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-2.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214628Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 0
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
+</span><span class='line'>nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
+</span><span class='line'>nsds5replicaUpdateInProgress: TRUE
+</span><span class='line'>nsds5replicaLastInitStart: 20141215154802Z
+</span><span class='line'>nsds5replicaLastInitEnd: 20141215154807Z
+</span><span class='line'>nsds5replicaLastInitStatus: 0 Total update succeeded
+</span><span class='line'>
+</span><span class='line'># search result
+</span><span class='line'>search: 2
+</span><span class='line'>result: 0 Success
+</span><span class='line'>
+</span><span class='line'># numResponses: 3
+</span><span class='line'># numEntries: 2</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Find this post interesting? Join the discussion over on <a href="https://news.ycombinator.com/item?id=8623846">Hacker News</a>.</p>
+<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
+
+<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
 </div>
   
   
@@ -228,6 +306,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
@@ -241,10 +323,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
   </ul>

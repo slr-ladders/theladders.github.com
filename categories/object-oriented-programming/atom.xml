@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Object Oriented Programming | TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/categories/object-oriented-programming/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-05-21T17:36:51-04:00</updated>
+  <updated>2015-05-22T14:30:48-04:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -422,7 +422,7 @@ public boolean apply(Salary salary)
 
 <h2>Wrapping up</h2>
 
-<p>We&rsquo;ve talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow&rsquo;s post, we&rsquo;ll dig a little deeper into being expressive in code, and how we like to write our code line by line.</p>
+<p>We&rsquo;ve talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow&rsquo;s post, we&rsquo;ll dig a little deeper into <a href="/2015/05/design-principles-and-goals-being-expressive-in-code">being expressive in code</a>, and how we like to write our code line by line.</p>
 ]]></content>
   </entry>
   

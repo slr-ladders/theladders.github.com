@@ -4,7 +4,7 @@
   <title><![CDATA[TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-05-21T17:36:51-04:00</updated>
+  <updated>2015-05-22T14:30:48-04:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -12,6 +12,364 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Design Principles and Goals (Part 3) - Being Expressive in Code]]></title>
+    <link href="http://dev.theladders.com/2015/05/design-principles-and-goals-being-expressive-in-code/"/>
+    <updated>2015-05-22T12:26:00-04:00</updated>
+    <id>http://dev.theladders.com/2015/05/design-principles-and-goals-being-expressive-in-code</id>
+    <content type="html"><![CDATA[<blockquote><p>Clean code always looks like it was written by someone who cares</p><footer><strong>&#8211; Michael Feathers</strong></footer></blockquote>
+
+
+<p>Welcome back to the last post in our series on our design goals and principles.  We&rsquo;ve talked about our <a href="http://dev.theladders.com/2015/05/design-principles-and-goals-high-level-architecture">High Level Architecture</a> and <a href="http://dev.theladders.com/2015/05/design-principles-and-goals-a-trip-back-to-oo">Our Trip Back to OO</a>, and now we&rsquo;re going to dig into how we write and compose our code, and how we try to be expressive in what our code says.</p>
+
+<h1>Don’t write code, write sentences that tell a story</h1>
+
+<p>You should have to think hard to write code, not read it.  One of the things we focus on a lot is how the code reads.  Is the code full of programmer terms like ‘build’ and ‘create’ or does it read like a fluent paragraph?  Some might consider it a small detail and fluffy, but it can directly impact how maintainable code is.  A lot of times we write code in ways that only programmers understand, and while we speak the language, it can still add a small mental overhead that really isn’t needed.</p>
+
+<p>JavaBeans is great as a naming convention if you’re relying on reflective frameworks to read properties out of data structures, but inappropriate for true domain models.</p>
+
+<p>Even the small things – this isn’t a direct example, but similar to what we run into a lot.  Why do we have to write:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="nf">buildJobseeker</span><span class="o">(</span><span class="n">premiumSubscription</span><span class="o">.</span><span class="na">getStatus</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you read it out loud, you get “return build Jobseeker premium Subscription get status.”  Huh?  Why can’t we write:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="nf">jobseekerWith</span><span class="o">(</span><span class="n">premiumSubscription</span><span class="o">.</span><span class="na">status</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you read that out loud, you get “return Jobseeker with premium Subscription status.”  Makes a little more sense – and anyone, developer or not, should be able to understand it just by reading words.</p>
+
+<p>We do this sort of thing on both a small and large scale &ndash; we name things for their calling context and intent.  We might rename something just so it reads better in the code that is calling it.  It’s important to note that we’re talking about our end application &ndash; code that one project owns and consumes &ndash; so we can make assumptions about how the code will be called and see it easily.  The same ideas don’t necessarily apply to things like reusable libraries.</p>
+
+<p>Some other examples from our code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">currentUser</span><span class="o">.</span><span class="na">refer</span><span class="o">(</span><span class="n">someoneElse</span><span class="o">).</span><span class="na">forThe</span><span class="o">(</span><span class="n">post</span><span class="o">);</span>
+</span><span class='line'><span class="n">user</span><span class="o">.</span><span class="na">like</span><span class="o">(</span><span class="n">job</span><span class="o">);</span>
+</span><span class='line'><span class="n">user</span><span class="o">.</span><span class="na">unlike</span><span class="o">(</span><span class="n">job</span><span class="o">);</span>
+</span><span class='line'><span class="n">jobseeker</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">paymentHistory</span><span class="o">.</span><span class="na">includingOnly</span><span class="o">(</span><span class="n">selectedPaymentIds</span><span class="o">)).</span><span class="na">to</span><span class="o">(</span><span class="n">outputStream</span><span class="o">,</span> <span class="n">asPdf</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Separating mechanics from meaning</h1>
+
+<p>There are a lot of times we have to do things that are “mechanical” that don’t really have any inherent meaning to the task at hand, but are really just supporting code.  Things like constructing specific Date instances, interfacing with other library/framework components, or looping over collections.  This supporting code serves a purpose, but lacing it within the more expressive code of business logic only serves as clutter.  Separating mechanical code from business code leaves the important code cleaner and simpler, highlighting what’s really happening.</p>
+
+<p>A real world example for retrieving the jobs that a Jobseeker has applied to:</p>
+
+<p>Old Code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">getAppliedJobsFor</span><span class="o">(</span><span class="kd">final</span> <span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">&gt;</span> <span class="n">applications</span> <span class="o">=</span> <span class="n">jobApplicationSystem</span><span class="o">.</span><span class="na">getApplicationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Filter to only include succeeded applications</span>
+</span><span class='line'>  <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">&gt;</span> <span class="n">succeededApplications</span> <span class="o">=</span> <span class="n">Iterables</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">applications</span><span class="o">,</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">&gt;()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">apply</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="n">ProcessedApplication</span> <span class="n">application</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="na">succeeded</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>  <span class="o">});</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="k">return</span> <span class="n">Iterables</span><span class="o">.</span><span class="na">transform</span><span class="o">(</span><span class="n">succeededApplications</span><span class="o">,</span> <span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">,</span> <span class="n">JobRepresentation</span><span class="o">&gt;()</span>
+</span><span class='line'>      <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="n">JobRepresentation</span> <span class="nf">apply</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="n">ProcessedApplication</span> <span class="n">application</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="nf">get</span><span class="o">(</span><span class="n">application</span><span class="o">.</span><span class="na">getJobLocationId</span><span class="o">(),</span> <span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>   <span class="o">});</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">get</span><span class="o">(</span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobLocationId</span><span class="o">&gt;</span> <span class="n">ids</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">repository</span><span class="o">.</span><span class="na">getJobsFor</span><span class="o">(</span><span class="n">ids</span><span class="o">).</span><span class="na">toRepresentationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In 5 seconds – can you tell me what’s going on?  Probably not – there are a lot of mechanics clouding the way.  We have some meaningful things buried in anonymous functions and a lot of lines that are just compiler syntax.  We make a pretty liberal use of Google’s Guava library to implement functions and transforms, but when left to roam free in our application code they can wreak havoc.  With a few small changes: the addition of a ProcessedApplications wrapper class and a class just to create our Guava transform from ProcessedApplication to Job, we can make our high level application code much more expressive.</p>
+
+<p>What we ended up with:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">getAppliedJobsFor</span><span class="o">(</span><span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>   <span class="n">ProcessedApplications</span> <span class="n">applications</span> <span class="o">=</span> <span class="n">jobApplicationSystem</span><span class="o">.</span><span class="na">getApplicationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'>   <span class="k">return</span> <span class="n">applications</span><span class="o">.</span><span class="na">thatAreSuccessful</span><span class="o">().</span><span class="na">transformed</span><span class="o">(</span><span class="n">toJobs</span><span class="o">()).</span><span class="na">toRepresentationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">private</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">ProcessedApplications</span><span class="o">,</span> <span class="n">Jobs</span><span class="o">&gt;</span> <span class="n">toJobs</span><span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>   <span class="k">return</span> <span class="n">processedApplicationsToJobs</span><span class="o">.</span><span class="na">toJobs</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now all the mechanics of looping over applications and creating Guava functions are hidden away in lower components, and we’re left with the quick makings of a sentence, “Return applications that are successful, transformed to jobs, to representations for the jobseeker.”  We could probably have gone one step further to:</p>
+
+<p>“Return applications that are successful, transformed to job representations for the jobseeker”</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">applications</span><span class="o">.</span><span class="na">thatAreSuccessful</span><span class="o">().</span><span class="na">transformed</span><span class="o">(</span><span class="n">toJobRepresentationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Speaking the domain language in code</h1>
+
+<p>One of the things I like to do when looking at code is to ask where I would expect to find something.  “What happens when ABC does XYZ?”  “Where do I start looking for code related to ABC?”  A lot of times these are questions you either have to already know the answer to, hunt for, or ask someone who knows the system.  We’re gunning for a better answer &ndash; start by looking for class ABC and a method called XYZ.</p>
+
+<p>So asking the questions – “What happens when a Jobseeker upgrades” and “Where do I start looking for code related to upgrades?”  Did anyone immediately say to themselves, “well it would be in UpgradeService or UpgradeManager?”  It’s a common paradigm, and one we’ve used extensively in the past.</p>
+
+<p>Sometimes we have to take a step back and think about how we’re modeling and interacting.  An example is our transition from a stateless service for completing upgrades to domain models that complete the upgrade and reflect a language we can relate to.   Originally, there was an UpgradeService that had a method accepting a Jobseeker, ProductOption, and PaymentMethod.  It then went on to organize the interactions of these together to complete the upgrade.  This left the higher level application(client of the domain) code less expressive.</p>
+
+<p>UpgradeWorkflow (Use Case):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Jobseeker</span> <span class="n">jobseeker</span> <span class="o">=</span> <span class="n">allJobseekers</span><span class="o">.</span><span class="na">jobseekerWith</span><span class="o">(</span><span class="n">jobseekerId</span><span class="o">);</span>
+</span><span class='line'><span class="n">NewCreditCard</span> <span class="n">card</span> <span class="o">=</span> <span class="n">creditCard</span><span class="o">(</span><span class="n">newCreditCardRepresentation</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'><span class="n">ProductOption</span> <span class="n">productOption</span> <span class="o">=</span> <span class="n">allProductOptions</span><span class="o">.</span><span class="na">optionFor</span><span class="o">(</span><span class="n">productOptionId</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">upgradeService</span><span class="o">.</span><span class="na">upgrade</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">productOption</span><span class="o">,</span> <span class="n">creditCard</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>UpgradeService:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">UpgradeReceipt</span> <span class="nf">upgrade</span><span class="o">(</span><span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">ProductOption</span> <span class="n">productOption</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">PaymentMethod</span> <span class="n">paymentMethod</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">Receipt</span> <span class="n">receipt</span> <span class="o">=</span> <span class="n">makePayment</span><span class="o">(</span><span class="n">productOption</span><span class="o">,</span> <span class="n">paymentMethod</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">Subscription</span> <span class="n">subscription</span> <span class="o">=</span> <span class="n">upgrade</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">productOption</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">upgradeReceiptOf</span><span class="o">(</span><span class="n">subscription</span><span class="o">,</span> <span class="n">receipt</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">private</span> <span class="n">Receipt</span> <span class="nf">makePayment</span><span class="o">(</span><span class="n">ProductOption</span> <span class="n">productOption</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">PaymentMethod</span> <span class="n">paymentMethod</span><span class="o">,</span>
+</span><span class='line'>                              <span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">Payment</span> <span class="n">payment</span> <span class="o">=</span> <span class="n">upgradeOptionFactory</span><span class="o">.</span><span class="na">optionFor</span><span class="o">(</span><span class="n">productOption</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">).</span><span class="na">asPayment</span><span class="o">();</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">payment</span><span class="o">.</span><span class="na">makeWith</span><span class="o">(</span><span class="n">paymentMethod</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After some refactoring to allow the models to complete the work on their own, we were still left with a question – what does the interaction look like?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">productOption</span><span class="o">.</span><span class="na">upgradeToWith</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">creditCard</span><span class="o">);</span>  <span class="c1">// ?</span>
+</span><span class='line'><span class="n">productOption</span><span class="o">.</span><span class="na">upgradeFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">).</span><span class="na">payingWith</span><span class="o">(</span><span class="n">creditCard</span><span class="o">);</span> <span class="c1">// ?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Taking a step back, the important question is – how would we have a conversation about this?  How would a Product Manager explain this use case?  They would probably say “the Jobseeker is upgrading to the selected product option, and paying by credit card.”  So that’s what the code looks like – a sentence (or close to it) that says just that.  So in the end, the application code looks like:</p>
+
+<p>UpgradeWorkflow (Use Case):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Jobseeker</span> <span class="n">jobseeker</span> <span class="o">=</span> <span class="n">allJobseekers</span><span class="o">.</span><span class="na">jobseekerWith</span><span class="o">(</span><span class="n">jobseekerId</span><span class="o">);</span>
+</span><span class='line'><span class="n">NewCreditCard</span> <span class="n">card</span> <span class="o">=</span> <span class="n">creditCard</span><span class="o">(</span><span class="n">newCreditCardRepresentation</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'><span class="n">ProductOption</span> <span class="n">productOption</span> <span class="o">=</span> <span class="n">allProductOptions</span><span class="o">.</span><span class="na">optionFor</span><span class="o">(</span><span class="n">productOptionId</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">jobseeker</span><span class="o">.</span><span class="na">upgradingTo</span><span class="o">(</span><span class="n">productOption</span><span class="o">).</span><span class="na">payBy</span><span class="o">(</span><span class="n">creditCard</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>upgradingTo returns an Upgrade with a payBy method that has meaningful steps within it:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">UpgradeReceipt</span> <span class="nf">payBy</span><span class="o">(</span><span class="n">CreditCard</span> <span class="n">card</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">charge</span><span class="o">(</span><span class="n">card</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">upgradeSubscription</span><span class="o">();</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">upgradeReceipt</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So back to our questions:</p>
+
+<p>What happens when a Jobseeker upgrades?  Open the Jobseeker class and find the method for upgrading.</p>
+
+<p>Where do I start looking for code related to upgrades?”  Open the Upgrade class.</p>
+
+<h1>First class collections</h1>
+
+<p>Rather than passing around Collection<Model>, we frequently create meaningful classes to encapsulate the collection.  This provides a natural home for many operations like sorting, transforming, filtering, etc.  This reduces clutter in calling code and makes it more expressive (noticing a pattern yet?), hiding away the mechanical details of iterating over collections in order to do something.</p>
+
+<p>If we take a look at an earlier example, we have a Users class that handles things like filtering and sorting:</p>
+
+<p>some methods from our Users class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Users</span> <span class="nf">sorted</span><span class="o">(</span><span class="n">Comparator</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">comparator</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">sorted</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="n">users</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">sorted</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">comparator</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Users</span><span class="o">(</span><span class="n">sorted</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="n">Users</span> <span class="nf">without</span><span class="o">(</span><span class="n">Users</span> <span class="n">otherUsers</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">without</span><span class="o">(</span><span class="n">otherUsers</span><span class="o">.</span><span class="na">users</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="n">Users</span> <span class="nf">without</span><span class="o">(</span><span class="n">User</span><span class="o">...</span> <span class="n">otherUsers</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nf">without</span><span class="o">(</span><span class="n">asList</span><span class="o">(</span><span class="n">otherUsers</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">private</span> <span class="n">Users</span> <span class="nf">without</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">otherUsers</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">Collection</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">trimmedDown</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashSet</span><span class="o">&lt;&gt;(</span><span class="n">users</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">trimmedDown</span><span class="o">.</span><span class="na">removeAll</span><span class="o">(</span><span class="n">otherUsers</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Users</span><span class="o">(</span><span class="n">trimmedDown</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>our SearchWorkflow:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Users</span> <span class="n">matchingUsers</span> <span class="o">=</span> <span class="n">allUsers</span><span class="o">.</span><span class="na">matching</span><span class="o">(</span><span class="n">query</span><span class="o">).</span><span class="na">without</span><span class="o">(</span><span class="n">currentUser</span><span class="o">).</span><span class="na">sorted</span><span class="o">(</span><span class="n">by</span><span class="o">(</span><span class="n">Name</span><span class="o">.</span><span class="na">lastThenFirst</span><span class="o">()));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to do the same thing with regular collections, our calling code would probably look something more like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">matchingUsers</span> <span class="o">=</span> <span class="n">allUsers</span><span class="o">.</span><span class="na">matching</span><span class="o">(</span><span class="n">query</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">withoutCurrentUser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="n">User</span> <span class="n">user</span> <span class="o">:</span> <span class="n">matchingUsers</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">user</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">currentUser</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">withoutCurrentUser</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Collections</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">withoutCurrentUser</span><span class="o">,</span> <span class="n">by</span><span class="o">(</span><span class="n">Name</span><span class="o">.</span><span class="na">lastThenFirst</span><span class="o">()));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and who wants to read that??  By using first class collections, we can write more declarative high level code that almost reads like English.</p>
+
+<h1>In Closing</h1>
+
+<p>Code that reads well and overall quality are things that we highly value.  We want our code to express itself to the next developer that has to come and make changes &ndash; and that’s at the heart of our principles: change.  If code never changed, we wouldn’t need any of these values.  But that’s the point of software &ndash; it’s soft. And that&rsquo;s what this series is really about &ndash; high level architecture, OO principles, expressive code &ndash; all working together to embrace change and make it easier, because that’s where the value really is.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Design Principles and Goals (Part 2) - A Trip Back to OO]]></title>
@@ -577,7 +935,7 @@ SalaryPredicates:</p>
 
 <h2>Wrapping up</h2>
 
-<p>We&rsquo;ve talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow&rsquo;s post, we&rsquo;ll dig a little deeper into being expressive in code, and how we like to write our code line by line.</p>
+<p>We&rsquo;ve talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow&rsquo;s post, we&rsquo;ll dig a little deeper into <a href="http://dev.theladders.com/2015/05/design-principles-and-goals-being-expressive-in-code">being expressive in code</a>, and how we like to write our code line by line.</p>
 ]]></content>
   </entry>
   
@@ -4120,140 +4478,6 @@ nrepl</code>, I can interact with the running server like so:</p>
 <p>You may have heard of Rich Hickey’s <a href="http://blip.tv/clojure/hammock-driven-development-4475586">Hammock Driven Development</a>, the idea that spending time away from your code produces unexpected benefits. In the same vein, I&rsquo;ll call what we did for these two weeks Garbage Driven Development. What do I mean when I say garbage? The code written while practicing GDD is never going into production. It’ll never really do anything beyond providing a learning experience and proving a point you’d like to make. You don’t feel pressure to make sure the code fits within a particular context, that it’s easily readable by others, or that it’ll be maintainable going forward. In the end, the code may be quite eloquent or look like garbage, but it doesn&rsquo;t really matter. Try that idea you’ve always thought about but never had time to implement. Buck best practices to see if you can find better ones. When you’re done, it’s garbage. Developers would be well served to routinely make time to focus less on product and more on process.</p>
 
 <p>Most of all, this process woke me up from the monotony of just pushing out code and inspired me to learn and pursue more of my own side projects. I&rsquo;ve wanted to read more, explore new languages, and try new ways of doing things. It was an excellent way to frame the start of a new chapter in my life as an engineer.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Trouble with Google's ImmutableSet]]></title>
-    <link href="http://dev.theladders.com/2013/03/trouble-with-googles-immutableset/"/>
-    <updated>2013-03-12T06:10:10-04:00</updated>
-    <id>http://dev.theladders.com/2013/03/trouble-with-googles-immutableset</id>
-    <content type="html"><![CDATA[<p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
-
-<blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&#8211;Hunter S. Thompson</strong></footer></blockquote>
-
-
-<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
-
-<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
-Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
-
-<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
-
-<!-- more -->
-
-
-<p><a href="http://dev.theladders.com/images/cache-creation-slowdown1.png"><img class="center" src="http://dev.theladders.com/images/cache-creation-slowdown1.png" width="300" height="171" title="Cache creation slowdown chart" ></a></p>
-
-<p>You&rsquo;ll notice the jump on 1/16 from a gradual increase to a more rapid increase. That day a new release went out that included an increase in the size of a related cache- one that contains all job seekers who have permission to follow recruiters. Intersections of that cache with another are then used to build the followers cache.</p>
-
-<p>At first we thought that the slowdown was a function of the increased cache size. Maybe pulling more data from the database to fill up the larger cache was the culprit. But from the logs we found that wasn&rsquo;t the case. In fact, we found that CPU usage was spiking to 100% while the cache was being built. This was in contrast to the QA machines, where CPU did not spike at all during the process. Further analysis determined the code was spending the vast majority of its time calculating the intersections of caches to produce the followers cache. The code is something along these lines:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">recruiterId</span> <span class="o">:</span> <span class="n">followersForRecruitersCache</span><span class="o">.</span><span class="na">keySet</span><span class="o">())</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">Set</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Sets</span><span class="o">.</span><span class="na">intersection</span><span class="o">(</span><span class="n">followersForRecruitersCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">recruiterId</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">canFollowRecruitersCache</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">followersCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">recruiterId</span><span class="o">,</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">(</span><span class="n">s</span><span class="o">));</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(The method Set.intersection() is from Google Collections.) So was the problem that we had so much more data in production than in our QA environment, and many more iterations were being spent calculating set intersections? We also found another interesting bit of information. The following code, used to build the canFollowRecruitersCache, a simple set of integer IDs, was also taking longer in production than in QA:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImmutableSet</span><span class="o">.</span><span class="na">Builder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">ImmutableSet</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
-</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="n">Integer</span> <span class="n">id</span> <span class="o">:</span> <span class="n">userPrivilegeSystem</span><span class="o">.</span><span class="na">getAllJobseekersWhoCanFollowRecruiters</span><span class="o">())</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="n">canFollowRecruitersCache</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">build</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Actually, all the slowness was in the call to ImmutableSet.Builder.build(), also from Google Collections. In fact, we have a larger canFollowRecruitersCache in QA than in production due to the amount of test data in the QA database. So the problem must be in the data itself and its interaction with ImmutableSet. (For the source code for the ImmutableSet, see <a href="http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java">http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java</a>.)</p>
-
-<p>Taking a closer look, the distribution of IDs in canFollowRecruitersCache in QA looks like this (X-axis is the array index, Y-axis is the ID):</p>
-
-<p><a href="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-QA.png"><img class="center" src="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-QA.png" width="300" height="176" title="&#34;canFollowRecruitersCache ID Distribution in QA&#34;" alt="&#34;canFollowRecruitersCache ID Distribution in QA&#34;"></a></p>
-
-<p>The standard deviation of this set of IDs is 12,266,077.</p>
-
-<p>The distribution of IDs in canFollowRecruitersCache in production looks like this:</p>
-
-<p><a href="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-production.png"><img class="center" src="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-production.png" width="300" height="173" title="&#34;canFollowRecruiterCache ID distribution in production&#34;" alt="&#34;canFollowRecruiterCache ID distribution in production&#34;"></a></p>
-
-<p>The standard deviation of this set of IDs is 642,039.</p>
-
-<p>Opening up the code in ImmutableSet, we find that it uses a linear array of buckets, and when a collision occurs it probes each bucket until it finds an empty one, and puts the element there. It uses a secondary hash function, called smear(), to index into the array. Presumably this is used to augment whatever hash is already supplied by the element to be inserted. Unfortunately this isn&rsquo;t enough to overcome the distribution of IDs in our production data. Since Java a Integer&rsquo;s hash code is just its value, the efficiency of the ImmutableSet ends up being subject to the distribution of the IDs. The number of collisions that occur with production data when building the set is a huge 3,217,789,124, but with our somewhat larger QA dataset, only 3,199,502. If we read in the same production data as Strings instead of Integers, however, the number of collisions drops dramatically, and production performance is equivalent to QA&rsquo;s.</p>
-
-<p>Both our QA and production data cause the same size of array of buckets of 1,048,576 to be used internally by ImmutableSet. Rendering this array into a 1024 x 1024 square, and color-coding by number of collisions at that index, we can have a better idea of what&rsquo;s happening.</p>
-
-<p>The colors in the graphics below have the following meaning:</p>
-
-<table style="border:1px solid black;border-collapse:collapse;margin:auto;">
-  <tbody>
-    <tr>
-      <th style="border:2px solid black;padding:10px;">collision count</th>
-      <th style="border:2px solid black;padding:10px;text-align:right">color</th>
-    </tr>
-    <tr>  
-      <td style="border:1px solid black;padding:10px;">0 (no element)</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">white</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">0 (has element)</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">black</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 10</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">magenta</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 100</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">blue</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 1000</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 10000</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 25000</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">orange</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">25000+</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">red</td>
-    </tr>
-  </tbody>
-</table>
-
-
-<p>Thus the array produced for QA data looks like this:</p>
-
-<p><a href="http://dev.theladders.com/images/ImmutableSet-collisions-in-QA.png"><img class="center" src="http://dev.theladders.com/images/ImmutableSet-collisions-in-QA.png" width="300" height="300" title="&#34;ImmutableSet collisions in QA&#34;" alt="&#34;ImmutableSet collisions in QA&#34;"></a></p>
-
-<p>Whereas the array produced for production data looks like this:</p>
-
-<p><a href="http://dev.theladders.com/images/ImmutableSet-collisions-in-production.png"><img class="center" src="http://dev.theladders.com/images/ImmutableSet-collisions-in-production.png" width="300" height="300" title="&#34;ImmutableSet collisions in production&#34;" alt="&#34;ImmutableSet collisions in production&#34;"></a></p>
-
-<p>The same algorithm is used to implement the set&#8217;s contains() method, so operations such as intersections are also extremely slow with this data. A simple change to Java&rsquo;s built-in HashSet fixes the problem.</p>
-
-<p><a href="http://www.reddit.com/r/programming/comments/1a5by8/trouble_wi%20%20%20%20th_googles_immutableset/">Join the discussion on reddit</a>.</p>
 ]]></content>
   </entry>
   

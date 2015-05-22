@@ -9,8 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="&#8230; when the Man comes around.&#8211;Johnny Cash We are happy to announce that on April 10th, TheLadders will be hosting
-Eric Evans, the codifier &hellip;">
+  <meta name="description" content="Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/03/eric-evans-is-coming-to-theladders/">Eric Evans Is Coming to TheLadders</a></h1>
+      <h1 class="entry-title"><a href="/2013/03/trouble-with-googles-immutableset/">Trouble With Google&#8217;s ImmutableSet</a></h1>
     
     
       <p class="meta">
@@ -128,248 +127,31 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-03-08T10:09:00-05:00" pubdate data-updated="true">Mar 8<span>th</span>, 2013</time>
+<time datetime="2013-03-12T06:10:10-04:00" pubdate data-updated="true">Mar 12<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>&#8230; when the Man comes around.</p><footer><strong>&#8211;Johnny Cash</strong></footer></blockquote>
+  <div class="entry-content"><p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
+
+<blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&#8211;Hunter S. Thompson</strong></footer></blockquote>
 
 
-<p>We are happy to announce that on April 10th, TheLadders will be hosting
-<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
-<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
-York City DDD Meetup group. Engineers at TheLadders have long been
-following developments in the DDD community. Some of
-<a href="/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
-<a href="/ourteam/kylewinter/">more</a> of <a href="/ourteam/mattjankowski/">us</a> will be attending it shortly, and
-our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
+<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
 
-<p>For those of you who might be unfamiliar with DDD, its goal is the
-design of software that creates business value. DDD guides technical
-and domain experts to collaboratively create a mental model of the
-central business concepts. This model is then used to drive
-design. This sounds like common sense: developers work with people who
-know about the business to make software that works to solve its
-problems. What could be more straightforward?  And yet, the complexity
-inherent in the business world and software engineering make it
-difficult to create software that is supple and adaptable to changing
-needs. DDD provides a framework for thinking about, creating, and
-communicating mental models. And that requires the learning of new
-skills and ideas. It isn’t an easy process, but we have found that it
-is rewarding for both the business and developers.</p>
+<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
+Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
 
-<h1>A Little of Our Experience with DDD</h1>
+<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
 
-<p>While creating our new website, we’ve tried to remain focused on
-“communicating mental models”. One way this can be done is through
-DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
-communicate the contract between the domain model and its
-users. Judging from the vast amount of code out there, this simple
-idea is counterintuitive. Our own legacy codebase is no exception. For
-example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Subscription</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="o">...</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">AutoRenewFlags</span> <span class="nf">getAutoRenewFlag</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAutoRenewFlag</span><span class="o">(</span><span class="n">AutoRenewFlags</span> <span class="n">autoRenewFlag</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">autoRenewFlag</span> <span class="o">=</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getUnsubscribeReason</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUnsubscribeReason</span><span class="o">(</span><span class="kt">int</span> <span class="n">unsubscribeReason</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">unsubscribeReason</span> <span class="o">=</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is an example of what in DDD is called an “anemic domain
-model”. The Subscription class is a key part of the domain, yet not
-only does it communicate nothing to the user about its usage, it in
-fact does nothing. Values can be retrieved and set, but what then? How
-do I actually unsubscribe someone? What prevents me from using any
-arbitrary integer for the “unsubscribe reason”? What about changing
-auto-renewal to null? There is no explicit contract here, and the user
-of this object is given no guidance or constraints. By contrast, we’ve
-worked hard in our newer code to avoid creating anemic domain models
-and instead create objects that are not only useful, but clear in
-their usage. Here is another example, this time from the new
-Subscription class:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Subscription</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>   <span class="o">...</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOn</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOff</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">CanceledSubscription</span> <span class="nf">unsubscribe</span><span class="o">(</span><span class="n">UnsubscribeReason</span> <span class="n">unsubscribeReason</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In this case we’ve attempted to make the contract clear. Calling the
-unsubscribe method actually unsubscribes the customer, returning a
-CanceledSubscription. The “unsubscribe reason” is now strongly typed,
-clearly communicating which values are allowed. Auto-renewal changes
-yield a new immutable Subscription object, and can be chained together
-with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
-settings.</p>
-
-<p>Another example of an anemic domain model, lacking an
-intention-revealing interface, comes from the old Payment class in our
-legacy codebase:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="kt">int</span> <span class="n">paymentId</span><span class="o">,</span>
-</span><span class='line'>               <span class="kt">int</span> <span class="n">paymentActionType</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">BigDecimal</span> <span class="n">amount</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">String</span> <span class="n">approvalCode</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">String</span> <span class="n">transactionReference</span><span class="o">,</span>
-</span><span class='line'>               <span class="kt">int</span> <span class="n">creditCardId</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentId</span> <span class="o">=</span> <span class="n">paymentId</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentActionType</span> <span class="o">=</span> <span class="n">paymentActionType</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">amount</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">approvalCode</span> <span class="o">=</span> <span class="n">approvalCode</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">creditCardId</span> <span class="o">=</span> <span class="n">creditCardId</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">transactionReference</span> <span class="o">=</span> <span class="n">transactionReference</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This class contains only the constructor you see here, and getters for
-each of the fields created. It turns out that it’s used as a parameter
-object, and nothing more. There’s no guidance as to it’s valid
-construction, and no hint about its usage. Yet obviously handling
-subscription payments is an important part of the subscription domain,
-and we want the contracts around the model of that domain clear and
-easy to understand. Here’s our attempt at accomplishing those goals in
-the new codebase:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="n">PaymentAmount</span> <span class="n">paymentAmount</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">JobseekerId</span> <span class="n">jobseekerId</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">PaymentActionType</span> <span class="n">paymentActionType</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">ReportGroup</span> <span class="n">reportGroup</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The first difference is actually one that’s not visible from the code
-itself. As we’ve developed the new site, we’ve agreed that all
-arguments to methods or constructors are required; no passing of
-nulls. If an argument is truly optional, a separate method or
-constructor is added that excludes it. We want our code to be
-confident, and this contract means that methods and constructors “say
-what they mean and mean what they say”. In the legacy codebase, nulls
-were passed liberally to and fro, and you could never be quite sure
-which arguments were truly required.</p>
-
-<p>Another change is the promotion of this class from a mere parameter
-object to an active participant in the domain model:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Receipt</span> <span class="nf">makeWith</span><span class="o">(</span><span class="n">PaymentMethod</span> <span class="n">method</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">method</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Receipt</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">.</span><span class="na">asAmountPaid</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">recordWith</span><span class="o">(</span><span class="n">PaymentRecorder</span> <span class="n">paymentRecorder</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">paymentRecorder</span><span class="o">.</span><span class="na">record</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Instead of being passed around to “manager” objects and DAOs, a
-Payment object can actually make a payment and create records of
-itself. It seems only natural.</p>
-
-<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
-this post barely scratches the surface. And as a team we know we still
-have much farther to go in its mastery, but the time we’ve spent in
-study and practice have been well worth the effort so far.</p>
-
-<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
-presentation and discussion.</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/2013/03/trouble-with-googles-immutableset/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -396,6 +178,10 @@ presentation and discussion.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
@@ -409,10 +195,6 @@ presentation and discussion.</p>
     
       <li class="post">
         <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
   </ul>
