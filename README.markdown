@@ -230,6 +230,8 @@ footer: false
 
 *NOTE* Entries are alphabetized by last name.
 
+6. Don't forget to follow the Deploy steps below to actually publish these changes.
+
 ### Someone left
 
 When a member of the engineering staff leaves the company, their profile should be removed from the site and references to them should be updated.
