@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a &hellip;">
+  <meta name="description" content="It is only through labor and painful effort, by grim energy and resolute courage, that we move on to better things.&#8211;Theodore Roosevelt The &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2014/10/speeding-up-r/">Speeding Up R</a></h1>
+      <h1 class="entry-title"><a href="/2015/04/writing-better-api-tests/">Writing Better API Tests</a></h1>
     
     
       <p class="meta">
@@ -127,44 +127,61 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2014-10-02T14:51:51-04:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
+<time datetime="2015-04-27T17:41:00-04:00" pubdate data-updated="true">Apr 27<span>th</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
+  <div class="entry-content"><blockquote><p>It is only through labor and painful effort, by grim energy and resolute courage, that we move on to better things.</p><footer><strong>&#8211;Theodore Roosevelt</strong></footer></blockquote>
 
-<p>A few months ago, we encountered this issue directly. We started working on an algorithm that would analyze any one of our six million jobseekers and find other jobseekers that they’re most similar to. To come up with this list, we’d look through several of the data points we had about the jobseeker, such as their career history and which jobs on our site they had been interested in, and looked for other members who had a similar set of data points. Our first pass at this algorithm in R took about thirty seconds to run for each jobseeker. If we wanted to run it for all six million of our users… well, we couldn’t really wait until 2019 to see the results. We’ve spent the subsequent few weeks speeding up the process so that it now takes less than half a second per jobseeker, and we’ve learned a bunch of helpful tips along the way.</p>
 
-<p>(Note: Whenever I need to speed up my code, I look back at Hadley Wickham’s <a href="http://adv-r.had.co.nz/Performance.html">Advanced R</a> which is where a lot of these ideas come from and is a fantastic resource.)</p>
+<h1>The problem</h1>
 
-<h3>1. Use lineprof to find the bottleneck</h3>
+<p>When I was first tasked with writing the web service for our <a href="http://www.theladders.com/mobile/">jobseeker iOS app</a>, I wanted to be able to write tests against the API without diving into the world of iOS automated functional testing.  I really didn’t see a need to fire up an iOS client just so I could make calls to a service that was under heavy development and in a constant state of change.  So how could I write tests that would exercise the API in a way similar to an iOS client?</p>
 
-<p>Hadley Wickham created a <a href="https://github.com/hadley/lineprof">useful and easy to use package</a> that you can use to figure out which part of your code is causing the biggest issues and drill down to the specific lines that are taking up most of the runtime. Figuring out which parts of your code are problematic is the first step towards fixing that problem.</p>
+<p>Fortunately for me, engineers at TheLadders have always emphasized testing in one form or another.  Sometimes this means a unit test for a particular method on a class.  Other times it means an automated functional test (AFT) verifying client/service interactions for a particular feature.  And in some instances it may even mean, f**k it, ship it and see if it blows up in production (a rare occurrence of course).</p>
 
-<h3>2. Attack the slowest cases, but don’t forget about the rest</h3>
+<p>It turns out that before I even started working on the mobile service, people before me were asking similar questions about testing their APIs, and they had come up with a slightly different type of test that we now call &ldquo;web tests&rdquo;.  A &ldquo;web test&rdquo; is basically a way to fire up an instance of the service for each test and, using a Jersey client, programmatically make calls to that service within the test itself.  This was great because it allowed us to write tests against our APIs without needing to fire up an external tool such as a web browser.  The following code is an example of such a test:</p>
 
-<p>After making some improvements, we found that our algorithm could take anywhere between 0.5 and 6 seconds to run on a jobseeker. For the next iteration, we focused on the slowest 10% and tried to speed each of them up by 1-2 seconds. We repeated this process a few more times, taking a look at the slowest cases and seeing if we could make some big improvements there. However, we also stumbled on an easier but equally effective approach: making small improvements that impact all cases. Speeding up the process by 0.2 seconds for all jobseekers has the same impact of cutting off 2 seconds from just 10% of jobseekers and may be easier to do.</p>
+<figure class='code'><figcaption><span>Basic web test</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">TestRestClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">createTestRestClient</span><span class="o">();</span>
+</span><span class='line'><span class="n">Response</span> <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="err">“</span><span class="n">api</span><span class="o">/</span><span class="n">jobs</span><span class="err">”</span><span class="o">);</span>
+</span><span class='line'><span class="n">assertEquals</span><span class="o">(</span><span class="mi">200</span><span class="o">,</span> <span class="n">response</span><span class="o">.</span><span class="na">getStatus</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<h3>3. Using data.table can speed up almost any merge or aggregation</h3>
 
-<p>Our algorithm requires merging together a bunch of big data frames (for example, ones covering hundreds of thousands of user clicks or job applications) so we quickly searched for a package that could speed things up. We found the <a href="http://datatable.r-forge.r-project.org/">data.table package</a> which was orders of magnitude quicker than the base merge in some cases. However, we realized that there was no reason to limit our use of data.table as speed improvements could be found even on merges of much smaller data frames. Furthermore, any time we needed to run an aggregation over a data frame (usually done with aggregate or tapply), data.table could cut out valuable milliseconds.</p>
+<p>This code makes a call to retrieve a list of jobs and verifies the response status code is 200.</p>
 
-<h3>4. Use microbenchmark to rigorously test out your code</h3>
+<p>The idea of the “web” or “API test” was exactly what I needed.  This gave me a starting point.  But I knew these web tests could be improved upon, making it easier to test our APIs.  So I set about trying to figure out what I wanted for testing the mobile service and came up with a list of requirements.</p>
 
-<p>The <a href="http://cran.r-project.org/web/packages/microbenchmark/index.html">microbenchmark package</a> is a far better way to test your R code’s speed than the standard system.time function. Microbenchmark runs each line of code you give it 100 times (by default) and computes summary statistics of those runtimes, allowing you to be confident that any speed improvements you find are not merely the result of random variation.</p>
+<h1>The requirements</h1>
 
-<h3>5. Don’t overfit to a single case</h3>
+<p>There were some requirements I wanted to establish that would help guide my decision-making process when writing web tests.  These requirements included the following:</p>
 
-<p>Good data scientists are cognizant of the tradeoff between training error and test error when building a model. A similar phenomenon can occur when trying to optimize an algorithm for speed. As we were refining our code, we typically tested things out on our own accounts. However, this was a bit dangerous, since we are by no means a representative sample of users of our site. We are unusually active on the site and all have somewhat similar career histories to each other. A change that improves runtime when generating matches for one of us may not have the same impact on users who are less active or belong to a different job function. Make sure to test out any changes on a large, random sample before concluding that your changes have done the trick.</p>
+<ul>
+<li>The tests should mimic how an iOS client would navigate the API</li>
+<li>Anyone reading the test code should be able to easily understand what is being tested</li>
+<li>The code should be easy to reuse, reducing duplication where possible</li>
+</ul>
 
-<h3>6. The clearest code is not always the fastest code</h3>
 
-<p>Imagine you have a data frame that’s 100,000 rows long where the head looks like this:</p>
+<p>These really aren’t groundbreaking ideas, but they were helpful to keep in mind at all times.  They served as guideposts throughout my decision-making process.  With these requirements defined, I&rsquo;m going to give you a quick rundown of some key elements of the API before diving into implementation details.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<h1>The API</h1>
+
+<p>The API for the mobile service is a RESTful API that uses <a href="http://en.wikipedia.org/wiki/HATEOAS">hypermedia as the engine of application state (HATEOAS)</a>.  We use the HTTP methods GET, DELETE, POST, and PUT against URLs representing resources.  Everything is stateless and we leverage headers for things such as authorization and versioning.  The following figure illustrates sample request and response against this API:</p>
+
+<p><img class="center medium" src="/images/api-tests/api-request-response.png"></p>
+
+<p>The above example illustrates a request for the details of an individual job.  One important thing to note here is the “links” element in the JSON.  This is the HATEOAS piece I mentioned earlier. If a user taps the “like” button on the app for this particular job, the client code would send a request to the URL associated with the “like” action.  If the job was already liked when it was retrieved, then an “unlike” link would have been present instead.</p>
+
+<p>We use hypermedia links extensively in the API.  In fact, the only URL that is hard-coded in the iOS application is what we call a “bootstrap” URL.  This URL gives the client all of the hypermedia links needed to get started with the app, and would look something like the following:</p>
+
+<figure class='code'><figcaption><span>Bootstrap JSON response</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -176,53 +193,64 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; head(my.df, 10)
-</span><span class='line'>           a         b         c         d
-</span><span class='line'>1         NA        NA 0.4885687        NA
-</span><span class='line'>2         NA        NA 0.1666159        NA
-</span><span class='line'>3         NA        NA 0.3176160        NA
-</span><span class='line'>4         NA 0.9568433 0.4848375        NA
-</span><span class='line'>5  0.8441578 0.3022814        NA        NA
-</span><span class='line'>6  0.4223605        NA        NA        NA
-</span><span class='line'>7         NA 0.7998102        NA        NA
-</span><span class='line'>8         NA 0.8183823        NA        NA
-</span><span class='line'>9         NA        NA        NA 0.1550433
-</span><span class='line'>10 0.1511128 0.4783680        NA        NA</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;links&quot;</span> <span class="p">:</span> <span class="p">[{</span>
+</span><span class='line'>    <span class="nt">&quot;action&quot;</span> <span class="p">:</span> <span class="s2">&quot;authenticate&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;method&quot;</span> <span class="p">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;uri&quot;</span> <span class="p">:</span> <span class="s2">&quot;https://localhost:54837/authenticate&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="p">},</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;action&quot;</span> <span class="p">:</span> <span class="s2">&quot;lookupIndustries&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;method&quot;</span> <span class="p">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;uri&quot;</span> <span class="p">:</span> <span class="s2">&quot;https://localhost:54837/api/lookup/industries&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="p">},</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;action&quot;</span> <span class="p">:</span> <span class="s2">&quot;autocompleteTitle&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;method&quot;</span> <span class="p">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;uri&quot;</span> <span class="p">:</span> <span class="s2">&quot;https://localhost:54837/api/autocomplete/title?q={toMatch}&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="p">},</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;action&quot;</span> <span class="p">:</span> <span class="s2">&quot;register&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;method&quot;</span> <span class="p">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;uri&quot;</span> <span class="p">:</span> <span class="s2">&quot;https://localhost:54837/register&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="p">}]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let’s say what you want to do is replace all of the NA’s with 0’s. So a pretty straightforward function to use would be defined as:</p>
+<p>From here, the client has the links for retrieving some lookup lists, maybe a URL for auto-completing the job title field, a link for logging in an existing user, and a link for registering a new user.  If the link to login is invoked, then new response JSON will be returned containing “links” for valid actions that user can perform, and so on and so forth.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNA &lt;- function(df){
-</span><span class='line'>  df[is.na(df)] &lt;- 0
-</span><span class='line'>  return(df)
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+<p>There is more to the API and I’ve glossed over some details.  But this should give you enough of an idea of how things work to understand the implementation.</p>
 
+<h1>The implementation</h1>
 
-<p>That’s concise, easy to understand, and flexible enough to handle most changes that could occur to my.df in the future. Now, take a look at this function:</p>
+<p>It’s important to keep in mind that the following implementation has evolved over time.  What I present to you here is an example that identifies the key components of the current state.  I was always going back-and-forth with different ideas, trying out various implementations.  And I’m pretty certain the team will continue to iterate on what we have today.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNAUgly &lt;- function(df){
-</span><span class='line'>  df$a[is.na(df$a)] &lt;- 0
-</span><span class='line'>  df$b[is.na(df$b)] &lt;- 0
-</span><span class='line'>  df$c[is.na(df$c)] &lt;- 0
-</span><span class='line'>  df$d[is.na(df$d)] &lt;- 0
-</span><span class='line'>  return(df)
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+<p>But in its current state, the implementation has the following four components:</p>
+
+<ol>
+<li>Class representing request/response JSON</li>
+<li>Class for performing asserts against a body of JSON</li>
+<li>Class representing the actions that can be taken on a body of JSON (such as calling hypermedia links or accessing an item in a list)</li>
+<li>Class representing a user, their state, and their “connection” to the API.</li>
+</ol>
 
 
-<p>It’s not concise, is a little difficult to understand, and is not very flexible, but it’s actually quite a bit quicker:</p>
+<p>These four components and how they relate to the API can be seen in the following figure:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><img class="center medium" src="/images/api-tests/api-implementation-components.png"></p>
+
+<p>In addition to these four components, I did my  best to provide some “syntactic sugar” for allowing us to write tests in the given/when/then style.  So let’s dive into each of the four components and give you some concrete examples to work with.</p>
+
+<h2>Class representing request/response JSON</h2>
+
+<p>We have what are called “representation” classes whose sole purpose is to “represent” incoming or outgoing JSON.  These classes are annotated with JAXB annotations for serialization/deserialization purposes.  These classes also have methods for accessing the hypermedia links (some of which may be optional).  So the following JSON:</p>
+
+<figure class='code'><figcaption><span>Job JSON</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -230,41 +258,495 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; microbenchmark(
-</span><span class='line'>+   replaceNA(my.df),
-</span><span class='line'>+   replaceNAUgly(my.df)
-</span><span class='line'>+ )
-</span><span class='line'>Unit: milliseconds
-</span><span class='line'>                           min       lq   median       uq      max neval
-</span><span class='line'>     replaceNA(my.df) 219.7503 241.4529 249.8200 271.3922 316.8102   100
-</span><span class='line'> replaceNAUgly(my.df) 148.9356 159.6738 167.7006 178.1716 234.8962   100</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;details&quot;</span> <span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Software Engineer&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;company&quot;</span> <span class="p">:</span> <span class="s2">&quot;TheLadders&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;location&quot;</span> <span class="p">:</span> <span class="s2">&quot;New York, NY&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;postedOn&quot;</span> <span class="p">:</span> <span class="s2">&quot;2015-04-17&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;salary&quot;</span> <span class="p">:</span> <span class="s2">&quot;$100k&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Work with us!&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nt">&quot;links&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;action&quot;</span> <span class="p">:</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;method&quot;</span> <span class="p">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;uri&quot;</span> <span class="p">:</span> <span class="s2">&quot;https://localhost:54837/api/jobs/e-1/like&quot;</span>
+</span><span class='line'>  <span class="p">},</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;action&quot;</span> <span class="p">:</span> <span class="s2">&quot;get&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;method&quot;</span> <span class="p">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;uri&quot;</span> <span class="p">:</span> <span class="s2">&quot;https://localhost:54837/api/jobs/e-1&quot;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>In the majority of cases, the first function is fine or even preferable. However, if speed is your only concern, you may be able to speed things up if you’re willing to forgo having pretty code.</p>
+<p>Would be represented by a class that looks like:</p>
 
-<h3>7. Think about applying some filters</h3>
+<figure class='code'><figcaption><span>JobRepresentation.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@XmlRootElement</span>
+</span><span class='line'><span class="nd">@XmlAccessorType</span><span class="o">(</span><span class="n">XmlAccessType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JobRepresentation</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">JobDetailRepresentation</span> <span class="n">details</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">HypermediaLinks</span> <span class="n">links</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">HypermediaLink</span><span class="o">&gt;</span> <span class="nf">likeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Optional</span><span class="o">.</span><span class="na">ofNullable</span><span class="o">(</span><span class="n">links</span><span class="o">.</span><span class="na">forAction</span><span class="o">(</span><span class="err">“</span><span class="n">like</span><span class="err">”</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">HypermediaLink</span><span class="o">&gt;</span> <span class="nf">unlikeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Optional</span><span class="o">.</span><span class="na">ofNullable</span><span class="o">(</span><span class="n">links</span><span class="o">.</span><span class="na">forAction</span><span class="o">(</span><span class="err">“</span><span class="n">unlike</span><span class="err">”</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">HypermediaLink</span> <span class="nf">getLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">links</span><span class="o">.</span><span class="na">forAction</span><span class="o">(</span><span class="err">“</span><span class="n">get</span><span class="err">”</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>We categorize each of our jobseekers into one of fourteen overarching job functions, such as sales, marketing, technology, or finance. If I’m a software engineer, almost all of the jobseekers who are similar to me are likely to belong in technology. Sure, we could think of some cases where someone shares attributes with people in a couple of different job functions, but this is more of an edge case. By comparing each jobseeker with the half-million other jobseekers in their job function instead of the entire set of six million, we could make the algorithm about ten times faster while still capturing the vast majority of the same results, a tradeoff we deemed totally acceptable.</p>
 
-<h3>8. Preprocess, preprocess, preprocess</h3>
+<p>The methods for the links are particularly useful when navigating the API in a way an actual client would in tests.  Having defined a class representing a body of JSON, let&rsquo;s move on to the class for performing assertions against this body of JSON.</p>
 
-<p>One of the steps in our algorithm is to compare the set of titles a jobseeker has had in his/her career with the sets for all other jobseekers. However, sometimes two jobseekers will have had the same title but used different punctuation or capitalization when entering their title (not to mention misspellings or synonyms). As a result, we needed to remove the case and punctuation from each title before a comparison could be done. Our initial instinct was to run this text cleaning process right before doing the comparison, but this meant that we would end up cleaning the same text hundreds of times. Instead, we cleaned all the titles once, stored the results, and did the comparisons on these cleaned titles. You should constantly be on the lookout for places where the algorithm repeats a step multiple times and see if there’s a way to do so just once and then just look up those results when needed.</p>
+<h2>Class for performing asserts against a body of JSON</h2>
 
-<h3>9. Rcpp for when you’re really stuck</h3>
+<p>Having a class for performing assertions against a particular body of JSON helps us achieve two goals:  1) write more expressive test code and 2) have assertions that can be reused across tests.  For example, there may be several tests that require asserting the title for a particular job returned by the API.  We may also want to verify the presence or absence of certain hypermedia links.  The following code illustrates an “asserts” class for a job representation.</p>
 
-<p>If you’ve narrowed down your issue to a single operation and you can’t find a way around it, the <a href="http://dirk.eddelbuettel.com/code/rcpp.html">Rcpp package</a> may be able to help. With Rcpp, you can run parts of your code in C++ without interrupting the flow of the rest of your code. There’s a bit of a learning curve if you’re not familiar with C++, but the improvements could be massive enough to justify the effort. Alternatively, with some diligent Googling, you may be able to find someone who’s already solved your problem using Rcpp.</p>
+<figure class='code'><figcaption><span>JobRepresentationAsserts.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JobRepresentationAsserts</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">JobRepresentation</span> <span class="n">representation</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hasTitleOf</span><span class="o">(</span><span class="n">String</span> <span class="n">title</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="n">title</span><span class="o">,</span> <span class="n">representation</span><span class="o">.</span><span class="na">details</span><span class="o">.</span><span class="na">title</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hasLikeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">representation</span><span class="o">.</span><span class="na">likeLink</span><span class="o">().</span><span class="na">isPresent</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doesNotHaveLikeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">representation</span><span class="o">.</span><span class="na">likeLink</span><span class="o">().</span><span class="na">isPresent</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hasUnlikeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">representation</span><span class="o">.</span><span class="na">unlikeLink</span><span class="o">().</span><span class="na">isPresent</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doesNotHaveUnlikeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">representation</span><span class="o">.</span><span class="na">unlikeLink</span><span class="o">().</span><span class="na">isPresent</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<h3>10. Parallelize!</h3>
 
-<p>For R users who have never done any sort of parallel computing before, this may seem a bit daunting. However, depending on how your code is structured, it can actually be quite trivial to run tasks on all the cores of your machine in parallel. For instance, if you’re using Linux or a Mac and part of your code is run using lapply, forcing it to run in parallel is as simple as loading the parallel package and replacing lapply with mclapply (i.e. multicore lapply). Parallelization doesn’t guarantee speed improvements, but testing it out shouldn’t require too much effort and is worth considering.</p>
+<p>In addition to these “asserts” classes, I created a class with static builder methods to provide some syntactic sugar.  This allows us to write our tests in a given/when/then fashion.  This builder class is as follows:</p>
 
-<p>Along the same lines, you can force R to utilize all the cores of your machine when doing any linear algebra operations by using OpenBLAS or ATLAS, though the process of getting it up and running is not as easy. <a href="http://www.stat.cmu.edu/~nmv/2013/07/09/for-faster-r-use-openblas-instead-better-than-atlas-trivial-to-switch-to-on-ubuntu/">Nathan VanHoudnos&#8217; blog post on the topic</a> is a good place to start.</p>
+<figure class='code'><figcaption><span>AssertsBuilder.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AssertsBuilder</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="n">JobRepresentationAsserts</span> <span class="nf">thenThe</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">representation</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">JobRepresentationAsserts</span><span class="o">(</span><span class="n">representation</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<h3>11. Make sure this is all worth it</h3>
 
-<p>While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.</p>
+<p>This results in something like the following in a test:</p>
 
-<p>Have a question or comment? <a href="http://redd.it/2i4807">Join the discussion on reddit</a>.</p>
+<figure class='code'><figcaption><span>Sample job test</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">theladders</span><span class="o">.</span><span class="na">AssertsBuilder</span><span class="o">.*;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">JobRepresentation</span> <span class="n">job</span> <span class="o">=</span> <span class="n">apiCallToGetJob</span><span class="o">();</span>
+</span><span class='line'><span class="n">thenThe</span><span class="o">(</span><span class="n">job</span><span class="o">).</span><span class="na">hasTitleOf</span><span class="o">(</span><span class="err">“</span><span class="n">Software</span> <span class="n">Engineer</span><span class="err">”</span><span class="o">);</span>
+</span><span class='line'><span class="n">thenThe</span><span class="o">(</span><span class="n">job</span><span class="o">).</span><span class="na">hasLikeLink</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We’re not there yet, but we’re making progress.  So far we have the following:</p>
+
+<ul>
+<li>Class for representing incoming/outgoing bodies of JSON</li>
+<li>Class for performing assertions against a particular body of JSON</li>
+<li>Some syntactic sugar for creating assert-related objects.</li>
+</ul>
+
+
+<p>The next piece of the puzzle is a class representing the actions that can be taken on a body of JSON.</p>
+
+<h2>Class representing the actions that can be taken on a body of JSON</h2>
+
+<p>What exactly do I mean by &ldquo;taking actions on a body of JSON&rdquo;.  &ldquo;Actions&rdquo; can include anything from selecting an individual item in a list (a job in a list of jobs) to calling a URL associated with a hypermedia link.  So why the need for a separate class encapsulating these &ldquo;actions&rdquo; when we already have a representation class for a body of JSON (which includes hypermedia links)?  The reason is rooted in the fact that our representation classes are used in production code for serialization purposes (a topic worthy of its own blog post), and I didn&rsquo;t want to mix in testing concerns with our representation classes for something like calling the API via TestRestClient.  So I decided to create a different type of class for this purpose.  I called this the &ldquo;actions&rdquo; class.</p>
+
+<p>Let&rsquo;s take a look at JSON containing a list of jobs as an example.  If a user is viewing a list of jobs, it&rsquo;s reasonable to expect they might want to &ldquo;do something&rdquo; with a particular job.  This would be captured with something like the following:</p>
+
+<figure class='code'><figcaption><span>JobListActions.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JobListActions</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">UserAndClient</span> <span class="n">userAndClient</span><span class="o">;</span> <span class="c1">// this class represents a user and their connection to the API and will be discussed next.</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">JobListRepresentation</span> <span class="n">representation</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">JobActions</span> <span class="nf">actingOnJobAtIndex</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">JobActions</span><span class="o">(</span><span class="n">userAndClient</span><span class="o">,</span> <span class="n">representation</span><span class="o">.</span><span class="na">jobs</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>JobListActions by itself isn’t necessarily interesting, but it does provide a nice way for indicating what job a user is acting upon in a test.  The next code listing is more interesting, providing methods for performing various “actions” an individual job.</p>
+
+<figure class='code'><figcaption><span>JobActions.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JobActions</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">UserAndClient</span> <span class="n">userAndClient</span><span class="o">;</span> <span class="c1">// this class represents a user and their connection to the API and will be discussed next</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">JobRepresentation</span> <span class="n">representation</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Response</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">like</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Optional</span><span class="o">&lt;</span><span class="n">HypermediaLink</span><span class="o">&gt;</span> <span class="n">link</span> <span class="o">=</span> <span class="n">representation</span><span class="o">.</span><span class="na">likeLink</span><span class="o">();</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="n">Response</span><span class="o">&lt;&gt;(</span><span class="n">userAndClient</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">link</span><span class="o">.</span><span class="na">get</span><span class="o">()),</span> <span class="n">JobRepresentation</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Response</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">unlike</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Optional</span><span class="o">&lt;</span><span class="n">HypermediaLink</span><span class="o">&gt;</span> <span class="n">link</span> <span class="o">=</span> <span class="n">representation</span><span class="o">.</span><span class="na">unlikeLink</span><span class="o">();</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="n">Response</span><span class="o">&lt;&gt;(</span><span class="n">userAndClient</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">link</span><span class="o">.</span><span class="na">get</span><span class="o">()),</span> <span class="n">JobRepresentation</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This class contains methods for liking and un-liking a job.  This is done by using the TestRestClient found in UserAndClient (more on this next) to make calls to the API via the hypermedia links.  The Response class that is returned from these methods is a simple wrapper class for a JAX-RS response and looks like the following:</p>
+
+<figure class='code'><figcaption><span>Response.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Response</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">javax</span><span class="o">.</span><span class="na">ws</span><span class="o">.</span><span class="na">rs</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">Response</span> <span class="n">response</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Class</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">responseBodyType</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">status</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="na">getStatus</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">T</span> <span class="nf">body</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="na">readEntity</span><span class="o">(</span><span class="n">responseBodyType</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So we have all of these separate pieces:  1) representation class, 2) representation asserts class, and 3) class for performing actions against a representation.  By themselves, these three pieces really aren’t that useful.  We need something to pull them together.  This is where the UserAndClient alluded to earlier comes in.</p>
+
+<h2>Class representing a user, their state, and their “connection” to the API</h2>
+
+<p>This class is used for encapsulating a user and how they make calls to the API.  State for a particular user is kept here.  This class acts as the launching point for navigating through the API.  The code in the following listing provides methods for viewing job matches and being able to act upon the viewed job matches.</p>
+
+<figure class='code'><figcaption><span>UserAndClient.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserAndClient</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">AuthenticatedUserRepresentation</span> <span class="n">user</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">TestRestClient</span> <span class="n">client</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">JobListRepresentation</span> <span class="n">jobMatches</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">JobListRepresentation</span> <span class="nf">viewsJobMatches</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">HypermediaLink</span> <span class="n">link</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">jobMatchesLink</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">jobMatches</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">link</span><span class="o">).</span><span class="na">readEntity</span><span class="o">(</span><span class="n">JobListRepresentation</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">jobMatches</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">JobListActions</span> <span class="nf">actingOn</span><span class="o">(</span><span class="n">JobListRepresentation</span> <span class="n">representation</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">JobListAction</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">representation</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With some additional syntactic sugar, we are able to use UserAndClient to write very expressive tests with decoupled and reusable components.  Our base test class provides this syntactic sugar:</p>
+
+<figure class='code'><figcaption><span>RegisteredUserWebTest.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RegisteredUserWebTest</span> <span class="kd">extends</span> <span class="n">WebTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">UserAndClient</span> <span class="n">me</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Before</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">me</span> <span class="o">=</span> <span class="n">createNewUserAndClient</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">UserAndClient</span> <span class="nf">given</span><span class="o">(</span><span class="n">UserAndClient</span> <span class="n">userAndClient</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">userAndClient</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">UserAndClient</span> <span class="nf">when</span><span class="o">(</span><span class="n">UserAndClient</span> <span class="n">userAndClient</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">userAndClient</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We are then able to put it all together in a test such as the following:</p>
+
+<figure class='code'><figcaption><span>LikeJobWebTest.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LikeJobWebTest</span> <span class="kd">extends</span> <span class="n">RegisteredUserWebTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">likingJobReturnsResultWithUnlikeLink</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">given</span><span class="o">(</span><span class="n">me</span><span class="o">).</span><span class="na">viewsJobMatches</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Response</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">when</span><span class="o">(</span><span class="n">me</span><span class="o">).</span><span class="na">actingOn</span><span class="o">(</span><span class="n">me</span><span class="o">.</span><span class="na">jobMatches</span><span class="o">)</span>
+</span><span class='line'>                                                   <span class="o">.</span><span class="na">actingOnJobAtIndex</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>                                                   <span class="o">.</span><span class="na">like</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">thenThe</span><span class="o">(</span><span class="n">response</span><span class="o">).</span><span class="na">hasStatusOfOk</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">JobRepresentation</span> <span class="n">job</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">thenThe</span><span class="o">(</span><span class="n">job</span><span class="o">).</span><span class="na">doesNotHaveLikeLink</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">thenThe</span><span class="o">(</span><span class="n">job</span><span class="o">).</span><span class="na">hasUnlikeLink</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Looking at the above test, it’s pretty clear what is happening.  A user views their job matches.  From there, they like a single job in the list.  We are then verifying that the response of that like contains JSON without a like link (so they cannot “like” a job two times in a row).</p>
+
+<h1>Conclusion</h1>
+
+<p>Overall the results have been positive.  We have fairly reusable test code that minimizes duplication.  At first glance it may seem like a lot of unnecessary classes (representation asserts &amp; a class for encapsulating “actions”).  But creating these classes forces us to really think about the API as we develop.  An “asserts” class forces us to zero in on the needs of the client.  The “actions” class gives us a feel for whether or not we are providing the best API in terms of hypermedia links and navigating between URLs.</p>
+
+<p>At the end of the day, we wanted something that would result in an API that met the needs of it’s customer (the iOS client), and I think we’ve achieved that.  By “eating our own dog food” via navigating the hypermedia links in our web tests, we are putting ourselves in the shoes of the iOS client, and the result has been increased test coverage with tests that are easy to extend and understand.</p>
+
+<p>Hopefully you have found this useful.  I realize I&rsquo;ve glossed over some of the finer details, such as &ldquo;what is actually inside of the TestRestClient&rdquo; class?  This blog post wasn&rsquo;t meant to give you the exact template for doing what we do here at TheLadders.  It was meant to get you thinking about how you are testing your APIs and possible ways to improve upon how that is done.  I&rsquo;m sure what we have today will look much different six months for now.  While not perfect, it has resulted in what I think are more stable APIs, and at the end of the day, that&rsquo;s a win in my book.</p>
+
+<p>Now time to go test that new Storm topology of mine in production and see if it works&hellip;</p>
 </div>
   
   
@@ -293,23 +775,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/02/conclave/">Conclave</a>
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
       <li class="post">
-        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
       </li>
     
       <li class="post">
-        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
+        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
       </li>
     
       <li class="post">
-        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
       </li>
     
       <li class="post">
-        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
   </ul>

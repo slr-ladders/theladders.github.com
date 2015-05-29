@@ -9,8 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="&#8230; when the Man comes around.&#8211;Johnny Cash We are happy to announce that on April 10th, TheLadders will be hosting
-Eric Evans, the codifier &hellip;">
+  <meta name="description" content="Change means that what was before wasn&#8217;t perfect. People want things to be better.&#8211;Esther Dyson Looking back on my 6+ years at TheLadders &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/03/eric-evans-is-coming-to-theladders/">Eric Evans Is Coming to TheLadders</a></h1>
+      <h1 class="entry-title"><a href="/2013/05/the-evolution-of-qa-at-theladders/">The Evolution of QA at TheLadders</a></h1>
     
     
       <p class="meta">
@@ -128,246 +127,65 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-03-08T10:09:00-05:00" pubdate data-updated="true">Mar 8<span>th</span>, 2013</time>
+<time datetime="2013-05-16T09:04:00-04:00" pubdate data-updated="true">May 16<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>&#8230; when the Man comes around.</p><footer><strong>&#8211;Johnny Cash</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Change means that what was before wasn&#8217;t perfect. People want things to be better.</p><footer><strong>&#8211;Esther Dyson</strong></footer></blockquote>
 
 
-<p>We are happy to announce that on April 10th, TheLadders will be hosting
-<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
-<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
-York City DDD Meetup group. Engineers at TheLadders have long been
-following developments in the DDD community. Some of
-<a href="/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
-<a href="/ourteam/kylewinter/">more</a> of <a href="/ourteam/mattjankowski/">us</a> will be attending it shortly, and
-our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
+<p>Looking back on my 6+ years at TheLadders, I realize how much has changed. When I first joined the company at the start of 2007, there were five other people on the QA team supporting a team of 12 software developers. We followed a strict waterfall process. Product ideas were generated, researched and solidified before any conversation with the development or QA teams. Product managers would spend a large portion of their time hunkered down at their desks writing specification documents, complete with statements on purpose and scope, workflows, wireframes and interaction rules.</p>
 
-<p>For those of you who might be unfamiliar with DDD, its goal is the
-design of software that creates business value. DDD guides technical
-and domain experts to collaboratively create a mental model of the
-central business concepts. This model is then used to drive
-design. This sounds like common sense: developers work with people who
-know about the business to make software that works to solve its
-problems. What could be more straightforward?  And yet, the complexity
-inherent in the business world and software engineering make it
-difficult to create software that is supple and adaptable to changing
-needs. DDD provides a framework for thinking about, creating, and
-communicating mental models. And that requires the learning of new
-skills and ideas. It isn’t an easy process, but we have found that it
-is rewarding for both the business and developers.</p>
+<p>After these documents were approved by business owners, the development, QA, and design teams would meet to walk through the document with the goal of estimating the implementation time. QA played the role of a customer advocate and tried to ensure that there was as little uncertainty in the documentation as possible. Instead of walking out of the meeting with estimates, the Product Manager would usually leave with a list of missing workflows and use cases that they would need to add to the spec before development began.</p>
 
-<h1>A Little of Our Experience with DDD</h1>
+<p>Eventually a release date would be set. Spec and design mocks in hand, the development team would start building the feature.  The QA team would write test cases. We created long lists of actions and expected outcomes that we would use to manually test the development team’s work. Test automation &ndash; unit, integration, functional, load, et al &ndash; was a distant dream. Our primary interaction with the development team was proving the existence of bugs that they couldn’t reproduce.</p>
 
-<p>While creating our new website, we’ve tried to remain focused on
-“communicating mental models”. One way this can be done is through
-DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
-communicate the contract between the domain model and its
-users. Judging from the vast amount of code out there, this simple
-idea is counterintuitive. Our own legacy codebase is no exception. For
-example:</p>
+<p><img class="center" src="/images/the-evolution-of-qa-at-theladders/it-works-on-my-machine.png"></p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Subscription</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="o">...</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">AutoRenewFlags</span> <span class="nf">getAutoRenewFlag</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAutoRenewFlag</span><span class="o">(</span><span class="n">AutoRenewFlags</span> <span class="n">autoRenewFlag</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">autoRenewFlag</span> <span class="o">=</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getUnsubscribeReason</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUnsubscribeReason</span><span class="o">(</span><span class="kt">int</span> <span class="n">unsubscribeReason</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">unsubscribeReason</span> <span class="o">=</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>Even though both the development and QA teams worked off of the same documents, the software never matched the expected behavior according to the test case. Preparing for a release was a never-ending cycle of testing, bug-finding, bug-fixing, and retesting. Fixed release dates and not testing until the end of the development cycle led to releases that were huge events with late, stressful nights leading up to release and late, stressful nights spent cleaning up after it was over!</p>
 
+<p>Between major releases, QA was either responding to customer issues, estimating how long it would take to test an upcoming project, or maintaining our set of regression test case documents in Excel.</p>
 
-<p>This is an example of what in DDD is called an “anemic domain
-model”. The Subscription class is a key part of the domain, yet not
-only does it communicate nothing to the user about its usage, it in
-fact does nothing. Values can be retrieved and set, but what then? How
-do I actually unsubscribe someone? What prevents me from using any
-arbitrary integer for the “unsubscribe reason”? What about changing
-auto-renewal to null? There is no explicit contract here, and the user
-of this object is given no guidance or constraints. By contrast, we’ve
-worked hard in our newer code to avoid creating anemic domain models
-and instead create objects that are not only useful, but clear in
-their usage. Here is another example, this time from the new
-Subscription class:</p>
+<h2>Fast forward to 2009.</h2>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Subscription</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>   <span class="o">...</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOn</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOff</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">CanceledSubscription</span> <span class="nf">unsubscribe</span><span class="o">(</span><span class="n">UnsubscribeReason</span> <span class="n">unsubscribeReason</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>The development team had grown to 35. The QA team had shrunk to 4. We’d transitioned to Scrum a few months previous and shuffled the production teams around to form 4 cross-functional ones. Each team consisted of developers, a QA lead, a designer, a copy editor, and a product manager. The move to Scrum was bumpy as we molded the framework into a process that worked for us but teams had started to find a groove. Ideas were generated and defined within each team, we were checking in with each other often, and delivering value to our customers faster. The teams were working like well-oiled machines&hellip; almost.</p>
 
+<p>Selecting user stories to be undertaken during an iteration had become a team decision, however then the Product Manager and QA rep would work together, without the rest of the team, to define the requirements for each story and flesh them out into use case documents. QA still played the role of customer advocate: working to clearly define expected behavior of each user story in terms of the use case document.</p>
 
-<p>In this case we’ve attempted to make the contract clear. Calling the
-unsubscribe method actually unsubscribes the customer, returning a
-CanceledSubscription. The “unsubscribe reason” is now strongly typed,
-clearly communicating which values are allowed. Auto-renewal changes
-yield a new immutable Subscription object, and can be chained together
-with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
-settings.</p>
+<p>The developers would use these documents to build each user story. Sometimes, they&rsquo;d also write unit tests to cover a few of the more important use case scenarios. Before a story was considered &ldquo;done&rdquo;, a code review would need to be completed by at least two developers. In order to make sure that each story met customer expectations, QA would need to manually test the feature. The need for manual testing didn’t end there. At the end of each iteration, QA would run through the entire regression suite before releasing.</p>
 
-<p>Another example of an anemic domain model, lacking an
-intention-revealing interface, comes from the old Payment class in our
-legacy codebase:</p>
+<p>We had made some improvements, but it was clear that we could improve the process if we increased communication of requirements and lessened the amount of manual testing that needed to be done.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="kt">int</span> <span class="n">paymentId</span><span class="o">,</span>
-</span><span class='line'>               <span class="kt">int</span> <span class="n">paymentActionType</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">BigDecimal</span> <span class="n">amount</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">String</span> <span class="n">approvalCode</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">String</span> <span class="n">transactionReference</span><span class="o">,</span>
-</span><span class='line'>               <span class="kt">int</span> <span class="n">creditCardId</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentId</span> <span class="o">=</span> <span class="n">paymentId</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentActionType</span> <span class="o">=</span> <span class="n">paymentActionType</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">amount</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">approvalCode</span> <span class="o">=</span> <span class="n">approvalCode</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">creditCardId</span> <span class="o">=</span> <span class="n">creditCardId</span><span class="o">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">transactionReference</span> <span class="o">=</span> <span class="n">transactionReference</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>We were releasing every two weeks. They were smaller and less stressful than in the past. QA still spent a lot of time manually testing, but it was done throughout the iteration instead of being squeezed in at the end. This meant that QA had a lot more downtime than before. While some of this time was spent doing the work we had always done, we also made sure to spend time learning about new tools and best practices. Over time, we learned a lot about automated functional testing. We experimented with different frameworks, starting with a simple record-and-playback tool, until we learned more about what we needed and which tools might best fit that need. I’ll write a post later to shed some light on what that journey was like, but suffice it to say that it took quite a bit of trial and error!</p>
 
+<h2>Fast forward to now.</h2>
 
-<p>This class contains only the constructor you see here, and getters for
-each of the fields created. It turns out that it’s used as a parameter
-object, and nothing more. There’s no guidance as to it’s valid
-construction, and no hint about its usage. Yet obviously handling
-subscription payments is an important part of the subscription domain,
-and we want the contracts around the model of that domain clear and
-easy to understand. Here’s our attempt at accomplishing those goals in
-the new codebase:</p>
+<p>We&rsquo;ve moved beyond Scrum to an adapted Agile process that emphasises cross-functional, independent, and highly collaborative teams. Each team is free to adopt practices that work for them. They have free reign to define the way that they work amongst themselves. There are certain commonalities that hold true across all our teams:</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="n">PaymentAmount</span> <span class="n">paymentAmount</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">JobseekerId</span> <span class="n">jobseekerId</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">PaymentActionType</span> <span class="n">paymentActionType</span><span class="o">,</span>
-</span><span class='line'>               <span class="n">ReportGroup</span> <span class="n">reportGroup</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
+<p><strong>QA plays the role of customer advocate</strong>. We know our customers well and our applications even better. This gives us a unique perspective when defining new user stories that helps our teams deliver better products for our users.</p>
 
+<p><strong>The teams define user stories together</strong>. QA still helps flesh out requirements and acceptance criteria, but with the participation of the rest of the team. Defining requirements as a team helps us make sure that we&rsquo;re all on the same page which in turn helps us work better and faster.</p>
 
-<p>The first difference is actually one that’s not visible from the code
-itself. As we’ve developed the new site, we’ve agreed that all
-arguments to methods or constructors are required; no passing of
-nulls. If an argument is truly optional, a separate method or
-constructor is added that excludes it. We want our code to be
-confident, and this contract means that methods and constructors “say
-what they mean and mean what they say”. In the legacy codebase, nulls
-were passed liberally to and fro, and you could never be quite sure
-which arguments were truly required.</p>
+<p><strong>We aren&rsquo;t heavy-handed with the documentation</strong>. We&rsquo;ve found that most of our previous attempts at documentation were wasteful &ndash; and often not as useful to the developers as we thought. Instead, after each team conversation around story requirements QA either writes notes and acceptance criteria on the back of the story card (if the team uses a whiteboard to manage their backlog) or in comments attached to the story in Trello.</p>
 
-<p>Another change is the promotion of this class from a mere parameter
-object to an active participant in the domain model:</p>
+<p><strong>We automate tests when it&rsquo;s the smart thing to do</strong>. Manually testing everything definitely was not the best thing for us to do, but <a href="http://xkcd.com/1205/">neither is automating every test</a>. Instead, QA and the developers have frequent conversations around how to appropriately test each user scenario: Can it be sufficiently covered in a unit or integration test? Does it make sense to write an expensive automated functional test that checks the functionality through the browser? How important is this functionality? What&rsquo;s the risk of it breaking? We also keep test coverage at the front of our minds and use different <a href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">strategies</a> to make sure that we can trust the tests that we do automate.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Receipt</span> <span class="nf">makeWith</span><span class="o">(</span><span class="n">PaymentMethod</span> <span class="n">method</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">method</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Receipt</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">.</span><span class="na">asAmountPaid</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">recordWith</span><span class="o">(</span><span class="n">PaymentRecorder</span> <span class="n">paymentRecorder</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">paymentRecorder</span><span class="o">.</span><span class="na">record</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p><strong>Developers write most of our automated tests</strong>. Whether unit, integration, functional, or load tests, usually it&rsquo;s a developer that&rsquo;s going to write it. QA does pitch in when they can but with one QA lead per team, it&rsquo;s not feasible for them to write all of the automated tests without becoming a bottleneck.</p>
 
+<p><strong>We peer review code</strong> with QA actively participating.</p>
 
-<p>Instead of being passed around to “manager” objects and DAOs, a
-Payment object can actually make a payment and create records of
-itself. It seems only natural.</p>
+<p><strong>We&rsquo;ve set up continuous integration builds</strong>. All of our unit-level tests run after each commit and all of our automated functional regression tests must pass before each deployment. If a test fails, we fix it.</p>
 
-<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
-this post barely scratches the surface. And as a team we know we still
-have much farther to go in its mastery, but the time we’ve spent in
-study and practice have been well worth the effort so far.</p>
+<p>And of course, QA is still responsible for investigating and responding to customer issues. Some things will never change.</p>
 
-<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
-presentation and discussion.</p>
+<p>We&rsquo;ve come a long way! But that doesn&rsquo;t mean that we can&rsquo;t get better. As a wise man* once said, consistency requires you to be as ignorant today as you were a year ago. Here at TheLadders, we&rsquo;re always learning.</p>
+
+<p>*Bernard Berenson</p>
+
+<p>Join the discussion over at <a href="http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved">Software Testing Club</a>.</p>
 </div>
   
   
@@ -396,23 +214,23 @@ presentation and discussion.</p>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/02/conclave/">Conclave</a>
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
       <li class="post">
-        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
       </li>
     
       <li class="post">
-        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
+        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
       </li>
     
       <li class="post">
-        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
       </li>
     
       <li class="post">
-        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
   </ul>

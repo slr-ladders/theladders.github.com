@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it&#8211;Toni Morrison Once upon a time &hellip;">
+  <meta name="description" content="Communication Breakdown, It&#8217;s always the same,I&#8217;m having a nervous breakdown, Drive me insane!&#8211;Led Zeppelin tl;dr &mdash; Use this &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/12/a-brewing-storm/">A Brewing Storm</a></h1>
+      <h1 class="entry-title"><a href="/2015/01/not-measles/">MMR Is Not Measles, Mumps, and Rubella</a></h1>
     
     
       <p class="meta">
@@ -127,33 +127,157 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
+<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it</p><footer><strong>&#8211;Toni Morrison</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Communication Breakdown, It&#8217;s always the same,<br/>I&#8217;m having a nervous breakdown, Drive me insane!</p><footer><strong>&#8211;Led Zeppelin</strong></footer></blockquote>
 
 
-<p>Once upon a time there was a script. Each morning it sent new jobs to our job seeking customers. It was simple and the data it operated on was relatively small.  As the months turned into years this script grew in complexity and the data grew in size.  And more scripts came to the party and they had data of their own and these new scripts beget data for other scripts, and this small group of scripts extracted and transformed, processed and prepared, working tirelessly every night.</p>
+<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
 
-<p>Some worked alone while others fed each other, all growing increasingly more complex.  Occasionally at first and more frequently over time, the scripts started to interfere with each other by competing for resources or not finishing in time for a child script to consume it’s parents data, or worst of all, deadlocking for no apparent reason.</p>
+<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
 
-<p>Let’s bring some order we said and used cron to wrangle them at first, then moving to more complex “enterprise” scheduling systems to try and tame the beast, and keep the scripts from clobbering each other or grinding themselves to a crawl.</p>
+<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
 
-<p>But the data grew and grew and with it came longer and longer run times.  At this same time our script was getting slower, our users’ expectations and our own ambitions grew.  Could we alert a job seeker the minute a new relevant job entered our system?  Could we alert an employer as soon as job seeker they were interested in updated their profile?</p>
+<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:</p>
 
-<p>The network of interactions/activity/entities we wanted to grow, monitor and react to and then extract value from was exploding in complexity.  You can picture all of our job seekers, employers and jobs as nodes in a graph, and imagine our teams are furiously trying to connect them in new and interesting ways.  They are using machine learning to light up edges between these nodes, indicating which jobs a particular job seeker might be interested in and which job seekers an employer might like.  Or clustering these entities into similar groups.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'</span></code></pre></td></tr></table></div></figure>
 
-<p>Doing all of this between 12am and 6am was getting hard. Hadoop was an option, but processing speed alone wasn’t just the issue.  Some things we wanted to do had to be done in real time, not batch.  A user isn’t going to wait until the nightly run for us to calculate what jobs are appropriate for them.  In addtion, as TheLadders moves into mobile and speed becomes more and more a concern we want the Graph of our Ecosystem to be as current as possible not something that gets updated once a day.</p>
 
-<p>There comes this thing. Storm. It fits into our infrastructure; working nicely with RabbitMQ and interop’ing well with our existing code base.</p>
+<p>This yields data similar to:</p>
 
-<p>However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># extended LDIF
+</span><span class='line'>#
+</span><span class='line'># LDAPv3
+</span><span class='line'># base &lt;cn=config&gt; with scope subtree
+</span><span class='line'># filter: (objectclass=nsds5replicationagreement)
+</span><span class='line'># requesting: ALL
+</span><span class='line'>#
+</span><span class='line'>
+</span><span class='line'># meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-1.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-1.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-1.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214458Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 20150121214501Z
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
+</span><span class='line'>nsds5replicaLastUpdateStatus: 1 Can't acquire busy replica
+</span><span class='line'>nsds5replicaUpdateInProgress: FALSE
+</span><span class='line'>nsds5replicaLastInitStart: 0
+</span><span class='line'>nsds5replicaLastInitEnd: 0
+</span><span class='line'>
+</span><span class='line'># meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-2.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-2.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-2.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214628Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 0
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
+</span><span class='line'>nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
+</span><span class='line'>nsds5replicaUpdateInProgress: TRUE
+</span><span class='line'>nsds5replicaLastInitStart: 20141215154802Z
+</span><span class='line'>nsds5replicaLastInitEnd: 20141215154807Z
+</span><span class='line'>nsds5replicaLastInitStatus: 0 Total update succeeded
+</span><span class='line'>
+</span><span class='line'># search result
+</span><span class='line'>search: 2
+</span><span class='line'>result: 0 Success
+</span><span class='line'>
+</span><span class='line'># numResponses: 3
+</span><span class='line'># numEntries: 2</span></code></pre></td></tr></table></div></figure>
 
-<p>Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the <a href="http://www.manning.com/sallen/">Manning Early Access Program</a> any day now.  We hope you find it useful and we look forward to your feedback on the book.</p>
+
+<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
+
+<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
 </div>
   
   
@@ -182,23 +306,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/02/conclave/">Conclave</a>
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
       <li class="post">
-        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
       </li>
     
       <li class="post">
-        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
+        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
       </li>
     
       <li class="post">
-        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
       </li>
     
       <li class="post">
-        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
   </ul>

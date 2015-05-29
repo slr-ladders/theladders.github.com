@@ -1,0 +1,841 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Working in Harmony: ES6 in a nutshell - TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="&#8220;JavaScript is a language with more than its share of bad parts.&#8221;&#8211;Douglas Crockford JavaScript: The Good Parts Harmony JavaScript, &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/2015/05/working-in-harmony-es6-in-a-nutshell/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Working in Harmony: ES6 in a Nutshell</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-04T16:05:00-04:00" pubdate data-updated="true">May 4<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>&#8220;JavaScript is a language with more than its share of bad parts.&#8221;</p><footer><strong>&#8211;Douglas Crockford</strong> <cite>JavaScript: The Good Parts</cite></footer></blockquote>
+
+
+<h1>Harmony</h1>
+
+<p>JavaScript, also known as ECMAScript, has extended its life beyond the boundaries of the browser. It can be found in <a href="https://nodejs.org/">server side code</a>, in <a href="http://docs.unity3d.com/Manual/CreatingAndUsingScripts.html">video game engines</a>, even frameworks to run C programs in the <a href="http://asmjs.org/">browser</a>. Unfortunately, the language specification has not been updated since 2009, which in turn has led to different frameworks and tools to accommodate for the lack of features.  Luckily, TC-39, the committee for approving ECMAScript, has a targeted release date of June 2015 for the next version of ECMAScript (ES6). ECMAScript is a significant update to the language and brings a slew of new features.</p>
+
+<p>Here are several of the important features that will make the ES6 release:</p>
+
+<h1>Modules</h1>
+
+<p>Modules provide private and public encapsulation to limit the creation of variables and functions on the global scope. They are part of a popular design pattern that has resulted in several frameworks such as <a href="http://requirejs.org/">RequireJS</a>, <a href="http://browserify.org/">Browserify</a>, and <a href="http://webpack.github.io/">Webpack</a>. ES6 provides a native solution that combines attributes of both CommonJS and AMD.</p>
+
+<ul>
+<li>Similar to CommonJS, native modules provide a compact syntax, a preference for single exports and support for cyclic dependencies.</li>
+<li>Similar to AMD, they have direct support for asynchronous loading and configurable module loading.</li>
+</ul>
+
+
+<p>Let&rsquo;s look at an example of using native modules. Within a utility file, we have two functions, sumOfNumbers and logMessage. The module pattern allows us to choose which functions or attributes we want to expose to our consumers. There are two kinds of exports:</p>
+
+<ul>
+<li><strong>named exports</strong> (several per module), where the user specifies the name of the attribute on import.</li>
+<li><strong>default exports</strong> (one per module), where the compiler picks the export item labeled with the default keyword when it cannot match a named export.</li>
+</ul>
+
+
+<p><em>Note:</em> You can run the following examples in babel&rsquo;s <a href="https://babeljs.io/repl/">live script editor</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// lib/utility.js</span>
+</span><span class='line'><span class="kr">export</span> <span class="kd">function</span> <span class="nx">sumOfNumbers</span><span class="p">(){</span>
+</span><span class='line'> <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'> <span class="k">return</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">){</span> <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span> <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">logMessage</span><span class="p">(</span><span class="nx">msg</span><span class="p">){</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Message is &#39;</span><span class="p">,</span> <span class="nx">msg</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// app.js</span>
+</span><span class='line'><span class="kr">import</span> <span class="p">{</span><span class="nx">logMessage</span><span class="p">,</span> <span class="nx">sumOfNumbers</span><span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;utility&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">logMessage</span><span class="p">(</span><span class="nx">sumOfNumbers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">));</span> <span class="c1">// Message is 15</span>
+</span><span class='line'><span class="nx">logMessage</span><span class="p">(</span><span class="nx">sumOfNumbers</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">));</span> <span class="c1">// Message is 19</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Classes</h1>
+
+<p>ES6 brings classes to the language. The class implementation still uses prototypical inheritance, so it is syntactic sugar to make it easier to implement and understand.  Using the <strong>extends</strong> keyword provides the following benefits:</p>
+
+<ul>
+<li>Binds the correct context when using the <em>extends</em> keyword.</li>
+<li>Methods defined within the class block are defined on the prototype object.</li>
+<li>Provides the <em>super</em> keyword to easily invoke parent methods.</li>
+</ul>
+
+
+<p>As a simple example of class inheritance, let&rsquo;s create a shape class with a triangle child class extending from shape.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//Traditional way to create inheritance</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">Shape</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">width</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">height</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nx">Shape</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">printObject</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Shape&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">Triangle</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
+</span><span class='line'><span class="c1">//Note: not a convenient way to invoke parent constructor</span>
+</span><span class='line'><span class="c1">// we have to call the parent object with Triangle&#39;s context.</span>
+</span><span class='line'>  <span class="nx">Shape</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sides</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nx">Triangle</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Shape</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span> <span class="c1">//prototype object now inheritances the properties of Shape</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Triangle</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">printObject</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Triangle&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">sides</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//ES6 Way to create inheritance</span>
+</span><span class='line'><span class="kr">class</span> <span class="nx">Shape</span><span class="p">{</span>
+</span><span class='line'>  <span class="nx">width</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// properties of the class</span>
+</span><span class='line'>  <span class="nx">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// note: they are NOT private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//function called with you call Shape with &#39;new&#39; keyword</span>
+</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">width</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">height</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//method part of shape</span>
+</span><span class='line'>  <span class="nx">printObject</span><span class="p">(){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Shape&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">Triangle</span> <span class="kr">extends</span> <span class="nx">Shape</span><span class="p">{</span>
+</span><span class='line'>  <span class="nx">sides</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
+</span><span class='line'>    <span class="c1">//invokes the parent constructor by calling super</span>
+</span><span class='line'>    <span class="c1">// automatically applies the correct context.</span>
+</span><span class='line'>    <span class="kr">super</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//Overrides the method on the parent object</span>
+</span><span class='line'>  <span class="nx">printObject</span><span class="p">(){</span>
+</span><span class='line'>    <span class="c1">//Draw the triangle</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Triangle&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can apply this new syntax to existing frameworks such as Backbone.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//current backbone implementation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">MyView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;div&gt;Sample Template&lt;/div&gt;&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;click&#39;</span> <span class="o">:</span> <span class="s1">&#39;clickHandler&#39;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">template</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">clickHandler</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;My view was clicked&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//Backbone using classes</span>
+</span><span class='line'><span class="kr">class</span> <span class="nx">MyView</span> <span class="kr">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">options</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">template</span> <span class="o">=</span> <span class="s1">&#39;&lt;div&gt;Sample Template&lt;/div&gt;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">events</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="s1">&#39;click&#39;</span> <span class="o">:</span> <span class="s1">&#39;clickHandler&#39;</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="kr">super</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">render</span><span class="p">(){</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">template</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">clickHandler</span><span class="p">(){</span>
+</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;My view was clicked&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Arrow Functions</h1>
+
+<p>ES6 has also added arrow functions, which provide a for more concise syntax for anonymous functions. However, there are a number of differences between arrow functions and traditional JavaScript functions:</p>
+
+<ul>
+<li><strong>Lexical <em>this</em> binding</strong> &ndash; The value of <em>this</em> inside of the function is determined by where the arrow function is defined, not where it is used.</li>
+<li><strong>Not <em>new</em>-able</strong> &ndash; Arrow functions do not have a constructor method and therefore can not be used to create instances. Arrow functions throw an error when called with &ldquo;new&rdquo;.</li>
+<li><strong>Cannot change the value of <em>this</em></strong> &ndash; The value of <em>this</em> remains the same value throughout the lifecycle of the function.</li>
+<li><strong>No <em>arguments</em> object</strong> &ndash; Function arguments are not accessible through the arguments object; you must use named arguments or ES6 <a href="http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters">rest arguments</a>.</li>
+</ul>
+
+
+<p>Here is a simple example using arrow functions.  We are iterating of a list of items and printing out each number to the console.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">];</span>
+</span><span class='line'>  <span class="c1">//Current javascript implementation</span>
+</span><span class='line'>  <span class="nx">numbers</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">number</span><span class="p">){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">number</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// ES6 - Arrow functions</span>
+</span><span class='line'>  <span class="nx">numbers</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">number</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">number</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s look at more practical example using an event handler:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//Current Javascript implementation</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">Person</span><span class="p">(){</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;button&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">text</span> <span class="o">=</span> <span class="s2">&quot;Hello I am a person&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//Problem with current Javascript that we have to &quot;bind&quot; the person context </span>
+</span><span class='line'>  <span class="c1">// in order to get the callback to work properly.  Without &quot;bind&quot;, the function</span>
+</span><span class='line'>  <span class="c1">// would print out undefined.</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">text</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//ES6</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">Person</span><span class="p">(){</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;button&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">text</span> <span class="o">=</span> <span class="s2">&quot;Hello I am a person&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//No longer need to &quot;bind&quot; the function since it is set to where it is defined.</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">text</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Arrow functions also provide different types of optional syntax.  Here are several examples:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'> <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span>
+</span><span class='line'> <span class="kd">var</span> <span class="nx">temp</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'> <span class="c1">//arrow functions return last value, no need for return statement.</span>
+</span><span class='line'> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">number</span> <span class="o">=&gt;</span> <span class="nx">number</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'> <span class="c1">//need empty parentheses if no parameters are passed</span>
+</span><span class='line'> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">map</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">);</span>
+</span><span class='line'> <span class="c1">//multiple parameters </span>
+</span><span class='line'> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Destructing Variables</h1>
+
+<p>Destructuring allows binding via pattern matching. ES6 supports matching for arrays and objects. It will try to match the variable directly and return undefined when no match is found.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'> <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span>
+</span><span class='line'> <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">a</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span> <span class="nx">b</span><span class="o">:</span> <span class="s1">&#39;Hello&#39;</span><span class="p">,</span> <span class="nx">c</span><span class="o">:</span> <span class="kc">false</span> <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'> <span class="c1">//first = 1, third = 3</span>
+</span><span class='line'> <span class="kd">var</span> <span class="p">[</span><span class="nx">first</span><span class="p">,</span> <span class="p">,</span> <span class="nx">third</span><span class="p">]</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">;</span>
+</span><span class='line'> <span class="kd">var</span> <span class="p">{</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">}</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">;</span>
+</span><span class='line'> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span> <span class="c1">//prints out 4</span>
+</span><span class='line'> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span> <span class="c1">//prints out false</span>
+</span><span class='line'>
+</span><span class='line'> <span class="c1">//assigning value of &#39;b&#39; in object to variable &#39;anotherName&#39;</span>
+</span><span class='line'> <span class="kd">var</span> <span class="p">{</span><span class="nx">b</span><span class="o">:</span> <span class="nx">anotherName</span><span class="p">}</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">;</span>
+</span><span class='line'> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">anotherName</span><span class="p">);</span> <span class="c1">//prints out &#39;Hello&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Default, Rest, Spread</h1>
+
+<p>ES6 provides the flexibility to set default values for function parameters. It lets you grab trailing values without using the arguments keyword. And it also allows you to turn an array into consecutive arguments for a function call. With these options, there is no longer a need to use the arguments variable.</p>
+
+<h5>Default Parameter</h5>
+
+<ul>
+<li>Current values that are not set are given a value of undefined. ES6 provides new syntax to add default values for parameters.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="kd">function</span> <span class="nx">add2</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">){</span>
+</span><span class='line'>     <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">add2</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// returns 7</span>
+</span><span class='line'>  <span class="nx">add2</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">//return 4</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>Rest parameter</h5>
+
+<ul>
+<li>Currently, in order to grab all argument values as an array, we need to explicitly convert the values using the arguments keyword.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="c1">// Current Javascript</span>
+</span><span class='line'>    <span class="c1">//need to convert arguments into an array object in order to use any useful method.</span>
+</span><span class='line'>  <span class="kd">function</span> <span class="nx">sum</span><span class="p">(){</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">){</span> <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">;</span> <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// ES6</span>
+</span><span class='line'>    <span class="c1">// The conversion happens automatically. </span>
+</span><span class='line'>    <span class="kd">function</span> <span class="nx">sum</span><span class="p">(...</span><span class="nx">numbers</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>Spread parameter</h5>
+
+<ul>
+<li>Spread functionality allows us to convert an array into consecutive arguments to pass into a function. Currently, we have to use the <em>apply</em> keyword in order to provide the same functionality.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="c1">//current implementation</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span>
+</span><span class='line'>  <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nb">Math</span><span class="p">,</span> <span class="nx">numbers</span><span class="p">);</span> <span class="c1">//spreads the array and returns 5</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//Future implementation</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span>
+</span><span class='line'>  <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(...</span><span class="nx">numbers</span><span class="p">);</span> <span class="c1">//performs the same action</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Current Alternatives</h1>
+
+<p>The JavaScript specification is targeted to release in June, but it could take browsers months to <a href="http://kangax.github.io/compat-table/es6/">implement</a> these new features and years before users decide it&rsquo;s a good time to upgrade their browsers. Luckily, there are solutions which allow us to take advantage of these features right now. Here are several options:</p>
+
+<h3><a href="https://babeljs.io/"><img src="https://raw.githubusercontent.com/babel/logo/master/logo.png" alt="Babel" width="250px"></a></h3>
+
+<ul>
+<li>A compiler for converting ES6 syntax to ES5-compatible javascript. Babel is among the most mature compilers for ES6 conversion with the options of extensible plugins as well as framework and tool integration.</li>
+</ul>
+
+
+<h3><a href="https://github.com/google/traceur-compiler"><img src="https://google.github.com/traceur-compiler/logo/tc.svg" alt="Traceur logo" width="200px"> Traceur</a></h3>
+
+<ul>
+<li>Google&rsquo;s version of Babel. Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to use features from the future today. Traceur supports ES6 as well as some experimental ES.next features.</li>
+</ul>
+
+
+<h3><a href="http://www.typescriptlang.org/"><img src="http://www.typescriptlang.org/content/images/logo_small.png" alt="Typescript"></a></h3>
+
+<ul>
+<li>Typescript is a typed superset of JavaScript that compiles to plain JavaScript. It also provides the option of applying types to variables and functions at compile time. TypeScript provides the flexibility of using ES6 features such as classes, modules and arrow function which ultimately compile to ES5 compatible JavaScript. Similar to Babel, Typescript has integrations with many development environments and definition files for existing frameworks.</li>
+</ul>
+
+
+<h3><a href="http://flowtype.org/"><img src="http://flowtype.org/static/flow-hero-logo.png" alt="Flow" width="200px"></a></h3>
+
+<ul>
+<li>Flow is a new static type checker for JavaScript. Flow is similar to Typescript in that it will compile down to plain JavaScript. The difference is that it provides valid checking for null variable type. Flow integrates well with other Facebook tools such as React and Flux.</li>
+</ul>
+
+
+<h1>Conclusion</h1>
+
+<p>ECMAScript 6 provides an array of exciting tools and libraries that we can leverage to make development both easier and more exciting. Though we know that it could be months before we can use these tools natively, we have alternatives that allow developers to expand their toolsets and think of efficient and abstract solutions. If interested in learning more, here are several links:</p>
+
+<h4>Resources:</h4>
+
+<ul>
+<li><a href="https://github.com/lukehoban/es6features">All ES6 Features</a></li>
+<li><a href="https://leanpub.com/understandinges6/">Understanding ES6 &ndash; Nicolas Zakas</a></li>
+<li><a href="https://babeljs.io/docs/learn-es6/">Try ES6 Compilation using Babel</a></li>
+<li><a href="https://www.youtube.com/watch?v=DqMFX91ToLw">Evolution of Javascript &ndash; Netflix Javascript Talks</a></li>
+<li><a href="https://people.mozilla.org/~jorendorff/es6-draft.html">EcmaScript 6 Draft</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+
+
+  <span class="byline author vcard">Posted by
+    
+      <span class="fn"><a href="/ourteam/josemedina">Jose Medina</a></span>
+    
+  </span>
+
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-04T16:05:00-04:00" pubdate data-updated="true">May 4<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/javascript/'>JavaScript</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2015/05/working-in-harmony-es6-in-a-nutshell/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2015/05/working-in-harmony-es6-in-a-nutshell/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2015/04/writing-better-api-tests/" title="Previous Post: Writing better API tests">&laquo; Writing better API tests</a>
+      
+      
+        <a class="basic-alignment right" href="/2015/05/design-principles-and-goals-high-level-architecture/" title="Next Post: Design Principles and Goals (Part 1) - High Level Architecture">Design Principles and Goals (Part 1) - High Level Architecture &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2015 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

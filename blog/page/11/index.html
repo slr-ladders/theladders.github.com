@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Change means that what was before wasn&#8217;t perfect. People want things to be better.&#8211;Esther Dyson Looking back on my 6+ years at TheLadders &hellip;">
+  <meta name="description" content="Alice: “How long is forever?”White Rabbit: “Sometimes, just one second.&#8221;&#8211;Lewis Carroll Alice in Wonderland Motivation TheLadders makes &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/05/the-evolution-of-qa-at-theladders/">The Evolution of QA at TheLadders</a></h1>
+      <h1 class="entry-title"><a href="/2014/07/monitoring-rabbitmq-at-theladders/">Monitoring RabbitMQ at TheLadders</a></h1>
     
     
       <p class="meta">
@@ -127,65 +127,121 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-05-16T09:04:00-04:00" pubdate data-updated="true">May 16<span>th</span>, 2013</time>
+<time datetime="2014-07-15T10:24:00-04:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Change means that what was before wasn&#8217;t perfect. People want things to be better.</p><footer><strong>&#8211;Esther Dyson</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Alice:        “How long is forever?”</p><p>White Rabbit:     “Sometimes, just one second.&#8221;</p><footer><strong>&#8211;Lewis Carroll</strong> <cite>Alice in Wonderland</cite></footer></blockquote>
 
 
-<p>Looking back on my 6+ years at TheLadders, I realize how much has changed. When I first joined the company at the start of 2007, there were five other people on the QA team supporting a team of 12 software developers. We followed a strict waterfall process. Product ideas were generated, researched and solidified before any conversation with the development or QA teams. Product managers would spend a large portion of their time hunkered down at their desks writing specification documents, complete with statements on purpose and scope, workflows, wireframes and interaction rules.</p>
+<h2><em>Motivation</em></h2>
 
-<p>After these documents were approved by business owners, the development, QA, and design teams would meet to walk through the document with the goal of estimating the implementation time. QA played the role of a customer advocate and tried to ensure that there was as little uncertainty in the documentation as possible. Instead of walking out of the meeting with estimates, the Product Manager would usually leave with a list of missing workflows and use cases that they would need to add to the spec before development began.</p>
+<p>TheLadders makes heavy use of <a href="http://www.rabbitmq.com">RabbitMQ</a> in its operations. RabbitMQ is a messaging broker that we use to connect our applications. Sending and receiving are separate, so the messaging is asynchronous. The asynchronous messaging decouples one application from another. We use RabbitMQ to publish events to multiple subscribers and to queue up work.</p>
 
-<p>Eventually a release date would be set. Spec and design mocks in hand, the development team would start building the feature.  The QA team would write test cases. We created long lists of actions and expected outcomes that we would use to manually test the development team’s work. Test automation &ndash; unit, integration, functional, load, et al &ndash; was a distant dream. Our primary interaction with the development team was proving the existence of bugs that they couldn’t reproduce.</p>
+<ul>
+<li>In some cases, events in our systems are ad hoc, driven by the various activities of our users. Examples of such events include the addition of a job seeker or a job to the system. These events are realized as RabbitMQ messages posted to exchanges. Systems interested in these events read them from queues bound to the exchanges.</li>
+<li>In other cases, a scheduled process posts RabbitMQ messages to an exchange so that a specific system (say, a <a href="https://storm.incubator.apache.org">Storm</a> topology) can process them. An example of this is a system that calculates matches between jobs and job seekers and puts those matches on a queue. A Storm topology reads those matches from the queue and transforms them into emails to be sent by an external email service.</li>
+</ul>
 
-<p><img class="center" src="/images/the-evolution-of-qa-at-theladders/it-works-on-my-machine.png"></p>
 
-<p>Even though both the development and QA teams worked off of the same documents, the software never matched the expected behavior according to the test case. Preparing for a release was a never-ending cycle of testing, bug-finding, bug-fixing, and retesting. Fixed release dates and not testing until the end of the development cycle led to releases that were huge events with late, stressful nights leading up to release and late, stressful nights spent cleaning up after it was over!</p>
+<p>In the first scenario above, we are mostly interested in making sure that the queue of ad hoc events has not grown too large, which would indicate a problem with the system that is consuming the messages.</p>
 
-<p>Between major releases, QA was either responding to customer issues, estimating how long it would take to test an upcoming project, or maintaining our set of regression test case documents in Excel.</p>
+<p>In the second scenario, we want to be sure that messages are being published to the queue at a suitable rate, and that the topology that consumes the messages is processing them quickly enough to get the emails out by a particular time.</p>
 
-<h2>Fast forward to 2009.</h2>
+<p>We did not find a suitable ready-to-use solution for this need. As you will see below, we eventually arrived at a solution that combined a <a href="http://clojure.org/">Clojure</a> library for accessing RabbitMQ queue metrics with a <a href="http://riemann.io">Riemann</a> server to process events produced by the library.</p>
 
-<p>The development team had grown to 35. The QA team had shrunk to 4. We’d transitioned to Scrum a few months previous and shuffled the production teams around to form 4 cross-functional ones. Each team consisted of developers, a QA lead, a designer, a copy editor, and a product manager. The move to Scrum was bumpy as we molded the framework into a process that worked for us but teams had started to find a groove. Ideas were generated and defined within each team, we were checking in with each other often, and delivering value to our customers faster. The teams were working like well-oiled machines&hellip; almost.</p>
+<h2><em>First Attempts</em></h2>
 
-<p>Selecting user stories to be undertaken during an iteration had become a team decision, however then the Product Manager and QA rep would work together, without the rest of the team, to define the requirements for each story and flesh them out into use case documents. QA still played the role of customer advocate: working to clearly define expected behavior of each user story in terms of the use case document.</p>
+<p>Our first attempts at a monitoring solution revolved around an assortment of shell scripts that made HTTP requests to the RabbitMQ Management API to discover the lengths of important queues at particular times. If certain thresholds were crossed, alerts were sent to on-call personnel. This approach had a number of drawbacks:</p>
 
-<p>The developers would use these documents to build each user story. Sometimes, they&rsquo;d also write unit tests to cover a few of the more important use case scenarios. Before a story was considered &ldquo;done&rdquo;, a code review would need to be completed by at least two developers. In order to make sure that each story met customer expectations, QA would need to manually test the feature. The need for manual testing didn’t end there. At the end of each iteration, QA would run through the entire regression suite before releasing.</p>
+<ul>
+<li>Brittleness: The times of the Management API queries were controlled by when the script was run by cron. The queue length thresholds were often dependent on the sizes of the datasets involved and the speed of the systems which published messages or read them from the queues.</li>
+<li>Measuring Queue Lengths at a Single Point in Time: Checking the queue length at a particular point in time could not provide the information necessary to answer questions such as &ldquo;When will this queue be drained?&rdquo; and &ldquo;Are messages being placed on the queue at a rate sufficient to meet a particular processing schedule?&rdquo;</li>
+</ul>
 
-<p>We had made some improvements, but it was clear that we could improve the process if we increased communication of requirements and lessened the amount of manual testing that needed to be done.</p>
 
-<p>We were releasing every two weeks. They were smaller and less stressful than in the past. QA still spent a lot of time manually testing, but it was done throughout the iteration instead of being squeezed in at the end. This meant that QA had a lot more downtime than before. While some of this time was spent doing the work we had always done, we also made sure to spend time learning about new tools and best practices. Over time, we learned a lot about automated functional testing. We experimented with different frameworks, starting with a simple record-and-playback tool, until we learned more about what we needed and which tools might best fit that need. I’ll write a post later to shed some light on what that journey was like, but suffice it to say that it took quite a bit of trial and error!</p>
+<h2><em>How We Solved the Problem</em></h2>
 
-<h2>Fast forward to now.</h2>
+<p>We created a <a href="http://clojure.org/">Clojure</a> library called <a href="https://github.com/TheLadders/monitor-rabbitmq">monitor-rabbitmq</a>, available on GitHub.
+It gathers statistics on RabbitMQ queues and nodes, and packages them as <a href="http://riemann.io">Riemann</a> events. <em>monitor-rabbitmq</em> takes care of acquiring RabbitMQ statistics from the RabbitMQ cluster, using the RabbitMQ’s HTTP based <a href="http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_3_4/priv/www/api/index.html">Management API</a>. Riemann takes care of aggregating the events and performing the calculations necessary to determine whether an alert should be triggered.</p>
 
-<p>We&rsquo;ve moved beyond Scrum to an adapted Agile process that emphasises cross-functional, independent, and highly collaborative teams. Each team is free to adopt practices that work for them. They have free reign to define the way that they work amongst themselves. There are certain commonalities that hold true across all our teams:</p>
+<hr />
 
-<p><strong>QA plays the role of customer advocate</strong>. We know our customers well and our applications even better. This gives us a unique perspective when defining new user stories that helps our teams deliver better products for our users.</p>
+<p><em>A Bit More Detail</em></p>
 
-<p><strong>The teams define user stories together</strong>. QA still helps flesh out requirements and acceptance criteria, but with the participation of the rest of the team. Defining requirements as a team helps us make sure that we&rsquo;re all on the same page which in turn helps us work better and faster.</p>
+<p><strong>What’s the data flow?</strong></p>
 
-<p><strong>We aren&rsquo;t heavy-handed with the documentation</strong>. We&rsquo;ve found that most of our previous attempts at documentation were wasteful &ndash; and often not as useful to the developers as we thought. Instead, after each team conversation around story requirements QA either writes notes and acceptance criteria on the back of the story card (if the team uses a whiteboard to manage their backlog) or in comments attached to the story in Trello.</p>
+<p><img class="center" src="/images/monitor-rabbitmq2.png" title="'Data Flow graphic'" ></p>
 
-<p><strong>We automate tests when it&rsquo;s the smart thing to do</strong>. Manually testing everything definitely was not the best thing for us to do, but <a href="http://xkcd.com/1205/">neither is automating every test</a>. Instead, QA and the developers have frequent conversations around how to appropriately test each user scenario: Can it be sufficiently covered in a unit or integration test? Does it make sense to write an expensive automated functional test that checks the functionality through the browser? How important is this functionality? What&rsquo;s the risk of it breaking? We also keep test coverage at the front of our minds and use different <a href="http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">strategies</a> to make sure that we can trust the tests that we do automate.</p>
+<p><strong>What queue data does</strong> <em>monitor-rabbitmq</em> <strong>gather?</strong> [all rates are messages per second]</p>
 
-<p><strong>Developers write most of our automated tests</strong>. Whether unit, integration, functional, or load tests, usually it&rsquo;s a developer that&rsquo;s going to write it. QA does pitch in when they can but with one QA lead per team, it&rsquo;s not feasible for them to write all of the automated tests without becoming a bottleneck.</p>
+<ul>
+<li>Queue Length: number of messages on the queue</li>
+<li>Ack rate: messages acknowledged by the client</li>
+<li>Deliver rate: notifications to the client that there is a message</li>
+<li>Deliver-get rate: combination of deliver and get rates</li>
+<li>Deliver-no-ack rate: notifications to the client that there is a message which does not require acknowledgement</li>
+<li>Get rate: messages synchronously requested by client</li>
+<li>Get-no-ack rate: messages sent to client with no acknowledgement required</li>
+<li>Publish rate: messages published to the queue</li>
+<li>Redeliver rate: messages redelivered to the client after being delivered and not acked</li>
+</ul>
 
-<p><strong>We peer review code</strong> with QA actively participating.</p>
 
-<p><strong>We&rsquo;ve set up continuous integration builds</strong>. All of our unit-level tests run after each commit and all of our automated functional regression tests must pass before each deployment. If a test fails, we fix it.</p>
+<p><strong>What node data does</strong> <em>monitor-rabbitmq</em> <strong>gather?</strong></p>
 
-<p>And of course, QA is still responsible for investigating and responding to customer issues. Some things will never change.</p>
+<ul>
+<li>fd_used: file descriptors used</li>
+<li>fd_total: file descriptors total</li>
+<li>sockets_used</li>
+<li>sockets_total</li>
+<li>mem_used</li>
+<li>mem_limit</li>
+<li>mem_alarm: memory high water mark alarm</li>
+<li>disk_free</li>
+<li>disk_free_limit</li>
+<li>disk_free_alarm: disk free low water mark alarm</li>
+<li>proc_used</li>
+<li>proc_total</li>
+</ul>
 
-<p>We&rsquo;ve come a long way! But that doesn&rsquo;t mean that we can&rsquo;t get better. As a wise man* once said, consistency requires you to be as ignorant today as you were a year ago. Here at TheLadders, we&rsquo;re always learning.</p>
 
-<p>*Bernard Berenson</p>
+<p><strong>What does each</strong> Riemann <strong>event look like?</strong>
+Here is the Clojure representation (a map):</p>
 
-<p>Join the discussion over at <a href="http://www.softwaretestingclub.com/forum/topics/how-has-the-role-of-qa-evolved">Software Testing Club</a>.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='clj'><span class='line'><span class="p">{</span><span class="ss">:time</span> <span class="mi">1390593087006</span>,
+</span><span class='line'>    <span class="ss">:host</span> <span class="s">&quot;our-rabbitmq.super.awesome.queue&quot;</span>,
+</span><span class='line'>    <span class="ss">:service</span> <span class="s">&quot;publish.rate&quot;</span>,
+</span><span class='line'>    <span class="ss">:metric</span> <span class="mf">0.0</span>,
+</span><span class='line'>    <span class="ss">:state</span> <span class="s">&quot;ok&quot;</span>,
+</span><span class='line'>    <span class="ss">:tags</span> <span class="p">[</span><span class="s">&quot;rabbitmq&quot;</span><span class="p">]}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This event, created by the Clojure library, includes a <code>:host</code> member which is formed by taking a <code>rmq-display-name argument</code> (“our-rabbitmq”) and composing it with the queue (or node) name: “super.awesome.queue”</p>
+
+<h2><em>An Example</em></h2>
+
+<p>Let&rsquo;s say that we have a queue which is read by a Storm topology. That queue contains messages which hold matches between jobs and job seekers. The topology must process the messages so that emails notifying job seekers of these job opportunities are composed and sent to an external email service. We want to be alerted if the messages are being consumed from the queue at a rate such that the queue will not be cleared by a certain deadline, say 9:00 AM.</p>
+
+<p>We create a simple Clojure application that calls the <code>send-nodes-stats-to-riemann</code> function of our library and then exits. We call this application once a minute. Each call results in a full set of queue statistics being sent to our Riemann server.</p>
+
+<p>Meanwhile, on the Riemann side of things, Riemann has been configured to watch the Ack rate of our queue. Riemann accumulates events over a time interval, smoothing out minor variations in the Ack rate, and calculates a projected time for the queue to be emptied. If the Ack rate dips below a certain threshold, it triggers an alert using, in our environment, the <a href="https://www.icinga.org">Icinga</a> monitoring system.</p>
+
+<h2><em>Wrapping Up</em></h2>
+
+<p>With <em>monitor-rabbitmq</em>, we supply a regular flow of events to our Riemann server containing data about our RabbitMQ queues and nodes. By choosing a good base set of statistics to request from the RabbitMQ Management API, a change to our monitoring and alerting requirements usually results in only a change to our Riemann configuration.</p>
+
+<p>Find this useful? Join the discussion at <a href="https://news.ycombinator.com/item?id=8036593">Hacker News</a>.</p>
 </div>
   
   
@@ -214,23 +270,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/02/conclave/">Conclave</a>
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
       <li class="post">
-        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
       </li>
     
       <li class="post">
-        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
+        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
       </li>
     
       <li class="post">
-        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
+        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
       </li>
     
       <li class="post">
-        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
+        <a href="/2015/03/casperjs-the-friendly-testing-framework/">CasperJS the Friendly Testing Framework</a>
       </li>
     
   </ul>
