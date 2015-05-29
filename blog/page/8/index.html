@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Communication Breakdown, It&#8217;s always the same,I&#8217;m having a nervous breakdown, Drive me insane!&#8211;Led Zeppelin tl;dr &mdash; Use this &hellip;">
+  <meta name="description" content="Recognizing the need is the primary condition for design.&#8211;Charles Eames You may or may not have noticed, but TheLadders.com just got a huge &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/01/not-measles/">MMR Is Not Measles, Mumps, and Rubella</a></h1>
+      <h1 class="entry-title"><a href="/2013/10/responsive-design-keeping-our-thick-client-skinny/">Responsive Design: Keeping Our Thick Client Skinny</a></h1>
     
     
       <p class="meta">
@@ -127,157 +127,109 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
+<time datetime="2013-10-30T01:37:00-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Communication Breakdown, It&#8217;s always the same,<br/>I&#8217;m having a nervous breakdown, Drive me insane!</p><footer><strong>&#8211;Led Zeppelin</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Recognizing the need is the primary condition for design.</p><footer><strong>&#8211;Charles Eames</strong></footer></blockquote>
 
 
-<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
+<p>You may or may not have noticed, but <a href="https://www.theladders.com/">TheLadders.com</a> just got a huge make over. We rewrote the website, putting it through a diet and a facelift. The team cut out excess network calories, trimmed DOM fat, and ironed out sloppy CSS wrinkles. We started 2013 with a shiny new single-page thick web client that is not only faster and cleaner, but uses some pretty provocative polishes like backbone.js, require.js, and SASS with Compass. But my favorite part: it’s responsive and looks great no matter where it goes.
+iPhone? Check. iPad? Check. MacBook Air? Check. Ginormous iMac screen? Check.</p>
 
-<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
+<p><span class='caption-wrapper left small'><img class='caption' src='/images/responsive/ladders-wide.jpeg' width='' height='' alt='New TheLadders.com on a desktop screen with the wide experience' title='New TheLadders.com on a desktop screen with the wide experience'><span class='caption-text'>New TheLadders.com on a desktop screen with the wide experience</span></span></p>
 
-<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
+<p><span class='caption-wrapper left small'><img class='caption' src='/images/responsive/ladders-skinny.png' width='' height='' alt='New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar' title='New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: [off canvas](http://jasonweaver.name/lab/offcanvas/) sidebar'><span class='caption-text'>New TheLadders.com on mobile with the skinny experience. Left: main content screen, right: <a href="http://jasonweaver.name/lab/offcanvas/">off canvas</a> sidebar</span></span></p>
 
-<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:</p>
+<h2>Adapt to survive</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'</span></code></pre></td></tr></table></div></figure>
+<p><span class='caption-wrapper left small'><img class='caption' src='/images/responsive/messy-windows.jpg' width='' height='' alt='Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.' title='Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.'><span class='caption-text'>Look familiar? Users will squish, stretch, enlarge, and shrink their windows. Responsive design is not just for mobile devices, it’s for the wild jungle of user behavior out there.</span></span>
+Mobile is here, and has been for years. It is only a matter of time before we are forced to adapt the front-end code design in order to survive on all screens. To me, responsive design is not an option; it’s mandatory.</p>
 
+<p>It&rsquo;s not just about fitting inside of a phone screen either. Our site should be flexible and sturdy enough to undergo all sorts crazy behavior: windows shrinking, windows expanding, zoom in, zoom out, and so forth. It’s a wilderness of user actions with legions of new mobile devices to support &hellip; how the heck do we keep up?</p>
 
-<p>This yields data similar to:</p>
+<h2>One size fits most</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># extended LDIF
-</span><span class='line'>#
-</span><span class='line'># LDAPv3
-</span><span class='line'># base &lt;cn=config&gt; with scope subtree
-</span><span class='line'># filter: (objectclass=nsds5replicationagreement)
-</span><span class='line'># requesting: ALL
-</span><span class='line'>#
-</span><span class='line'>
-</span><span class='line'># meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config
-</span><span class='line'>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
-</span><span class='line'>cn: meToipa-1.example.com
-</span><span class='line'>objectClass: nsds5replicationagreement
-</span><span class='line'>objectClass: top
-</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
-</span><span class='line'>description: me to ipa-1.example.com
-</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
-</span><span class='line'>nsDS5ReplicaHost: ipa-1.example.com
-</span><span class='line'>nsds5replicaTimeout: 120
-</span><span class='line'>nsDS5ReplicaPort: 389
-</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
-</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsds5replicareapactive: 0
-</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214458Z
-</span><span class='line'>nsds5replicaLastUpdateEnd: 20150121214501Z
-</span><span class='line'>nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
-</span><span class='line'>nsds5replicaLastUpdateStatus: 1 Can't acquire busy replica
-</span><span class='line'>nsds5replicaUpdateInProgress: FALSE
-</span><span class='line'>nsds5replicaLastInitStart: 0
-</span><span class='line'>nsds5replicaLastInitEnd: 0
-</span><span class='line'>
-</span><span class='line'># meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config
-</span><span class='line'>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
-</span><span class='line'>cn: meToipa-2.example.com
-</span><span class='line'>objectClass: nsds5replicationagreement
-</span><span class='line'>objectClass: top
-</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
-</span><span class='line'>description: me to ipa-2.example.com
-</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
-</span><span class='line'>nsDS5ReplicaHost: ipa-2.example.com
-</span><span class='line'>nsds5replicaTimeout: 120
-</span><span class='line'>nsDS5ReplicaPort: 389
-</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
-</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
-</span><span class='line'>nsds5replicareapactive: 0
-</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214628Z
-</span><span class='line'>nsds5replicaLastUpdateEnd: 0
-</span><span class='line'>nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
-</span><span class='line'>nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
-</span><span class='line'>nsds5replicaUpdateInProgress: TRUE
-</span><span class='line'>nsds5replicaLastInitStart: 20141215154802Z
-</span><span class='line'>nsds5replicaLastInitEnd: 20141215154807Z
-</span><span class='line'>nsds5replicaLastInitStatus: 0 Total update succeeded
-</span><span class='line'>
-</span><span class='line'># search result
-</span><span class='line'>search: 2
-</span><span class='line'>result: 0 Success
-</span><span class='line'>
-</span><span class='line'># numResponses: 3
-</span><span class='line'># numEntries: 2</span></code></pre></td></tr></table></div></figure>
+<p>TheLadders’ responsive support subscribes to the majority rule. We prioritize the user experience for the majority, and the minority cases are “overlooked.” This means the website is not tested on every phone and tablet &ndash; even newer ones &ndash; because there isn’t enough site traffic. We sacrificed this level of precision hoping to concentrate instead on improving the experience for the majority.
+<span class='caption-wrapper right extra-small'><img class='caption' src='/images/responsive/device-breakdown.jpeg' width='' height='' alt='Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices.' title='Google Analytics device breakdown. Blue - iPhone, Green - iPad, Gray - undetermined. Other slivers are mostly Samsung Android devices.'><span class='caption-text'>Google Analytics device breakdown. Blue &ndash; iPhone, Green &ndash; iPad, Gray &ndash; undetermined. Other slivers are mostly Samsung Android devices.</span></span></p>
+
+<p><strong>First</strong>, we decided what we were going to support &ndash; devices and screen size ranges:</p>
+
+<ul>
+<li>Devices
+
+<ul>
+<li>iPhone 4S and up (incl. iPad mini)</li>
+<li>iPad 2 and up</li>
+</ul>
+</li>
+<li>Screen size ranges
+
+<ul>
+<li>20em (320px) to 48em (768px) for skinny experience support</li>
+<li>50em (800px) and up for wide experience support</li>
+</ul>
+</li>
+</ul>
 
 
-<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
+<p>Together these Apple devices compose approximately 17% of our total page visits (includes hits from both browsers and devices). Of course you should look at your own device and browser breakdowns before deciding on a strategy. But do it early, otherwise you will be spending a lot of time debugging for ~1% of your users.</p>
 
-<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
+<p><strong>Second</strong>, we decided on our limitations. I think this saved hours of designer/developer time by acknowledging that not everything will interact exactly as it would on a desktop screen:</p>
+
+<ul>
+<li>Can’t support every mobile device and every screen width.</li>
+<li>Can’t have 100% feature parity between a mobile device and a desktop browser.</li>
+<li>Support for touch gestures (like swipe) costs extra code.</li>
+<li>Modals are not small screen friendly, especially certain date pickers.</li>
+<li>Hover states will be awkward on a touch screen. (If there is a hover state, the first tap is hover and the second tap is click.)</li>
+<li>Performance will suffer on mobile connections.</li>
+</ul>
+
+
+<p><strong>Third</strong>, we decided what techniques to use. Truthfully, each of these points needs its own blog topic, but here’s a quick list for now:</p>
+
+<ul>
+<li><a href="http://jasonweaver.name/lab/offcanvas">Off canvas</a> layout for our “skinny” experience.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/CSS/Media_queries">Media queries</a> to trigger the skinny vs. wide experience. Used SASS to implement <a href="http://thesassway.com/intermediate/responsive-web-design-in-sass-using-media-queries-in-sass-32">reusable media query break points</a>, making our lives MUCH easier.</li>
+<li>Set <a href="https://developer.mozilla.org/en-US/docs/Mobile/Viewport_meta_tag">width=device-width</a> in viewport metatag.</li>
+<li><a href="http://css-tricks.com/examples/PerfectFluidWidthLayout">Elastic layout</a> for widths.  Use % widths to create a fluid main content area, and a fixed width for the sidebar area.</li>
+<li>Use em. First <a href="http://css-tricks.com/css-font-size">understand</a> what measurement units are out there. There are many reasons to use em, but <a href="http://blog.cloudfour.com/the-ems-have-it-proportional-media-queries-ftw">this article</a> made the best case.</li>
+<li>SVG for responsive images.  We chose to use SVG logos and icons that fall back to PNG sprites if SVG is not supported.</li>
+</ul>
+
+
+<p>Now we should never, ever see a horizontal scroll bar. Scrollbars mean users can’t easily see precious content and get a unfulfilling experience.</p>
+
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/responsive/sad-scrollbar.png' width='' height='' alt='Ewww horizontal scrollbar' title='Ewww horizontal scrollbar'><span class='caption-text'>Ewww horizontal scrollbar</span></span></p>
+
+<h2>Mobile First?</h2>
+
+<p>Mobile first means to implement your website for mobile devices first, and desktop, etc., second. It helps set boundaries for page weight and complicated layouts that are unfriendly to handhelds.</p>
+
+<p>In theory, mobile first for design and development is a good idea.  It’s a sure-fire way to keep your pages as lightweight as possible. But in practice, our designer created mobile designs simultaneously with desktop designs, remembering to remove superfluous visual elements, ensuring a similar design would work for a small screen. As for development, we coded for the desktop first because we still support IE8 (IE8 doesn’t support media queries).  We built a desktop version first and used media queries to adjust for the mobile version. This way, IE8 screens work without extra media queries. Only mobile and the latest browsers are responsible for triggering media queries.</p>
+
+<p>So we aren’t really mobile first, but it heavily influences how we design the site. This practice works well if the designs are clean, and you are innately stingy with markup.</p>
+
+<h2>Anyway …</h2>
+
+<p><span class='caption-wrapper right extra-small'><img class='caption' src='/images/responsive/rabbit-pair.jpg' width='' height='' alt='Collaborating like arctic hares' title='Collaborating like arctic hares'><span class='caption-text'>Collaborating like arctic hares</span></span>
+My favorite side-effect of going responsive is the close collaboration between designers and developers. It’s hard to articulate screen reactions and device behavior through design comps. During this rewrite our front-end team and design team were pairing regularly throughout the day to determine what responsive meant for TheLadders.</p>
+
+<p>Also, it is important to recognize a responsive website is NOT a substitute for a native phone application.  A browser page and native phone application have completely different rules of conduct, so just because your website is responsive doesn’t mean you don’t need a native application.</p>
+
+<h2>Results</h2>
+
+<p>Our new responsive website is still young, it was only released earlier this year. We’ve just begun to throw serious traffic at it, but I’m confident that it performs and looks better than the old, non-responsive site. We are closely monitoring customer satisfaction and page visits from mobile devices. Hopefully in a couple months we’ll have flattering statistics and feedback to post.</p>
+
+<p>Until then, check it out for yourself: <a href="https://www.theladders.com/">www.theladders.com</a>. While it is by no means perfect&mdash;there are some devices and screen configurations where the experience is less than optimal&mdash;it is far better than the original site both in terms of its responsiveness and clean design.</p>
+
+<p>Join the discussion at <a href="https://news.ycombinator.com/item?id=6641857">Hacker News</a>.</p>
+
+<p><em>Note: In an effort to most accurately describe the current state of our site&rsquo;s responsiveness, this post was edited and updated by Daniel Wislocki. It was originally written by <a href="https://twitter.com/logtailer">Christina Kung</a> in early April, when design was unfinished.</em></p>
 </div>
   
   
@@ -306,23 +258,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

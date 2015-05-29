@@ -9,7 +9,8 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Normal is not something to aspire to, it&#8217;s something to get away from.&#8211;Jodie Foster Scout reads go slow A few weeks ago, as we were about &hellip;">
+  <meta name="description" content="&#8230; when the Man comes around.&#8211;Johnny Cash We are happy to announce that on April 10th, TheLadders will be hosting
+Eric Evans, the codifier &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +112,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/07/denormalize-the-datas-for-great-good/">Denormalize the Datas for Great Good</a></h1>
+      <h1 class="entry-title"><a href="/2013/03/eric-evans-is-coming-to-theladders/">Eric Evans Is Coming to TheLadders</a></h1>
     
     
       <p class="meta">
@@ -127,123 +128,246 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-07-08T16:02:00-04:00" pubdate data-updated="true">Jul 8<span>th</span>, 2013</time>
+<time datetime="2013-03-08T10:09:00-05:00" pubdate data-updated="true">Mar 8<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Normal is not something to aspire to, it&#8217;s something to get away from.</p><footer><strong>&#8211;Jodie Foster</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>&#8230; when the Man comes around.</p><footer><strong>&#8211;Johnny Cash</strong></footer></blockquote>
 
 
-<h2>Scout reads go slow</h2>
+<p>We are happy to announce that on April 10th, TheLadders will be hosting
+<a href="http://domainlanguage.com/about/">Eric Evans</a>, the codifier of
+<a href="http://domainlanguage.com/ddd/">Domain Driven Design</a>, for the New
+York City DDD Meetup group. Engineers at TheLadders have long been
+following developments in the DDD community. Some of
+<a href="/ourteam/danielwislocki/">us</a> have already attended the DDD immersion course,
+<a href="/ourteam/kylewinter/">more</a> of <a href="/ourteam/mattjankowski/">us</a> will be attending it shortly, and
+our developers are regular participants in the <a href="http://www.dddnyc.org/">NYC DDD Meetup</a>.</p>
 
-<p>A few weeks ago, as we were about to launch our <a href="http://app.appsflyer.com/id654867487?pid=TLC_organic">iPhone app</a>, we discovered that one of its core features, Scout, frequently took seconds to render.</p>
+<p>For those of you who might be unfamiliar with DDD, its goal is the
+design of software that creates business value. DDD guides technical
+and domain experts to collaboratively create a mental model of the
+central business concepts. This model is then used to drive
+design. This sounds like common sense: developers work with people who
+know about the business to make software that works to solve its
+problems. What could be more straightforward?  And yet, the complexity
+inherent in the business world and software engineering make it
+difficult to create software that is supple and adaptable to changing
+needs. DDD provides a framework for thinking about, creating, and
+communicating mental models. And that requires the learning of new
+skills and ideas. It isn’t an easy process, but we have found that it
+is rewarding for both the business and developers.</p>
 
-<center>
-<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span>
-</center>
+<h1>A Little of Our Experience with DDD</h1>
+
+<p>While creating our new website, we’ve tried to remain focused on
+“communicating mental models”. One way this can be done is through
+DDD’s “Intention-Revealing Interfaces”: interfaces that clearly
+communicate the contract between the domain model and its
+users. Judging from the vast amount of code out there, this simple
+idea is counterintuitive. Our own legacy codebase is no exception. For
+example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Subscription</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">AutoRenewFlags</span> <span class="nf">getAutoRenewFlag</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAutoRenewFlag</span><span class="o">(</span><span class="n">AutoRenewFlags</span> <span class="n">autoRenewFlag</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">autoRenewFlag</span> <span class="o">=</span> <span class="n">autoRenewFlag</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getUnsubscribeReason</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUnsubscribeReason</span><span class="o">(</span><span class="kt">int</span> <span class="n">unsubscribeReason</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">unsubscribeReason</span> <span class="o">=</span> <span class="n">unsubscribeReason</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.</p>
+<p>This is an example of what in DDD is called an “anemic domain
+model”. The Subscription class is a key part of the domain, yet not
+only does it communicate nothing to the user about its usage, it in
+fact does nothing. Values can be retrieved and set, but what then? How
+do I actually unsubscribe someone? What prevents me from using any
+arbitrary integer for the “unsubscribe reason”? What about changing
+auto-renewal to null? There is no explicit contract here, and the user
+of this object is given no guidance or constraints. By contrast, we’ve
+worked hard in our newer code to avoid creating anemic domain models
+and instead create objects that are not only useful, but clear in
+their usage. Here is another example, this time from the new
+Subscription class:</p>
 
-<p>Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve <em>one</em> Scout view request).  In cases of higher load, sometimes request times take well over that.</p>
-
-<center>
-<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span>
-</center>
-
-
-<p>That brings Scout into unusably slow country, as the Graphite chart below indicates:</p>
-
-<center>
-<span class='caption-wrapper medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/before-graphite.png' width='' height='' alt='95th percentile of response times for Scout in seconds' title='95th percentile of response times for Scout in seconds'><span class='caption-text'>95th percentile of response times for Scout in seconds</span></span>
-</center>
-
-
-<p>The graph shows the time it takes to form a response to a view-job request issued by our iPhone app. It’s the 95th percentile, which means that 5% of requests had times of the lines in the graph or higher for any given date.  One in twenty requests took this long or longer. There are many lines because we have a horizontally scalable architecture, so there are many backend app nodes.</p>
-
-<p>We managed to bring those seconds down to milliseconds, with about a 1000x decrease in times of high load.  Below I’ll describe the changes in our architecture that enabled us to make such a huge improvement.</p>
-
-<hr />
-
-<h2>Architecture</h2>
-
-<p>In its initial implementation, Scout’s applicant information was gathered and assembled on the fly for each and every request. Driving the iPhone app, we have a backend app server, which is essentially just a number of RESTful endpoints against which our iPhone app issues requests.  Below is a quick rundown of the architecture before I trace a request through our architecture.</p>
-
-<center>
-<span class='caption-wrapper medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration.png' width='' height='' alt='iPhone app talks to the backend app server' title='iPhone app talks to the backend app server'><span class='caption-text'>iPhone app talks to the backend app server</span></span>
-</center>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Subscription</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>   <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOn</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Subscription</span> <span class="nf">withAutoRenewOff</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">CanceledSubscription</span> <span class="nf">unsubscribe</span><span class="o">(</span><span class="n">UnsubscribeReason</span> <span class="n">unsubscribeReason</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Below this backend server there are a number of RESTful entity servers with which the app server is interacting via HTTP.</p>
+<p>In this case we’ve attempted to make the contract clear. Calling the
+unsubscribe method actually unsubscribes the customer, returning a
+CanceledSubscription. The “unsubscribe reason” is now strongly typed,
+clearly communicating which values are allowed. Auto-renewal changes
+yield a new immutable Subscription object, and can be chained together
+with other &ldquo;with*&rdquo; methods to produce new subscriptions with appropriate
+settings.</p>
 
-<p><span class='caption-wrapper center medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity.png' width='' height='' alt='Backend app server relies on entity servers' title='Backend app server relies on entity servers'><span class='caption-text'>Backend app server relies on entity servers</span></span></p>
+<p>Another example of an anemic domain model, lacking an
+intention-revealing interface, comes from the old Payment class in our
+legacy codebase:</p>
 
-<p>These entity servers in turn query each other and the canonical data store, in our case Clustrix, and that’s that.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="kt">int</span> <span class="n">paymentId</span><span class="o">,</span>
+</span><span class='line'>               <span class="kt">int</span> <span class="n">paymentActionType</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">BigDecimal</span> <span class="n">amount</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">String</span> <span class="n">approvalCode</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">String</span> <span class="n">transactionReference</span><span class="o">,</span>
+</span><span class='line'>               <span class="kt">int</span> <span class="n">creditCardId</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentId</span> <span class="o">=</span> <span class="n">paymentId</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">paymentActionType</span> <span class="o">=</span> <span class="n">paymentActionType</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">amount</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">approvalCode</span> <span class="o">=</span> <span class="n">approvalCode</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">creditCardId</span> <span class="o">=</span> <span class="n">creditCardId</span><span class="o">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">transactionReference</span> <span class="o">=</span> <span class="n">transactionReference</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p><span class='caption-wrapper center medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity-clustrix.png' width='' height='' alt='Entity servers query the db' title='Entity servers query the db'><span class='caption-text'>Entity servers query the db</span></span></p>
 
-<p>So when a user of our iPhone app taps on a job, a request is sent to the backend app server&hellip;</p>
+<p>This class contains only the constructor you see here, and getters for
+each of the fields created. It turns out that it’s used as a parameter
+object, and nothing more. There’s no guidance as to it’s valid
+construction, and no hint about its usage. Yet obviously handling
+subscription payments is an important part of the subscription domain,
+and we want the contracts around the model of that domain clear and
+easy to understand. Here’s our attempt at accomplishing those goals in
+the new codebase:</p>
 
-<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-request.png" title="iPhone app makes a request" ></p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">Payment</span><span class="o">(</span><span class="n">PaymentAmount</span> <span class="n">paymentAmount</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">JobseekerId</span> <span class="n">jobseekerId</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">PaymentActionType</span> <span class="n">paymentActionType</span><span class="o">,</span>
+</span><span class='line'>               <span class="n">ReportGroup</span> <span class="n">reportGroup</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>&hellip;which then issues a request to our job application service for all job applications for that job. The response contains a number of links to the where those job applications may be retrieved.</p>
 
-<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request.png" title="backend server queries the job application service for all applications to a job" ></p>
+<p>The first difference is actually one that’s not visible from the code
+itself. As we’ve developed the new site, we’ve agreed that all
+arguments to methods or constructors are required; no passing of
+nulls. If an argument is truly optional, a separate method or
+constructor is added that excludes it. We want our code to be
+confident, and this contract means that methods and constructors “say
+what they mean and mean what they say”. In the legacy codebase, nulls
+were passed liberally to and fro, and you could never be quite sure
+which arguments were truly required.</p>
 
-<p>The backend server iterates over those links, requesting the job applications themselves one at a time. Just as before, adhering to hypermedia design, the response contains a link to the jobseeker who applied to the job. For your sanity, I’ve simplified the response to contain only the job seeker link:</p>
+<p>Another change is the promotion of this class from a mere parameter
+object to an active participant in the domain model:</p>
 
-<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request2.png" title="backend retrieves each application" ></p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Receipt</span> <span class="nf">makeWith</span><span class="o">(</span><span class="n">PaymentMethod</span> <span class="n">method</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">method</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Receipt</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">.</span><span class="na">asAmountPaid</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">recordWith</span><span class="o">(</span><span class="n">PaymentRecorder</span> <span class="n">paymentRecorder</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">paymentRecorder</span><span class="o">.</span><span class="na">record</span><span class="o">(</span><span class="n">paymentAmount</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Finally with that result set, the orchestration service then issues a number of requests to the job seeker service for information about the job seekers who have applied to the job being viewed.  In its initial implementation all of the requests were synchronous and in series as I mentioned earlier. We eventually parallelized them, as you can see in the Graphite chart where the big spikes left diminish towards the right.</p>
 
-<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request3.png" title="backend retrieves each application" ></p>
+<p>Instead of being passed around to “manager” objects and DAOs, a
+Payment object can actually make a payment and create records of
+itself. It seems only natural.</p>
 
-<p>The iPhone app backend server then extracts the relevant information from those job seekers’ profiles, and returns them as a JSON array of applicants to the mobile app.</p>
+<p>There’s much more qto Domain Driven Design than I’ve shown here &mdash;
+this post barely scratches the surface. And as a team we know we still
+have much farther to go in its mastery, but the time we’ve spent in
+study and practice have been well worth the effort so far.</p>
 
-<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-response.png" title="backend retrieves each application" ></p>
-
-<p>That is not just a lot of words and diagrams, that is a lot of work!</p>
-
-<p>The workflow includes multiple objects serializing and deserializing, HTTP transfers, hitting the canonical store etc. Why does each request need to assemble this data itself? Why bother hitting the database? Is there an alternative? It seems like a natural fit for a document-oriented database, as the data we are passing back to the client is just a JSON object containing an array of applicants.  We could stand a <a href="http://dev.theladders.com/2013/05/varnish-in-five-acts/">Varnish cache</a> in front of the Scout endpoints on the orchestration service, but then we’d be trading freshness for speed. On the platform team we like to deliver data fast and fresh (and furious).</p>
-
-<p><img class="center" src="/images/denormalize-the-datas-for-great-good/tokyo-drift-o.gif" title="how we roll at the Democratic Republic of Platformia" ></p>
-
-<hr />
-
-<h2>Scout reads go fast</h2>
-
-<p>Principal Architect <a href="http://twitter.com/SeanTAllen">Sean T Allen</a> set <a href="http://twitter.com/casio_juarez">Andy Turley</a> and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in <a href="http://www.couchbase.com/">Couchbase</a> and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  <a href="http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/">Storm</a> topology that should listen for that message. The RabbitMQ message would be the entry point into the spout.</p>
-
-<p>The message contains a link to the job seeker who applied to the job, as well as the ID for the job to which she applied.   The message isn’t actually encoded as JSON and transmitted over the wire, but for clarity I’ve displayed the RabbitMQ message as JSON.</p>
-
-<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm.png" title="RabbitMQ passes along a job-application message to a listening Storm topology" ></p>
-
-<p>The second step, after having received the RabbitMQ message, fetches the job seeker profile from the jobseeker service, and passes that information to the next step.</p>
-
-<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm-jobseeker.png" title="The Storm topology extracts the job seeker link from the messages and retrieves information about the job seeker who just applied to the job." ></p>
-
-<p>This third step is responsible for persisting the applicant information to a Couchbase bucket. It uses the job ID as the key, and it does a create or update operation on the document corresponding to that key depending on whether there are applicants already in the bucket for that job.</p>
-
-<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm-couchbase.png" title="The final step is that the topology persists the relevant job" ></p>
-
-<p>That last diagram is a bit of a simplification. Although Couchbase is &ldquo;JSON-aware&rdquo;, it lacks the ability to perform certain operations on the JSON documents it stores.  For example, if the document being stored is an Array, and the client&rsquo;s append method is called, we hoped that Couchbase would add that element to the end of the Array. Instead, it&rsquo;s just a blind String.append, resulting in an invalid JSON document. As a result, we had to implement our own append operation by reading the document (if it exists), adding an item to a list if it’s not already there, and then writing the document.  So it’s more like two operations than one.</p>
-
-<p><em>Now</em> when TheLadders mobile service gets a request for Scout information for a job, all it does is a lookup in Couchbase with that job ID and returns the applicants associated with that key.</p>
-
-<p><img class="center" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-couchbase.png" title="iPhone issues a request for Scout information, backend just retrieves it from couchbase" ></p>
-
-<p><span class='caption-wrapper center'><img class='caption' src='/images/denormalize-the-datas-for-great-good/before-couchbase-after-no-lines.png' width='' height='' alt='95th percentile response time for Scout data, before and after moving to the read view' title='95th percentile response time for Scout data, before and after moving to the read view'><span class='caption-text'>95th percentile response time for Scout data, before and after moving to the read view</span></span></p>
-
-<p>Dramatically faster, even at the 95th percentile.</p>
-
-<hr />
-
-<p>SOA is no panacea. There are many instances where querying a number of backend servers to assemble and aggregate data returned from a database simply doesn&rsquo;t make sense. In those cases, you may do well to denormalize that data and put it in a store that&rsquo;s more efficient for retrieval.</p>
-
-<p>If you find this post interesting, join the dicussion over on <a href="https://news.ycombinator.com/item?id=6015123">Hacker News</a>.</p>
+<p><a href="http://www.dddnyc.org/events/80390502/">We hope you’ll join us April 10th</a> for an illuminating evening of
+presentation and discussion.</p>
 </div>
   
   
@@ -272,23 +396,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

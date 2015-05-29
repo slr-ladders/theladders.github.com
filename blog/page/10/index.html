@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a &hellip;">
+  <meta name="description" content="Normal is not something to aspire to, it&#8217;s something to get away from.&#8211;Jodie Foster Scout reads go slow A few weeks ago, as we were about &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2014/10/speeding-up-r/">Speeding Up R</a></h1>
+      <h1 class="entry-title"><a href="/2013/07/denormalize-the-datas-for-great-good/">Denormalize the Datas for Great Good</a></h1>
     
     
       <p class="meta">
@@ -127,144 +127,123 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2014-10-02T14:51:51-04:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
+<time datetime="2013-07-08T16:02:00-04:00" pubdate data-updated="true">Jul 8<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
-
-<p>A few months ago, we encountered this issue directly. We started working on an algorithm that would analyze any one of our six million jobseekers and find other jobseekers that they’re most similar to. To come up with this list, we’d look through several of the data points we had about the jobseeker, such as their career history and which jobs on our site they had been interested in, and looked for other members who had a similar set of data points. Our first pass at this algorithm in R took about thirty seconds to run for each jobseeker. If we wanted to run it for all six million of our users… well, we couldn’t really wait until 2019 to see the results. We’ve spent the subsequent few weeks speeding up the process so that it now takes less than half a second per jobseeker, and we’ve learned a bunch of helpful tips along the way.</p>
-
-<p>(Note: Whenever I need to speed up my code, I look back at Hadley Wickham’s <a href="http://adv-r.had.co.nz/Performance.html">Advanced R</a> which is where a lot of these ideas come from and is a fantastic resource.)</p>
-
-<h3>1. Use lineprof to find the bottleneck</h3>
-
-<p>Hadley Wickham created a <a href="https://github.com/hadley/lineprof">useful and easy to use package</a> that you can use to figure out which part of your code is causing the biggest issues and drill down to the specific lines that are taking up most of the runtime. Figuring out which parts of your code are problematic is the first step towards fixing that problem.</p>
-
-<h3>2. Attack the slowest cases, but don’t forget about the rest</h3>
-
-<p>After making some improvements, we found that our algorithm could take anywhere between 0.5 and 6 seconds to run on a jobseeker. For the next iteration, we focused on the slowest 10% and tried to speed each of them up by 1-2 seconds. We repeated this process a few more times, taking a look at the slowest cases and seeing if we could make some big improvements there. However, we also stumbled on an easier but equally effective approach: making small improvements that impact all cases. Speeding up the process by 0.2 seconds for all jobseekers has the same impact of cutting off 2 seconds from just 10% of jobseekers and may be easier to do.</p>
-
-<h3>3. Using data.table can speed up almost any merge or aggregation</h3>
-
-<p>Our algorithm requires merging together a bunch of big data frames (for example, ones covering hundreds of thousands of user clicks or job applications) so we quickly searched for a package that could speed things up. We found the <a href="http://datatable.r-forge.r-project.org/">data.table package</a> which was orders of magnitude quicker than the base merge in some cases. However, we realized that there was no reason to limit our use of data.table as speed improvements could be found even on merges of much smaller data frames. Furthermore, any time we needed to run an aggregation over a data frame (usually done with aggregate or tapply), data.table could cut out valuable milliseconds.</p>
-
-<h3>4. Use microbenchmark to rigorously test out your code</h3>
-
-<p>The <a href="http://cran.r-project.org/web/packages/microbenchmark/index.html">microbenchmark package</a> is a far better way to test your R code’s speed than the standard system.time function. Microbenchmark runs each line of code you give it 100 times (by default) and computes summary statistics of those runtimes, allowing you to be confident that any speed improvements you find are not merely the result of random variation.</p>
-
-<h3>5. Don’t overfit to a single case</h3>
-
-<p>Good data scientists are cognizant of the tradeoff between training error and test error when building a model. A similar phenomenon can occur when trying to optimize an algorithm for speed. As we were refining our code, we typically tested things out on our own accounts. However, this was a bit dangerous, since we are by no means a representative sample of users of our site. We are unusually active on the site and all have somewhat similar career histories to each other. A change that improves runtime when generating matches for one of us may not have the same impact on users who are less active or belong to a different job function. Make sure to test out any changes on a large, random sample before concluding that your changes have done the trick.</p>
-
-<h3>6. The clearest code is not always the fastest code</h3>
-
-<p>Imagine you have a data frame that’s 100,000 rows long where the head looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; head(my.df, 10)
-</span><span class='line'>           a         b         c         d
-</span><span class='line'>1         NA        NA 0.4885687        NA
-</span><span class='line'>2         NA        NA 0.1666159        NA
-</span><span class='line'>3         NA        NA 0.3176160        NA
-</span><span class='line'>4         NA 0.9568433 0.4848375        NA
-</span><span class='line'>5  0.8441578 0.3022814        NA        NA
-</span><span class='line'>6  0.4223605        NA        NA        NA
-</span><span class='line'>7         NA 0.7998102        NA        NA
-</span><span class='line'>8         NA 0.8183823        NA        NA
-</span><span class='line'>9         NA        NA        NA 0.1550433
-</span><span class='line'>10 0.1511128 0.4783680        NA        NA</span></code></pre></td></tr></table></div></figure>
+  <div class="entry-content"><blockquote><p>Normal is not something to aspire to, it&#8217;s something to get away from.</p><footer><strong>&#8211;Jodie Foster</strong></footer></blockquote>
 
 
-<p>Let’s say what you want to do is replace all of the NA’s with 0’s. So a pretty straightforward function to use would be defined as:</p>
+<h2>Scout reads go slow</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNA &lt;- function(df){
-</span><span class='line'>  df[is.na(df)] &lt;- 0
-</span><span class='line'>  return(df)
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+<p>A few weeks ago, as we were about to launch our <a href="http://app.appsflyer.com/id654867487?pid=TLC_organic">iPhone app</a>, we discovered that one of its core features, Scout, frequently took seconds to render.</p>
+
+<center>
+<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot.png' width='' height='' alt='Scout' title='Scout'><span class='caption-text'>Scout</span></span>
+</center>
 
 
-<p>That’s concise, easy to understand, and flexible enough to handle most changes that could occur to my.df in the future. Now, take a look at this function:</p>
+<p>For a little background as to what Scout is, at TheLadders our mission is to find the right person for the right job. One of the ways we strive to deliver on that promise is to provide jobseekers information about jobs they’ll find nowhere else. Serving that mission is Scout, which in a nutshell allows jobseekers to view anonymized information about applicants who have applied to the job they are viewing. Salary, education, career history: we present a lot of useful information to jobseekers about their competition for any given job.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNAUgly &lt;- function(df){
-</span><span class='line'>  df$a[is.na(df$a)] &lt;- 0
-</span><span class='line'>  df$b[is.na(df$b)] &lt;- 0
-</span><span class='line'>  df$c[is.na(df$c)] &lt;- 0
-</span><span class='line'>  df$d[is.na(df$d)] &lt;- 0
-</span><span class='line'>  return(df)
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+<p>Over time, some attractive jobs accumulate on the order of 30 to 60 applicants, yielding response times of over 1 second (due to multiple synchronous requests, done serially, just to serve <em>one</em> Scout view request).  In cases of higher load, sometimes request times take well over that.</p>
+
+<center>
+<span class='caption-wrapper small'><img class='caption' src='/images/denormalize-the-datas-for-great-good/scout-screenshot-many-applies.png' width='' height='' alt='Scout view of a job with many applicants' title='Scout view of a job with many applicants'><span class='caption-text'>Scout view of a job with many applicants</span></span>
+</center>
 
 
-<p>It’s not concise, is a little difficult to understand, and is not very flexible, but it’s actually quite a bit quicker:</p>
+<p>That brings Scout into unusably slow country, as the Graphite chart below indicates:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; microbenchmark(
-</span><span class='line'>+   replaceNA(my.df),
-</span><span class='line'>+   replaceNAUgly(my.df)
-</span><span class='line'>+ )
-</span><span class='line'>Unit: milliseconds
-</span><span class='line'>                           min       lq   median       uq      max neval
-</span><span class='line'>     replaceNA(my.df) 219.7503 241.4529 249.8200 271.3922 316.8102   100
-</span><span class='line'> replaceNAUgly(my.df) 148.9356 159.6738 167.7006 178.1716 234.8962   100</span></code></pre></td></tr></table></div></figure>
+<center>
+<span class='caption-wrapper medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/before-graphite.png' width='' height='' alt='95th percentile of response times for Scout in seconds' title='95th percentile of response times for Scout in seconds'><span class='caption-text'>95th percentile of response times for Scout in seconds</span></span>
+</center>
 
 
-<p>In the majority of cases, the first function is fine or even preferable. However, if speed is your only concern, you may be able to speed things up if you’re willing to forgo having pretty code.</p>
+<p>The graph shows the time it takes to form a response to a view-job request issued by our iPhone app. It’s the 95th percentile, which means that 5% of requests had times of the lines in the graph or higher for any given date.  One in twenty requests took this long or longer. There are many lines because we have a horizontally scalable architecture, so there are many backend app nodes.</p>
 
-<h3>7. Think about applying some filters</h3>
+<p>We managed to bring those seconds down to milliseconds, with about a 1000x decrease in times of high load.  Below I’ll describe the changes in our architecture that enabled us to make such a huge improvement.</p>
 
-<p>We categorize each of our jobseekers into one of fourteen overarching job functions, such as sales, marketing, technology, or finance. If I’m a software engineer, almost all of the jobseekers who are similar to me are likely to belong in technology. Sure, we could think of some cases where someone shares attributes with people in a couple of different job functions, but this is more of an edge case. By comparing each jobseeker with the half-million other jobseekers in their job function instead of the entire set of six million, we could make the algorithm about ten times faster while still capturing the vast majority of the same results, a tradeoff we deemed totally acceptable.</p>
+<hr />
 
-<h3>8. Preprocess, preprocess, preprocess</h3>
+<h2>Architecture</h2>
 
-<p>One of the steps in our algorithm is to compare the set of titles a jobseeker has had in his/her career with the sets for all other jobseekers. However, sometimes two jobseekers will have had the same title but used different punctuation or capitalization when entering their title (not to mention misspellings or synonyms). As a result, we needed to remove the case and punctuation from each title before a comparison could be done. Our initial instinct was to run this text cleaning process right before doing the comparison, but this meant that we would end up cleaning the same text hundreds of times. Instead, we cleaned all the titles once, stored the results, and did the comparisons on these cleaned titles. You should constantly be on the lookout for places where the algorithm repeats a step multiple times and see if there’s a way to do so just once and then just look up those results when needed.</p>
+<p>In its initial implementation, Scout’s applicant information was gathered and assembled on the fly for each and every request. Driving the iPhone app, we have a backend app server, which is essentially just a number of RESTful endpoints against which our iPhone app issues requests.  Below is a quick rundown of the architecture before I trace a request through our architecture.</p>
 
-<h3>9. Rcpp for when you’re really stuck</h3>
+<center>
+<span class='caption-wrapper medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration.png' width='' height='' alt='iPhone app talks to the backend app server' title='iPhone app talks to the backend app server'><span class='caption-text'>iPhone app talks to the backend app server</span></span>
+</center>
 
-<p>If you’ve narrowed down your issue to a single operation and you can’t find a way around it, the <a href="http://dirk.eddelbuettel.com/code/rcpp.html">Rcpp package</a> may be able to help. With Rcpp, you can run parts of your code in C++ without interrupting the flow of the rest of your code. There’s a bit of a learning curve if you’re not familiar with C++, but the improvements could be massive enough to justify the effort. Alternatively, with some diligent Googling, you may be able to find someone who’s already solved your problem using Rcpp.</p>
 
-<h3>10. Parallelize!</h3>
+<p>Below this backend server there are a number of RESTful entity servers with which the app server is interacting via HTTP.</p>
 
-<p>For R users who have never done any sort of parallel computing before, this may seem a bit daunting. However, depending on how your code is structured, it can actually be quite trivial to run tasks on all the cores of your machine in parallel. For instance, if you’re using Linux or a Mac and part of your code is run using lapply, forcing it to run in parallel is as simple as loading the parallel package and replacing lapply with mclapply (i.e. multicore lapply). Parallelization doesn’t guarantee speed improvements, but testing it out shouldn’t require too much effort and is worth considering.</p>
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity.png' width='' height='' alt='Backend app server relies on entity servers' title='Backend app server relies on entity servers'><span class='caption-text'>Backend app server relies on entity servers</span></span></p>
 
-<p>Along the same lines, you can force R to utilize all the cores of your machine when doing any linear algebra operations by using OpenBLAS or ATLAS, though the process of getting it up and running is not as easy. <a href="http://www.stat.cmu.edu/~nmv/2013/07/09/for-faster-r-use-openblas-instead-better-than-atlas-trivial-to-switch-to-on-ubuntu/">Nathan VanHoudnos&#8217; blog post on the topic</a> is a good place to start.</p>
+<p>These entity servers in turn query each other and the canonical data store, in our case Clustrix, and that’s that.</p>
 
-<h3>11. Make sure this is all worth it</h3>
+<p><span class='caption-wrapper center medium'><img class='caption' src='/images/denormalize-the-datas-for-great-good/front-end-orchestration-entity-clustrix.png' width='' height='' alt='Entity servers query the db' title='Entity servers query the db'><span class='caption-text'>Entity servers query the db</span></span></p>
 
-<p>While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.</p>
+<p>So when a user of our iPhone app taps on a job, a request is sent to the backend app server&hellip;</p>
 
-<p>Have a question or comment? <a href="http://redd.it/2i4807">Join the discussion on reddit</a>.</p>
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-request.png" title="iPhone app makes a request" ></p>
+
+<p>&hellip;which then issues a request to our job application service for all job applications for that job. The response contains a number of links to the where those job applications may be retrieved.</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request.png" title="backend server queries the job application service for all applications to a job" ></p>
+
+<p>The backend server iterates over those links, requesting the job applications themselves one at a time. Just as before, adhering to hypermedia design, the response contains a link to the jobseeker who applied to the job. For your sanity, I’ve simplified the response to contain only the job seeker link:</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request2.png" title="backend retrieves each application" ></p>
+
+<p>Finally with that result set, the orchestration service then issues a number of requests to the job seeker service for information about the job seekers who have applied to the job being viewed.  In its initial implementation all of the requests were synchronous and in series as I mentioned earlier. We eventually parallelized them, as you can see in the Graphite chart where the big spikes left diminish towards the right.</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-service-request3.png" title="backend retrieves each application" ></p>
+
+<p>The iPhone app backend server then extracts the relevant information from those job seekers’ profiles, and returns them as a JSON array of applicants to the mobile app.</p>
+
+<p><img class="center medium" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-response.png" title="backend retrieves each application" ></p>
+
+<p>That is not just a lot of words and diagrams, that is a lot of work!</p>
+
+<p>The workflow includes multiple objects serializing and deserializing, HTTP transfers, hitting the canonical store etc. Why does each request need to assemble this data itself? Why bother hitting the database? Is there an alternative? It seems like a natural fit for a document-oriented database, as the data we are passing back to the client is just a JSON object containing an array of applicants.  We could stand a <a href="http://dev.theladders.com/2013/05/varnish-in-five-acts/">Varnish cache</a> in front of the Scout endpoints on the orchestration service, but then we’d be trading freshness for speed. On the platform team we like to deliver data fast and fresh (and furious).</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/tokyo-drift-o.gif" title="how we roll at the Democratic Republic of Platformia" ></p>
+
+<hr />
+
+<h2>Scout reads go fast</h2>
+
+<p>Principal Architect <a href="http://twitter.com/SeanTAllen">Sean T Allen</a> set <a href="http://twitter.com/casio_juarez">Andy Turley</a> and me to improving Scout’s performance. The architecture is surprisingly simple: stick the data in <a href="http://www.couchbase.com/">Couchbase</a> and have the iPhone app backend query that instead. How would we keep this data up-to-date? The first step is to have the job application entity service emit a RabbitMQ event when it receives an application from a job seeker to a particular job (a PUT returning a 201).  On the other end of that message queue there is a  <a href="http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/">Storm</a> topology that should listen for that message. The RabbitMQ message would be the entry point into the spout.</p>
+
+<p>The message contains a link to the job seeker who applied to the job, as well as the ID for the job to which she applied.   The message isn’t actually encoded as JSON and transmitted over the wire, but for clarity I’ve displayed the RabbitMQ message as JSON.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm.png" title="RabbitMQ passes along a job-application message to a listening Storm topology" ></p>
+
+<p>The second step, after having received the RabbitMQ message, fetches the job seeker profile from the jobseeker service, and passes that information to the next step.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm-jobseeker.png" title="The Storm topology extracts the job seeker link from the messages and retrieves information about the job seeker who just applied to the job." ></p>
+
+<p>This third step is responsible for persisting the applicant information to a Couchbase bucket. It uses the job ID as the key, and it does a create or update operation on the document corresponding to that key depending on whether there are applicants already in the bucket for that job.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/rabbitmq-storm-couchbase.png" title="The final step is that the topology persists the relevant job" ></p>
+
+<p>That last diagram is a bit of a simplification. Although Couchbase is &ldquo;JSON-aware&rdquo;, it lacks the ability to perform certain operations on the JSON documents it stores.  For example, if the document being stored is an Array, and the client&rsquo;s append method is called, we hoped that Couchbase would add that element to the end of the Array. Instead, it&rsquo;s just a blind String.append, resulting in an invalid JSON document. As a result, we had to implement our own append operation by reading the document (if it exists), adding an item to a list if it’s not already there, and then writing the document.  So it’s more like two operations than one.</p>
+
+<p><em>Now</em> when TheLadders mobile service gets a request for Scout information for a job, all it does is a lookup in Couchbase with that job ID and returns the applicants associated with that key.</p>
+
+<p><img class="center" src="/images/denormalize-the-datas-for-great-good/mobile-orchestration-couchbase.png" title="iPhone issues a request for Scout information, backend just retrieves it from couchbase" ></p>
+
+<p><span class='caption-wrapper center'><img class='caption' src='/images/denormalize-the-datas-for-great-good/before-couchbase-after-no-lines.png' width='' height='' alt='95th percentile response time for Scout data, before and after moving to the read view' title='95th percentile response time for Scout data, before and after moving to the read view'><span class='caption-text'>95th percentile response time for Scout data, before and after moving to the read view</span></span></p>
+
+<p>Dramatically faster, even at the 95th percentile.</p>
+
+<hr />
+
+<p>SOA is no panacea. There are many instances where querying a number of backend servers to assemble and aggregate data returned from a database simply doesn&rsquo;t make sense. In those cases, you may do well to denormalize that data and put it in a store that&rsquo;s more efficient for retrieval.</p>
+
+<p>If you find this post interesting, join the dicussion over on <a href="https://news.ycombinator.com/item?id=6015123">Hacker News</a>.</p>
 </div>
   
   
@@ -293,23 +272,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

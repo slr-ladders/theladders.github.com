@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="&#8220;JavaScript is a language with more than its share of bad parts.&#8221;&#8211;Douglas Crockford JavaScript: The Good Parts Harmony JavaScript, &hellip;">
+  <meta name="description" content="If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a Nutshell</a></h1>
+      <h1 class="entry-title"><a href="/2014/10/speeding-up-r/">Speeding Up R</a></h1>
     
     
       <p class="meta">
@@ -127,43 +127,44 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-05-04T16:05:00-04:00" pubdate data-updated="true">May 4<span>th</span>, 2015</time>
+<time datetime="2014-10-02T14:51:51-04:00" pubdate data-updated="true">Oct 2<span>nd</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>&#8220;JavaScript is a language with more than its share of bad parts.&#8221;</p><footer><strong>&#8211;Douglas Crockford</strong> <cite>JavaScript: The Good Parts</cite></footer></blockquote>
+  <div class="entry-content"><p>If you ever speak to a data scientist about what tools they use, you’re sure to hear a whole slew of complaints about how slow R can be. R is a programming language used for data processing, analysis, model building, and data visualization. It isn’t really designed for speed and most statistics courses don’t spend much time teaching students how to make their code run quicker.</p>
 
+<p>A few months ago, we encountered this issue directly. We started working on an algorithm that would analyze any one of our six million jobseekers and find other jobseekers that they’re most similar to. To come up with this list, we’d look through several of the data points we had about the jobseeker, such as their career history and which jobs on our site they had been interested in, and looked for other members who had a similar set of data points. Our first pass at this algorithm in R took about thirty seconds to run for each jobseeker. If we wanted to run it for all six million of our users… well, we couldn’t really wait until 2019 to see the results. We’ve spent the subsequent few weeks speeding up the process so that it now takes less than half a second per jobseeker, and we’ve learned a bunch of helpful tips along the way.</p>
 
-<h1>Harmony</h1>
+<p>(Note: Whenever I need to speed up my code, I look back at Hadley Wickham’s <a href="http://adv-r.had.co.nz/Performance.html">Advanced R</a> which is where a lot of these ideas come from and is a fantastic resource.)</p>
 
-<p>JavaScript, also known as ECMAScript, has extended its life beyond the boundaries of the browser. It can be found in <a href="https://nodejs.org/">server side code</a>, in <a href="http://docs.unity3d.com/Manual/CreatingAndUsingScripts.html">video game engines</a>, even frameworks to run C programs in the <a href="http://asmjs.org/">browser</a>. Unfortunately, the language specification has not been updated since 2009, which in turn has led to different frameworks and tools to accommodate for the lack of features.  Luckily, TC-39, the committee for approving ECMAScript, has a targeted release date of June 2015 for the next version of ECMAScript (ES6). ECMAScript is a significant update to the language and brings a slew of new features.</p>
+<h3>1. Use lineprof to find the bottleneck</h3>
 
-<p>Here are several of the important features that will make the ES6 release:</p>
+<p>Hadley Wickham created a <a href="https://github.com/hadley/lineprof">useful and easy to use package</a> that you can use to figure out which part of your code is causing the biggest issues and drill down to the specific lines that are taking up most of the runtime. Figuring out which parts of your code are problematic is the first step towards fixing that problem.</p>
 
-<h1>Modules</h1>
+<h3>2. Attack the slowest cases, but don’t forget about the rest</h3>
 
-<p>Modules provide private and public encapsulation to limit the creation of variables and functions on the global scope. They are part of a popular design pattern that has resulted in several frameworks such as <a href="http://requirejs.org/">RequireJS</a>, <a href="http://browserify.org/">Browserify</a>, and <a href="http://webpack.github.io/">Webpack</a>. ES6 provides a native solution that combines attributes of both CommonJS and AMD.</p>
+<p>After making some improvements, we found that our algorithm could take anywhere between 0.5 and 6 seconds to run on a jobseeker. For the next iteration, we focused on the slowest 10% and tried to speed each of them up by 1-2 seconds. We repeated this process a few more times, taking a look at the slowest cases and seeing if we could make some big improvements there. However, we also stumbled on an easier but equally effective approach: making small improvements that impact all cases. Speeding up the process by 0.2 seconds for all jobseekers has the same impact of cutting off 2 seconds from just 10% of jobseekers and may be easier to do.</p>
 
-<ul>
-<li>Similar to CommonJS, native modules provide a compact syntax, a preference for single exports and support for cyclic dependencies.</li>
-<li>Similar to AMD, they have direct support for asynchronous loading and configurable module loading.</li>
-</ul>
+<h3>3. Using data.table can speed up almost any merge or aggregation</h3>
 
+<p>Our algorithm requires merging together a bunch of big data frames (for example, ones covering hundreds of thousands of user clicks or job applications) so we quickly searched for a package that could speed things up. We found the <a href="http://datatable.r-forge.r-project.org/">data.table package</a> which was orders of magnitude quicker than the base merge in some cases. However, we realized that there was no reason to limit our use of data.table as speed improvements could be found even on merges of much smaller data frames. Furthermore, any time we needed to run an aggregation over a data frame (usually done with aggregate or tapply), data.table could cut out valuable milliseconds.</p>
 
-<p>Let&rsquo;s look at an example of using native modules. Within a utility file, we have two functions, sumOfNumbers and logMessage. The module pattern allows us to choose which functions or attributes we want to expose to our consumers. There are two kinds of exports:</p>
+<h3>4. Use microbenchmark to rigorously test out your code</h3>
 
-<ul>
-<li><strong>named exports</strong> (several per module), where the user specifies the name of the attribute on import.</li>
-<li><strong>default exports</strong> (one per module), where the compiler picks the export item labeled with the default keyword when it cannot match a named export.</li>
-</ul>
+<p>The <a href="http://cran.r-project.org/web/packages/microbenchmark/index.html">microbenchmark package</a> is a far better way to test your R code’s speed than the standard system.time function. Microbenchmark runs each line of code you give it 100 times (by default) and computes summary statistics of those runtimes, allowing you to be confident that any speed improvements you find are not merely the result of random variation.</p>
 
+<h3>5. Don’t overfit to a single case</h3>
 
-<p><em>Note:</em> You can run the following examples in babel&rsquo;s <a href="https://babeljs.io/repl/">live script editor</a>.</p>
+<p>Good data scientists are cognizant of the tradeoff between training error and test error when building a model. A similar phenomenon can occur when trying to optimize an algorithm for speed. As we were refining our code, we typically tested things out on our own accounts. However, this was a bit dangerous, since we are by no means a representative sample of users of our site. We are unusually active on the site and all have somewhat similar career histories to each other. A change that improves runtime when generating matches for one of us may not have the same impact on users who are less active or belong to a different job function. Make sure to test out any changes on a large, random sample before concluding that your changes have done the trick.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<h3>6. The clearest code is not always the fastest code</h3>
+
+<p>Imagine you have a data frame that’s 100,000 rows long where the head looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -175,41 +176,53 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// lib/utility.js</span>
-</span><span class='line'><span class="kr">export</span> <span class="kd">function</span> <span class="nx">sumOfNumbers</span><span class="p">(){</span>
-</span><span class='line'> <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
-</span><span class='line'> <span class="k">return</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">){</span> <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span> <span class="p">});</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">logMessage</span><span class="p">(</span><span class="nx">msg</span><span class="p">){</span>
-</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Message is &#39;</span><span class="p">,</span> <span class="nx">msg</span><span class="p">);</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// app.js</span>
-</span><span class='line'><span class="kr">import</span> <span class="p">{</span><span class="nx">logMessage</span><span class="p">,</span> <span class="nx">sumOfNumbers</span><span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;utility&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">logMessage</span><span class="p">(</span><span class="nx">sumOfNumbers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">));</span> <span class="c1">// Message is 15</span>
-</span><span class='line'><span class="nx">logMessage</span><span class="p">(</span><span class="nx">sumOfNumbers</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">));</span> <span class="c1">// Message is 19</span>
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; head(my.df, 10)
+</span><span class='line'>           a         b         c         d
+</span><span class='line'>1         NA        NA 0.4885687        NA
+</span><span class='line'>2         NA        NA 0.1666159        NA
+</span><span class='line'>3         NA        NA 0.3176160        NA
+</span><span class='line'>4         NA 0.9568433 0.4848375        NA
+</span><span class='line'>5  0.8441578 0.3022814        NA        NA
+</span><span class='line'>6  0.4223605        NA        NA        NA
+</span><span class='line'>7         NA 0.7998102        NA        NA
+</span><span class='line'>8         NA 0.8183823        NA        NA
+</span><span class='line'>9         NA        NA        NA 0.1550433
+</span><span class='line'>10 0.1511128 0.4783680        NA        NA</span></code></pre></td></tr></table></div></figure>
 
 
-<h1>Classes</h1>
+<p>Let’s say what you want to do is replace all of the NA’s with 0’s. So a pretty straightforward function to use would be defined as:</p>
 
-<p>ES6 brings classes to the language. The class implementation still uses prototypical inheritance, so it is syntactic sugar to make it easier to implement and understand.  Using the <strong>extends</strong> keyword provides the following benefits:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNA &lt;- function(df){
+</span><span class='line'>  df[is.na(df)] &lt;- 0
+</span><span class='line'>  return(df)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
-<ul>
-<li>Binds the correct context when using the <em>extends</em> keyword.</li>
-<li>Methods defined within the class block are defined on the prototype object.</li>
-<li>Provides the <em>super</em> keyword to easily invoke parent methods.</li>
-</ul>
+
+<p>That’s concise, easy to understand, and flexible enough to handle most changes that could occur to my.df in the future. Now, take a look at this function:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>replaceNAUgly &lt;- function(df){
+</span><span class='line'>  df$a[is.na(df$a)] &lt;- 0
+</span><span class='line'>  df$b[is.na(df$b)] &lt;- 0
+</span><span class='line'>  df$c[is.na(df$c)] &lt;- 0
+</span><span class='line'>  df$d[is.na(df$d)] &lt;- 0
+</span><span class='line'>  return(df)
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>As a simple example of class inheritance, let&rsquo;s create a shape class with a triangle child class extending from shape.</p>
+<p>It’s not concise, is a little difficult to understand, and is not very flexible, but it’s actually quite a bit quicker:</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -217,449 +230,41 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//Traditional way to create inheritance</span>
-</span><span class='line'><span class="kd">function</span> <span class="nx">Shape</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">width</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">height</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="nx">Shape</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">printObject</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Shape&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">function</span> <span class="nx">Triangle</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
-</span><span class='line'><span class="c1">//Note: not a convenient way to invoke parent constructor</span>
-</span><span class='line'><span class="c1">// we have to call the parent object with Triangle&#39;s context.</span>
-</span><span class='line'>  <span class="nx">Shape</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sides</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="nx">Triangle</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Shape</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span> <span class="c1">//prototype object now inheritances the properties of Shape</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">Triangle</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">printObject</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Triangle&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">sides</span><span class="p">);</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; microbenchmark(
+</span><span class='line'>+   replaceNA(my.df),
+</span><span class='line'>+   replaceNAUgly(my.df)
+</span><span class='line'>+ )
+</span><span class='line'>Unit: milliseconds
+</span><span class='line'>                           min       lq   median       uq      max neval
+</span><span class='line'>     replaceNA(my.df) 219.7503 241.4529 249.8200 271.3922 316.8102   100
+</span><span class='line'> replaceNAUgly(my.df) 148.9356 159.6738 167.7006 178.1716 234.8962   100</span></code></pre></td></tr></table></div></figure>
 
 
+<p>In the majority of cases, the first function is fine or even preferable. However, if speed is your only concern, you may be able to speed things up if you’re willing to forgo having pretty code.</p>
 
+<h3>7. Think about applying some filters</h3>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//ES6 Way to create inheritance</span>
-</span><span class='line'><span class="kr">class</span> <span class="nx">Shape</span><span class="p">{</span>
-</span><span class='line'>  <span class="nx">width</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// properties of the class</span>
-</span><span class='line'>  <span class="nx">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// note: they are NOT private</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//function called with you call Shape with &#39;new&#39; keyword</span>
-</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">width</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">height</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//method part of shape</span>
-</span><span class='line'>  <span class="nx">printObject</span><span class="p">(){</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Shape&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kr">class</span> <span class="nx">Triangle</span> <span class="kr">extends</span> <span class="nx">Shape</span><span class="p">{</span>
-</span><span class='line'>  <span class="nx">sides</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">){</span>
-</span><span class='line'>    <span class="c1">//invokes the parent constructor by calling super</span>
-</span><span class='line'>    <span class="c1">// automatically applies the correct context.</span>
-</span><span class='line'>    <span class="kr">super</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//Overrides the method on the parent object</span>
-</span><span class='line'>  <span class="nx">printObject</span><span class="p">(){</span>
-</span><span class='line'>    <span class="c1">//Draw the triangle</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Triangle&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>We categorize each of our jobseekers into one of fourteen overarching job functions, such as sales, marketing, technology, or finance. If I’m a software engineer, almost all of the jobseekers who are similar to me are likely to belong in technology. Sure, we could think of some cases where someone shares attributes with people in a couple of different job functions, but this is more of an edge case. By comparing each jobseeker with the half-million other jobseekers in their job function instead of the entire set of six million, we could make the algorithm about ten times faster while still capturing the vast majority of the same results, a tradeoff we deemed totally acceptable.</p>
 
+<h3>8. Preprocess, preprocess, preprocess</h3>
 
-<p>We can apply this new syntax to existing frameworks such as Backbone.</p>
+<p>One of the steps in our algorithm is to compare the set of titles a jobseeker has had in his/her career with the sets for all other jobseekers. However, sometimes two jobseekers will have had the same title but used different punctuation or capitalization when entering their title (not to mention misspellings or synonyms). As a result, we needed to remove the case and punctuation from each title before a comparison could be done. Our initial instinct was to run this text cleaning process right before doing the comparison, but this meant that we would end up cleaning the same text hundreds of times. Instead, we cleaned all the titles once, stored the results, and did the comparisons on these cleaned titles. You should constantly be on the lookout for places where the algorithm repeats a step multiple times and see if there’s a way to do so just once and then just look up those results when needed.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//current backbone implementation</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">MyView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;div&gt;Sample Template&lt;/div&gt;&#39;</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="s1">&#39;click&#39;</span> <span class="o">:</span> <span class="s1">&#39;clickHandler&#39;</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">template</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>  <span class="nx">clickHandler</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;My view was clicked&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//Backbone using classes</span>
-</span><span class='line'><span class="kr">class</span> <span class="nx">MyView</span> <span class="kr">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">options</span><span class="p">){</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">template</span> <span class="o">=</span> <span class="s1">&#39;&lt;div&gt;Sample Template&lt;/div&gt;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">events</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>      <span class="s1">&#39;click&#39;</span> <span class="o">:</span> <span class="s1">&#39;clickHandler&#39;</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>    <span class="kr">super</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="nx">render</span><span class="p">(){</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">template</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="nx">clickHandler</span><span class="p">(){</span>
-</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;My view was clicked&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<h3>9. Rcpp for when you’re really stuck</h3>
 
+<p>If you’ve narrowed down your issue to a single operation and you can’t find a way around it, the <a href="http://dirk.eddelbuettel.com/code/rcpp.html">Rcpp package</a> may be able to help. With Rcpp, you can run parts of your code in C++ without interrupting the flow of the rest of your code. There’s a bit of a learning curve if you’re not familiar with C++, but the improvements could be massive enough to justify the effort. Alternatively, with some diligent Googling, you may be able to find someone who’s already solved your problem using Rcpp.</p>
 
-<h1>Arrow Functions</h1>
+<h3>10. Parallelize!</h3>
 
-<p>ES6 has also added arrow functions, which provide a for more concise syntax for anonymous functions. However, there are a number of differences between arrow functions and traditional JavaScript functions:</p>
+<p>For R users who have never done any sort of parallel computing before, this may seem a bit daunting. However, depending on how your code is structured, it can actually be quite trivial to run tasks on all the cores of your machine in parallel. For instance, if you’re using Linux or a Mac and part of your code is run using lapply, forcing it to run in parallel is as simple as loading the parallel package and replacing lapply with mclapply (i.e. multicore lapply). Parallelization doesn’t guarantee speed improvements, but testing it out shouldn’t require too much effort and is worth considering.</p>
 
-<ul>
-<li><strong>Lexical <em>this</em> binding</strong> &ndash; The value of <em>this</em> inside of the function is determined by where the arrow function is defined, not where it is used.</li>
-<li><strong>Not <em>new</em>-able</strong> &ndash; Arrow functions do not have a constructor method and therefore can not be used to create instances. Arrow functions throw an error when called with &ldquo;new&rdquo;.</li>
-<li><strong>Cannot change the value of <em>this</em></strong> &ndash; The value of <em>this</em> remains the same value throughout the lifecycle of the function.</li>
-<li><strong>No <em>arguments</em> object</strong> &ndash; Function arguments are not accessible through the arguments object; you must use named arguments or ES6 <a href="http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters">rest arguments</a>.</li>
-</ul>
+<p>Along the same lines, you can force R to utilize all the cores of your machine when doing any linear algebra operations by using OpenBLAS or ATLAS, though the process of getting it up and running is not as easy. <a href="http://www.stat.cmu.edu/~nmv/2013/07/09/for-faster-r-use-openblas-instead-better-than-atlas-trivial-to-switch-to-on-ubuntu/">Nathan VanHoudnos&#8217; blog post on the topic</a> is a good place to start.</p>
 
+<h3>11. Make sure this is all worth it</h3>
 
-<p>Here is a simple example using arrow functions.  We are iterating of a list of items and printing out each number to the console.</p>
+<p>While speeding things up is always a good idea, make sure you’re not spending hours of work to just speed things up by a few minutes total. Your time is better spent doing some actual analysis or model building. If this means that you need to let something run in the background of your computer while you do other stuff (or even that it needs to run overnight), so be it.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">];</span>
-</span><span class='line'>  <span class="c1">//Current javascript implementation</span>
-</span><span class='line'>  <span class="nx">numbers</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">number</span><span class="p">){</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">number</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// ES6 - Arrow functions</span>
-</span><span class='line'>  <span class="nx">numbers</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">number</span> <span class="o">=&gt;</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">number</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&rsquo;s look at more practical example using an event handler:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//Current Javascript implementation</span>
-</span><span class='line'><span class="kd">function</span> <span class="nx">Person</span><span class="p">(){</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;button&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">text</span> <span class="o">=</span> <span class="s2">&quot;Hello I am a person&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//Problem with current Javascript that we have to &quot;bind&quot; the person context </span>
-</span><span class='line'>  <span class="c1">// in order to get the callback to work properly.  Without &quot;bind&quot;, the function</span>
-</span><span class='line'>  <span class="c1">// would print out undefined.</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">text</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//ES6</span>
-</span><span class='line'><span class="kd">function</span> <span class="nx">Person</span><span class="p">(){</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;button&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">text</span> <span class="o">=</span> <span class="s2">&quot;Hello I am a person&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//No longer need to &quot;bind&quot; the function since it is set to where it is defined.</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">text</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Arrow functions also provide different types of optional syntax.  Here are several examples:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'> <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span>
-</span><span class='line'> <span class="kd">var</span> <span class="nx">temp</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'> <span class="c1">//arrow functions return last value, no need for return statement.</span>
-</span><span class='line'> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">number</span> <span class="o">=&gt;</span> <span class="nx">number</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
-</span><span class='line'> <span class="c1">//need empty parentheses if no parameters are passed</span>
-</span><span class='line'> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">map</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">);</span>
-</span><span class='line'> <span class="c1">//multiple parameters </span>
-</span><span class='line'> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Destructing Variables</h1>
-
-<p>Destructuring allows binding via pattern matching. ES6 supports matching for arrays and objects. It will try to match the variable directly and return undefined when no match is found.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'> <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span>
-</span><span class='line'> <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">a</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span> <span class="nx">b</span><span class="o">:</span> <span class="s1">&#39;Hello&#39;</span><span class="p">,</span> <span class="nx">c</span><span class="o">:</span> <span class="kc">false</span> <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'> <span class="c1">//first = 1, third = 3</span>
-</span><span class='line'> <span class="kd">var</span> <span class="p">[</span><span class="nx">first</span><span class="p">,</span> <span class="p">,</span> <span class="nx">third</span><span class="p">]</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">;</span>
-</span><span class='line'> <span class="kd">var</span> <span class="p">{</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">}</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">;</span>
-</span><span class='line'> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span> <span class="c1">//prints out 4</span>
-</span><span class='line'> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span> <span class="c1">//prints out false</span>
-</span><span class='line'>
-</span><span class='line'> <span class="c1">//assigning value of &#39;b&#39; in object to variable &#39;anotherName&#39;</span>
-</span><span class='line'> <span class="kd">var</span> <span class="p">{</span><span class="nx">b</span><span class="o">:</span> <span class="nx">anotherName</span><span class="p">}</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">;</span>
-</span><span class='line'> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">anotherName</span><span class="p">);</span> <span class="c1">//prints out &#39;Hello&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Default, Rest, Spread</h1>
-
-<p>ES6 provides the flexibility to set default values for function parameters. It lets you grab trailing values without using the arguments keyword. And it also allows you to turn an array into consecutive arguments for a function call. With these options, there is no longer a need to use the arguments variable.</p>
-
-<h5>Default Parameter</h5>
-
-<ul>
-<li>Current values that are not set are given a value of undefined. ES6 provides new syntax to add default values for parameters.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="kd">function</span> <span class="nx">add2</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">){</span>
-</span><span class='line'>     <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="nx">add2</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// returns 7</span>
-</span><span class='line'>  <span class="nx">add2</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">//return 4</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h5>Rest parameter</h5>
-
-<ul>
-<li>Currently, in order to grab all argument values as an array, we need to explicitly convert the values using the arguments keyword.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="c1">// Current Javascript</span>
-</span><span class='line'>    <span class="c1">//need to convert arguments into an array object in order to use any useful method.</span>
-</span><span class='line'>  <span class="kd">function</span> <span class="nx">sum</span><span class="p">(){</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">){</span> <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">;</span> <span class="p">});</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// ES6</span>
-</span><span class='line'>    <span class="c1">// The conversion happens automatically. </span>
-</span><span class='line'>    <span class="kd">function</span> <span class="nx">sum</span><span class="p">(...</span><span class="nx">numbers</span><span class="p">){</span>
-</span><span class='line'>      <span class="k">return</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h5>Spread parameter</h5>
-
-<ul>
-<li>Spread functionality allows us to convert an array into consecutive arguments to pass into a function. Currently, we have to use the <em>apply</em> keyword in order to provide the same functionality.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="c1">//current implementation</span>
-</span><span class='line'>  <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span>
-</span><span class='line'>  <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nb">Math</span><span class="p">,</span> <span class="nx">numbers</span><span class="p">);</span> <span class="c1">//spreads the array and returns 5</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//Future implementation</span>
-</span><span class='line'>  <span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span>
-</span><span class='line'>  <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(...</span><span class="nx">numbers</span><span class="p">);</span> <span class="c1">//performs the same action</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Current Alternatives</h1>
-
-<p>The JavaScript specification is targeted to release in June, but it could take browsers months to <a href="http://kangax.github.io/compat-table/es6/">implement</a> these new features and years before users decide it&rsquo;s a good time to upgrade their browsers. Luckily, there are solutions which allow us to take advantage of these features right now. Here are several options:</p>
-
-<h3><a href="https://babeljs.io/"><img src="https://raw.githubusercontent.com/babel/logo/master/logo.png" alt="Babel" width="250px"></a></h3>
-
-<ul>
-<li>A compiler for converting ES6 syntax to ES5-compatible javascript. Babel is among the most mature compilers for ES6 conversion with the options of extensible plugins as well as framework and tool integration.</li>
-</ul>
-
-
-<h3><a href="https://github.com/google/traceur-compiler"><img src="https://google.github.com/traceur-compiler/logo/tc.svg" alt="Traceur logo" width="200px"> Traceur</a></h3>
-
-<ul>
-<li>Google&rsquo;s version of Babel. Traceur is a JavaScript.next-to-JavaScript-of-today compiler that allows you to use features from the future today. Traceur supports ES6 as well as some experimental ES.next features.</li>
-</ul>
-
-
-<h3><a href="http://www.typescriptlang.org/"><img src="http://www.typescriptlang.org/content/images/logo_small.png" alt="Typescript"></a></h3>
-
-<ul>
-<li>Typescript is a typed superset of JavaScript that compiles to plain JavaScript. It also provides the option of applying types to variables and functions at compile time. TypeScript provides the flexibility of using ES6 features such as classes, modules and arrow function which ultimately compile to ES5 compatible JavaScript. Similar to Babel, Typescript has integrations with many development environments and definition files for existing frameworks.</li>
-</ul>
-
-
-<h3><a href="http://flowtype.org/"><img src="http://flowtype.org/static/flow-hero-logo.png" alt="Flow" width="200px"></a></h3>
-
-<ul>
-<li>Flow is a new static type checker for JavaScript. Flow is similar to Typescript in that it will compile down to plain JavaScript. The difference is that it provides valid checking for null variable type. Flow integrates well with other Facebook tools such as React and Flux.</li>
-</ul>
-
-
-<h1>Conclusion</h1>
-
-<p>ECMAScript 6 provides an array of exciting tools and libraries that we can leverage to make development both easier and more exciting. Though we know that it could be months before we can use these tools natively, we have alternatives that allow developers to expand their toolsets and think of efficient and abstract solutions. If interested in learning more, here are several links:</p>
-
-<h4>Resources:</h4>
-
-<ul>
-<li><a href="https://github.com/lukehoban/es6features">All ES6 Features</a></li>
-<li><a href="https://leanpub.com/understandinges6/">Understanding ES6 &ndash; Nicolas Zakas</a></li>
-<li><a href="https://babeljs.io/docs/learn-es6/">Try ES6 Compilation using Babel</a></li>
-<li><a href="https://www.youtube.com/watch?v=DqMFX91ToLw">Evolution of Javascript &ndash; Netflix Javascript Talks</a></li>
-<li><a href="https://people.mozilla.org/~jorendorff/es6-draft.html">EcmaScript 6 Draft</a></li>
-</ul>
-
+<p>Have a question or comment? <a href="http://redd.it/2i4807">Join the discussion on reddit</a>.</p>
 </div>
   
   
@@ -688,23 +293,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

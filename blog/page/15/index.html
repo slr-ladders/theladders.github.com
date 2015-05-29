@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Thanks to one of our Lead Software Engineers, Derek Brown, TheLadders will be hosting the first NYC Erlang Factory Lite on the 14th of September. If &hellip;">
+  <meta name="description" content="Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/08/were-hosting-erlang-factory-lite/">We&#8217;re Hosting the First NYC Erlang Factory Lite on September 14th</a></h1>
+      <h1 class="entry-title"><a href="/2013/03/trouble-with-googles-immutableset/">Trouble With Google&#8217;s ImmutableSet</a></h1>
     
     
       <p class="meta">
@@ -127,30 +127,31 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-08-07T16:06:00-04:00" pubdate data-updated="true">Aug 7<span>th</span>, 2013</time>
+<time datetime="2013-03-12T06:10:10-04:00" pubdate data-updated="true">Mar 12<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Thanks to one of our Lead Software Engineers, Derek Brown, TheLadders will be hosting the first <a href="http://www.erlang-factory.com/conference/NYC2013">NYC Erlang Factory Lite</a> on the 14th of September.</p>
+  <div class="entry-content"><p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
 
-<p>If you haven’t heard about Erlang before, it is an open-source programming language that was designed for massive concurrency, making it an ideal candidate for scalability on multicore architectures. The language was invented for telecoms, but due to its unique features it quickly made its way into a range of other verticals with similar requirements – from financial switches, through instant messaging servers, HTTP servers and web frameworks, database engines and so forth. It is used for highly available systems, providing uptime of five nines and allowing live code updates, all at a fraction of the effort required by conventional languages such as C++ and Java. Ericsson, Aol, WhatsApp, Nokia, T-Mobile, Heroku and Basho are a few of the companies that employ Erlang.</p>
+<blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&#8211;Hunter S. Thompson</strong></footer></blockquote>
 
-<p>At TheLadders, we’re currently using two of the most popular software products written in Erlang: the document-oriented database system Couchbase, and RabbitMQ, an AMQP messaging service. I asked Derek how he found out about Erlang in the first place: &ldquo;I became interested in Erlang while first reading about functional programming, and was drawn to its fault-tolerant capabilities and its unique syntax. Erlang&rsquo;s functional nature is a big draw, coming from an imperative background. On top of that, the Erlang community is active and very open. So a few years later here I am co-organizing the NYC Erlang Meetup and now co-organizing the NYC Erlang Factory Lite.&rdquo;</p>
 
-<p>On the 14th of September New York developers will not only get to find out more about Erlang and its applications to distributed environments, but also to meet two of the language’s inventors. NYC Erlang Factory Lite will also be a chance for the East Coast Erlang community to showcase Erlang and its use in the real world. Adam Denenberg, VP of Engineering at the Huffington Post will talk about the architecture and setup built by the Huffington Post to power their real-time WebSocket-based commenting framework.  Leveraging RabbitMQ, SockJS, Cowboy and Erlang, they were able to build and design a highly scalable, customizable solution to power real-time comments. Christopher Meiklejohn, software engineer at Basho, will provide an introduction to building Riak Core applications. Fred Hebert, engineer on Heroku&rsquo;s Routing Team, will talk about Heroku’s cloud platform composed of heterogeneous components (written in Ruby, Erlang and Go, to name a few) and why a large part of its routing stack is written in Erlang.  Other speakers include Christian Gribneau, CTO of Ology Media, and Mahesh Paolini Subramania, Creator of the first Erlang Cloud PBX. For more info check out the program on the ErlangFactory website: <a href="http://www.erlang-factory.com/conference/NYC2013/programme">http://www.erlang-factory.com/conference/NYC2013/programme</a></p>
+<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
 
-<p>The high point of the day will the keynotes of Joe Armstrong and Robert Virding, two of the three inventors of the language. Joe was part of the team who designed and implemented the first version of Erlang and has written several Erlang books including Programming Erlang Software for a Concurrent World. He will be talking about the OTP rationale. OTP is a number of different things: a delivery platform for Erlang and the Erlang VM, a large set of general-purpose libraries and a set of design principles. Robert took part in the original system design and contributed much of the original libraries, as well as to the current compiler. While at the lab he also did a lot of work on the implementation of logic and functional languages and on garbage collection. He also taught Erlang to literally hundreds of developers.  In his talk he will look at the rationale behind Erlang and try to show how many of its important features combine to work together.</p>
+<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
+Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
 
-<p>For those interested in learning Erlang, Robert Virding will teach a three-day course immediately prior to the Erlang Factory Lite. The course contains all the Erlang basics such as sequential and concurrent programming, alongside error handling. More details on all modules here: <a href="http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress">http://www.erlang-factory.com/conference/NYC2013/university/ErlangExpress</a></p>
+<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
 
-<p>Early Bird tickets are available at $70 until the 16th of August. After the 16th, the full-price ticket is $90. Half-price student discounts are also available. Places are limited, so if you want to come you should get your ticket now.</p>
-
-<p>If you want to find out more about Erlang, here’s a great introduction to Erlang ‘from behind the trenches’ video: <a href="https://vimeo.com/19806728">https://vimeo.com/19806728</a>. A lot more videos and slides from various Erlang Factory events around the world can be found on the event website: <a href="http://www.erlang-factory.com/">http://www.erlang-factory.com/</a>.</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/2013/03/trouble-with-googles-immutableset/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -177,23 +178,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

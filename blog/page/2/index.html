@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Being abstract is something profoundly different from being vague&#8230; The purpose of abstraction is not to be vague, but to create a new semantic &hellip;">
+  <meta name="description" content="Communication Breakdown, It&#8217;s always the same,I&#8217;m having a nervous breakdown, Drive me insane!&#8211;Led Zeppelin tl;dr &mdash; Use this &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - a Trip Back to OO</a></h1>
+      <h1 class="entry-title"><a href="/2015/01/not-measles/">MMR Is Not Measles, Mumps, and Rubella</a></h1>
     
     
       <p class="meta">
@@ -127,319 +127,31 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-05-21T12:02:00-04:00" pubdate data-updated="true">May 21<span>st</span>, 2015</time>
+<time datetime="2015-01-22T15:58:00-05:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Being abstract is something profoundly different from being vague&#8230; The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise.</p><footer><strong>&#8211; Edsger Dijkstra</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Communication Breakdown, It&#8217;s always the same,<br/>I&#8217;m having a nervous breakdown, Drive me insane!</p><footer><strong>&#8211;Led Zeppelin</strong></footer></blockquote>
 
 
-<p>Welcome to part two of our series on the design principles and goals behind our newer customer facing web services.  In <a href="/2015/05/design-principles-and-goals-high-level-architecture">Part 1</a> we covered our <a href="/2015/05/design-principles-and-goals-high-level-architecture/">High Level Archicture</a> and talked about how domain models are the heart of our systems.  We&rsquo;ll pick up there, and go into some more detail in how we build those models, how they focus on behavior, and how we serialize them for the API endpoints.</p>
+<p>tl;dr &mdash; Use this <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> to monitor 389 Directory Server replication</p>
 
-<h1>Getting Back to OO roots</h1>
+<p>We&rsquo;ve been bitten in the past when the multi-master replication between our authentication servers stops functioning properly and we don&rsquo;t find out about it immediately.  This usually manifests itself as users complaining that they&rsquo;re intermittently unable to authenticate against certain services, which results in a bunch of troubleshooting effort only to discover that the real problem is the user not existing on all IPA servers.</p>
 
-<p>It’s no great secret that today’s world is full of procedural Java code and engineers that have been taught that encapsulation means having getters and setters to hide properties (hey&hellip;I used to be one of em once upon a time).</p>
+<p>We use <a href="http://freeipa.org">freeIPA</a> internally as our centralized user management system.  freeIPA combines several standard open source components to provide an &ldquo;integrated security information management solution&rdquo;.  These components include <a href="http://directory.fedoraproject.org/">389 Directory Server</a>, <a href="http://k5wiki.kerberos.org/wiki/Main_Page">MIT Kerberos</a>, <a href="http://www.ntp.org">NTP</a>, <a href="http://fedorahosted.org/bind-dyndb-ldap/">DNS</a>, <a href="http://pki.fedoraproject.org/">Dogtag certificate system</a>, <a href="http://fedorahosted.org/sssd/">SSSD</a> as well as several others.  In the absence of custom configuration, freeIPA utilizes two instances of 389 Directory Server &ndash; one for traditional directory information on the standard port 389, and one for <a href="http://en.wikipedia.org/wiki/Public_key_infrastructure">PKI/CA</a> on port 7389.  389 Directory Server&rsquo;s multi-master replication (MMR) support ensures that directory and certificate data is available from any node in the cluster.</p>
 
-<p>In the past we’ve blogged about our onboarding process, which involves an <a href="https://github.com/TheLadders/object-calisthenics">Object Calisthenics exercise</a> and <a href="https://github.com/TheLadders/solid-exercises">Uncle Bob’s SOLID videos</a>.  What good would all that be if we left it at exercises and discussions?  We put a lot of that to work in our newer customer facing web services.</p>
+<p>To prevent this unfortunate scenario in the future, we developed a simple <a href="http://www.nagios.org">nagios</a>/<a href="http://www.icinga.org">icinga</a> plugin to assess replication health within the 389 Directory Server cluster.  Fortunately, information including structure of the cluster and status of replication is stored within the LDAP schema itself.  In developing the plugin, we hoped to avoid storing any authentication details in the plugin or the nagios/icinga configuration.  This required enabling anonymous read-only querying of the replication agreement data.  Daniel James Scott&rsquo;s <a href="http://danieljamesscott.org/11-articles/application-guides/26-freeipa-replication-monitoring.html">blog post</a> provided very clear instructions for enabling anonymous read/search/compare access to the replication agreements.  Our <a href="http://github.com/TheLadders/monitor-ds-replication">plugin</a> uses the <a href="http://rubygems.org/gems/net-ldap">Net::LDAP</a> Ruby gem to interact with a 389 Directory Server instance to discover all of the downstream replicas and their respective status.  We query the ldap server with base <code>cn=config</code> and filter on <code>(objectclass=nsds5replicationagreement)</code>.  The equivalent command line query is:</p>
 
-<h2>Use Polymorphic classes instead of conditionals</h2>
-
-<p>Rather than relying on conditionals and asking data related questions of our models, we try to rely more on interfaces and subtypes for behavior and “tell don’t ask.”  Hidden “type checks” are the worst offenders, and usually a prime candidate for polymorphic models that expose better meaning.  What do I mean by a hidden type check?  Things like customer.isGoldLevelMember(), vehicle.hasFourWheels(), person.isChild().  Those are really asking about what “type” of thing we’re talking about.  We’ll get into more about exposing meaning over type checks in the “Making implicit concepts explicit” section.  Along with polymorphism comes the good ole…</p>
-
-<h2>Visitor Pattern</h2>
-
-<p>This is something that pops up quite a bit throughout our use cases.  We often have mixed collections of an abstraction, where each item may be a different subclass.  Perhaps a collection of activity between you and a Recruiter, or interesting notifications for you to see.<br/>
-Most of the time, this boils down to just creating different representations of each object to serialize and send back to the client, so we’ve taken to calling them Presenters.</p>
-
-<p>The visitor pattern has been around for a long time, and allows us to let the compiler do the dirty work of telling us where we need to make code changes when adding a new type.</p>
-
-<p>The textbook example of a Visitor relies directly on compiler type checks, something like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ShapeVisitor</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="kt">void</span> <span class="nf">visit</span><span class="o">(</span><span class="n">Circle</span> <span class="n">circle</span><span class="o">);</span>
-</span><span class='line'>  <span class="kt">void</span> <span class="nf">visit</span><span class="o">(</span><span class="n">Square</span> <span class="n">square</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">VisitableShape</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="kt">void</span> <span class="nf">accept</span><span class="o">(</span><span class="n">ShapeVisitor</span> <span class="n">visitor</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Circle</span> <span class="kd">implements</span> <span class="n">VisitableShape</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">accept</span><span class="o">(</span><span class="n">ShapeVisitor</span> <span class="n">visitor</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="n">visitor</span><span class="o">.</span><span class="na">visit</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ldapsearch -x -h openldap_server.example.com -b cn=config '(objectclass=nsds5replicationagreement)'</span></code></pre></td></tr></table></div></figure>
 
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">VisitableShape</span> <span class="n">shape</span> <span class="o">=</span> <span class="err">…</span>
-</span><span class='line'><span class="n">shape</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">visitor</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>This yields data similar to:</p>
 
-
-<p>A lot of times we take this a little bit further, and our Visitor will also be a data contract of what’s expected for each case, and also return something.  In the case of displaying someone’s activity feed, we have something like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">profileSaveOn</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">profileViewOn</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">jobApplyRating</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">,</span>
-</span><span class='line'>                   <span class="n">JobApplyRatingType</span> <span class="n">type</span><span class="o">,</span>
-</span><span class='line'>                   <span class="n">DateTime</span> <span class="n">jobApplyDate</span><span class="o">,</span>
-</span><span class='line'>                   <span class="n">JobSummary</span> <span class="n">jobSummary</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">hiringAlert</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">,</span>
-</span><span class='line'>                <span class="n">JobSummary</span> <span class="n">jobSummary</span><span class="o">,</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">message</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">directMessage</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">,</span>
-</span><span class='line'>                  <span class="n">String</span> <span class="n">message</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">resumeDownload</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">resumeShare</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">RecruiterEvent</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="err">…</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">presentedWith</span><span class="o">(</span><span class="n">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">presenter</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ResumeDownload</span> <span class="kd">extends</span> <span class="n">RecruiterEvent</span>
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">presentedWith</span><span class="o">(</span><span class="n">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">presenter</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">resumeDownload</span><span class="o">(</span><span class="n">eventDate</span><span class="o">());</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So if we add a new type of activity, we add another method to our Presenter, and the compiler tells us all the places we need to account for, no guesswork!  We’ve also created a data contract between our models and concrete presenters, so that we can maintain data encapsulation in our models and be explicit about what data is needed for each type of activity.</p>
-
-<h3>Presenters for business rules</h3>
-
-<p>We also frequently use a flavor of the visitor pattern to enforce business rules, even if we may not have explicit types for each case.  While not your textbook implementation, it still takes advantage of double dispatch to realize different scenarios (rather than types).</p>
-
-<p>So what might that look like?  We have an interface that represents the possible states of a Recruiter that we care about:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">validRecruiter</span><span class="o">(</span><span class="n">RecruiterData</span> <span class="n">recruiterData</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">invalidRecruiter</span><span class="o">(</span><span class="n">RecruiterData</span> <span class="n">recruiterData</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>RecruiterData is just a Data Transfer Object that contains the recruiter’s data.  This Presenter interface allows us to contain the rules for what “valid” means within the Recruiter class itself, while allowing(and forcing) applications to consider what happens when a Recruiter is invalid.</p>
-
-<p>Recruiter:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">presentedWith</span><span class="o">(</span><span class="n">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">presenter</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">isVisible</span><span class="o">())</span>
-</span><span class='line'>    <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">validRecruiter</span><span class="o">(</span><span class="n">asData</span><span class="o">());</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">invalidRecruiter</span><span class="o">(</span><span class="n">asData</span><span class="o">());</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isVisible</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">subscription</span><span class="o">.</span><span class="na">allowsRecruiterToBeVisible</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">profile</span><span class="o">.</span><span class="na">isVisible</span><span class="o">();</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This allows our Recruiter class to be more about behavior and enforcing our business rules, and less about what data properties a recruiter has.</p>
-
-<h3>Presenters for hiding dependencies</h3>
-
-<p>This same concept is how we keep Jersey isolated to the web components.  Our business tier depends on a JobPresenter interface, and the Jersey resource passes in an implementation that happens to use Jersey classes:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">JobPresenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">success</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">T</span> <span class="nf">forbidden</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JerseyJobPresenter</span> <span class="kd">implements</span> <span class="n">JobPresenter</span><span class="o">&lt;</span><span class="n">Response</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Response</span> <span class="nf">success</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nf">buildResponse</span><span class="o">(</span><span class="n">Response</span><span class="o">.</span><span class="na">Status</span><span class="o">.</span><span class="na">OK</span><span class="o">,</span> <span class="n">jobRepresentation</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Response</span> <span class="nf">forbidden</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nf">buildResponse</span><span class="o">(</span><span class="n">Response</span><span class="o">.</span><span class="na">Status</span><span class="o">.</span><span class="na">FORBIDDEN</span><span class="o">,</span> <span class="n">paywallFor</span><span class="o">(</span><span class="n">jobRepresentation</span><span class="o">));</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>we then have code in the Workflow that looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">representationFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">PayWall</span><span class="o">.</span><span class="na">isHitFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">job</span><span class="o">))</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">forbidden</span><span class="o">(</span><span class="n">jobRepresentation</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">success</span><span class="o">(</span><span class="n">jobRepresentation</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Enums</h2>
-
-<p>Ahh enums.  Yes enums get their own special little blurb, because enums are special.  Enums let you do bad bad things, without you ever noticing.  The problem with enums is&hellip;us.   Developers tend to allow the entire application to know that a class is an enum, and pepper instance checks throughout it.  This ends up leaking more information then it needs to, and can make it hard to switch a class from being an enum to a real class.  Our rule is that only two kinds of places should know that it’s an enum at all &ndash; the enum itself, and the classes that pick an enum value.</p>
-
-<h3>No public type checking</h3>
-
-<p>The fact that a class is an enum should be an implementation detail, not a contract.  It also makes it hard to add new enum values, and violates the Open Closed Principle.  Therefore, the only class that should compare enum instance equality is the enum class.  That means that other classes should not do something like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">Status</span><span class="o">.</span><span class="na">APPROVED</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="c1">// do something</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>but instead ask the enum the question directly via status.isApproved(), or even better tell it to do something (tell don&rsquo;t ask).</p>
-
-<p>Two enum checks is a sign that there’s a more meaningful concept hiding there</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">day</span> <span class="o">==</span> <span class="n">Day</span><span class="o">.</span><span class="na">SATURDAY</span> <span class="o">||</span> <span class="n">day</span> <span class="o">==</span> <span class="n">Day</span><span class="o">.</span><span class="na">SUNDAY</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="c1">// do something</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>the above is hiding a very important concept, something like day.isOnTheWeekend();</p>
-
-<p>Who says enums have to be void of logic?  Logic belongs where it belongs, regardless of whether the class is a typical class or an enum.  Enums should be viewed as just a way to restrict input values, and possibly make the internal implementation of the class easier.  Here’s an example of one of our enums:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -477,223 +189,95 @@ Most of the time, this boils down to just creating different representations of 
 <span class='line-number'>36</span>
 <span class='line-number'>37</span>
 <span class='line-number'>38</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">enum</span> <span class="n">ProfileStatus</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">NO_PROFILE</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">INCOMPLETE</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">PENDING</span><span class="o">(</span><span class="mi">2</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">DECLINED</span><span class="o">(</span><span class="mi">3</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">PERMANENTLY_DECLINED</span><span class="o">(</span><span class="mi">4</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">APPROVED</span><span class="o">(</span><span class="mi">5</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">DELETED</span><span class="o">(</span><span class="mi">6</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">SUSPENDED</span><span class="o">(</span><span class="mi">7</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">PENDING_ESCALATED</span><span class="o">(</span><span class="mi">8</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">REMOVED</span><span class="o">(</span><span class="mi">9</span><span class="o">);</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># extended LDIF
+</span><span class='line'>#
+</span><span class='line'># LDAPv3
+</span><span class='line'># base &lt;cn=config&gt; with scope subtree
+</span><span class='line'># filter: (objectclass=nsds5replicationagreement)
+</span><span class='line'># requesting: ALL
+</span><span class='line'>#
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">ProfileStatus</span><span class="o">&gt;</span> <span class="n">CAN_BE_EXPEDITED</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">INCOMPLETE</span><span class="o">,</span>
-</span><span class='line'>                                                                                  <span class="n">PENDING</span><span class="o">,</span>
-</span><span class='line'>                                                                                  <span class="n">PENDING_ESCALATED</span><span class="o">);</span>
+</span><span class='line'># meToipa-1.example.com, replica, dc\3Dexample\2Cdc\3com, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-1.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-1.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-1.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-1.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214458Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 20150121214501Z
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: MTM6MjAwMzUxNy8wIDY6NC8wIDE0OjQ0MjkvMCA=
+</span><span class='line'>nsds5replicaLastUpdateStatus: 1 Can't acquire busy replica
+</span><span class='line'>nsds5replicaUpdateInProgress: FALSE
+</span><span class='line'>nsds5replicaLastInitStart: 0
+</span><span class='line'>nsds5replicaLastInitEnd: 0
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>                              <span class="n">id</span><span class="o">;</span>
+</span><span class='line'># meToipa-2.example.com, replica, dc\3Dexample\2Cdc\3Dcom, mapping tree, config
+</span><span class='line'>dn: cn=meToipa-2.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config
+</span><span class='line'>cn: meToipa-2.example.com
+</span><span class='line'>objectClass: nsds5replicationagreement
+</span><span class='line'>objectClass: top
+</span><span class='line'>nsDS5ReplicaTransportInfo: LDAP
+</span><span class='line'>description: me to ipa-2.example.com
+</span><span class='line'>nsDS5ReplicaRoot: dc=example,dc=com
+</span><span class='line'>nsDS5ReplicaHost: ipa-2.example.com
+</span><span class='line'>nsds5replicaTimeout: 120
+</span><span class='line'>nsDS5ReplicaPort: 389
+</span><span class='line'>nsDS5ReplicatedAttributeList: (objectclass=*) $ EXCLUDE memberof idnssoaserialentryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsDS5ReplicaBindMethod: SASL/GSSAPI
+</span><span class='line'>nsDS5ReplicatedAttributeListTotal: (objectclass=*) $ EXCLUDE entryusn krblastsuccessfulauth krblastfailedauth krbloginfailedcount
+</span><span class='line'>nsds5replicareapactive: 0
+</span><span class='line'>nsds5replicaLastUpdateStart: 20150121214628Z
+</span><span class='line'>nsds5replicaLastUpdateEnd: 0
+</span><span class='line'>nsds5replicaChangesSentSinceStartup:: Njo0MzEyLzAgMTM6NDAzMjMzOS8wIA==
+</span><span class='line'>nsds5replicaLastUpdateStatus: 0 Replica acquired successfully: Incremental update started
+</span><span class='line'>nsds5replicaUpdateInProgress: TRUE
+</span><span class='line'>nsds5replicaLastInitStart: 20141215154802Z
+</span><span class='line'>nsds5replicaLastInitEnd: 20141215154807Z
+</span><span class='line'>nsds5replicaLastInitStatus: 0 Total update succeeded
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="nf">ProfileStatus</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'># search result
+</span><span class='line'>search: 2
+</span><span class='line'>result: 0 Success
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isApproved</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">APPROVED</span> <span class="o">==</span> <span class="k">this</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isExpeditedBy</span><span class="o">(</span><span class="n">ProfileStatus</span> <span class="n">expeditedProfileStatus</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nf">canBeExpedited</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">expeditedProfileStatus</span><span class="o">.</span><span class="na">isApproved</span><span class="o">();</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">canBeExpedited</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">CAN_BE_EXPEDITED</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'># numResponses: 3
+</span><span class='line'># numEntries: 2</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Once upon a time the INCOMPLETE, PENDING, and PENDING_ESCALATED were checked against with == by another class, and it was hard to figure out what was really going on.  Now we’ve introduced names for what that grouping is &ndash; something that can be expedited &ndash; and contained that within this class.  This leaves the calling code more expressive:</p>
+<p>We&rsquo;re primarily concerned with how far in the past each replica successfully performed an update.  As you can see from the output above, the replication agreement with ipa-2.example.com is in the middle of an incremental update and shows a last update end of <code>0</code>.  This does not necessarily mean that replication is broken.  For better or worse, when the server begins an update, it clears the last end time.  To avoid constantly alerting when we&rsquo;re unable to retrieve meaningful replication data, the plugin maintains a state file that tracks the last valid update completion time and how many times a check has resulted in a last update completion of <code>0</code>.  The number of successive zero responses and acceptable number of minutes since last successful update completion are configurable parameters with the ability to set distinct warning and critical thresholds.</p>
 
-<p>Profile:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">statusAllowsVisibility</span><span class="o">()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">profileStatus</span><span class="o">.</span><span class="na">isApproved</span><span class="o">()</span> <span class="o">||</span> <span class="n">profileStatus</span><span class="o">.</span><span class="na">isExpeditedBy</span><span class="o">(</span><span class="n">expeditedProfileStatus</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Making implicit concepts explicit</h2>
-
-<p>One of the things that became hard to manage in our old system is the difference between Basic and Premium accounts.  We were switching on basic/premium for almost everything that acted differently in each scenario, which becomes a problem in many ways:</p>
-
-<p>If we want to add another type (which we did, called Freemium), we now have to go find all those conditional statements and add another part to handle Freemium accounts.</p>
-
-<p>Meaning – What does it mean to have a Basic, Premium, or Freemium account?  In order to answer that in our old system, you have to go find the 100s of conditionals that do something different in each case.  The meaning was held implicitly in the code that called methods like isBasic(), crippling our ability to meaningfully describe the difference between the accounts.</p>
-
-<p>The answer?  Model the <strong>behavior</strong> of each type of account, and make the meaning <strong>explicit</strong>.  Instead of</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">If</span> <span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">isBasic</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>  <span class="o">..</span> <span class="n">can</span><span class="err">’</span><span class="n">t</span> <span class="n">apply</span> <span class="o">..</span>
-</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>  <span class="o">..</span> <span class="n">can</span> <span class="n">apply</span> <span class="o">...</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>just ask the question of a polymorphic object – can they apply?</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">permissions</span><span class="o">.</span><span class="na">canApply</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>    <span class="o">..</span> <span class="n">can</span> <span class="n">apply</span> <span class="o">..</span>
-</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="o">..</span> <span class="n">can</span><span class="err">’</span><span class="n">t</span> <span class="n">apply</span> <span class="o">..</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">BasicPermissions</span>
-</span><span class='line'><span class="nf">canApply</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'><span class="n">canUpgrade</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">PremiumPermissions</span>
-</span><span class='line'><span class="nf">canApply</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'><span class="n">canUpgrade</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span> <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This encapsulates the meaning of Basic vs. Premium in type specific models, and also alleviates problems that the Open Closed Principle highlights.  Determining whether or not users can apply to a job has now become an explicit part of our domain model.  If we need to add another type (like Freemium), all we have to do is create a new FreemiumPermissions class and <em><strong>describe what it means</strong></em> to be Freemium.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">FreemiumPermissions</span>
-</span><span class='line'><span class="nf">canApply</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nf">numberOfApplicationsThisWeek</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="n">canUpgrade</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We have an explicit rule that we are only allowed to ask if a user is basic/premium/freemium/etc for two reasons:</p>
-
-<ul>
-<li>copy and branding, since it might say the word “Basic” or “Premium”</li>
-<li>a factory is creating a polymorphic model</li>
-</ul>
-
-
-<p>other than that, we must ask a behavioral question instead.</p>
-
-<h2>Return null, get shot</h2>
-
-<p>One of our rules in the new code is to never publicly return or pass null to another class.  Never.  You can try, but people are clumsy&hellip;stairs are slippery&hellip;accidents are bound to happen.  Null can be used in classes internally and must be accounted for at system boundaries, but is considered a true error anywhere else.  These are also the only places that defensive null checks are considered appropriate.   So how do we accomplish that?  We stole code.</p>
-
-<h3>Call me Maybe</h3>
-
-<p>We created our our Maybe class, based off of Nat Pryce’s <a href="https://github.com/npryce/maybe-java.">https://github.com/npryce/maybe-java.</a> Maybe is similar to Scala’s Option and Java 8’s Optional.  Anywhere we expose a value that is optional and could be null, we expose a Maybe.  This clearly demarcates when and where a value may or may not be present, and forces us to be more explicit about what happens if it’s not there.</p>
-
-<p>The Null Object pattern is also valuable, but is really only useful for behavioral classes that can provide sensible implementations for methods.  It doesn’t work as well for data driven classes – what do you return if someone calls firstName() or id() for Recruiter data that doesn’t exist?  That’s when Maybe becomes a better choice.</p>
-
-<p>So in light of returning things that might not exist, either return a Maybe, Null Object, or throw an exception.  Keep null checking at the system boundaries, and we never have to wonder where along the line something is or isn’t null.</p>
-
-<p>Example for jobseeker salary:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Salary</span> <span class="n">salary</span> <span class="o">=</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">getSalary</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">salary</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
-</span><span class='line'>  <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">return</span> <span class="n">salary</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="o">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>
-compared to</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">getSalary</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">)).</span><span class="na">otherwise</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>or even better:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">salary</span><span class="o">(</span><span class="n">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">)).</span><span class="na">otherwise</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>
-There is a tradeoff though, particularly for Java 7 and below &ndash; we have to create a Google Guava function, which is ugly.  We&rsquo;re willing to accept this little bit of ugliness and tuck it away at the bottom of the class, or in its own class itself (much less of a problem in Java 8).
-SalaryPredicates:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Salary</span><span class="o">&gt;</span> <span class="nf">isBelow</span><span class="o">(</span><span class="kd">final</span> <span class="kt">int</span> <span class="n">limit</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'> <span class="k">return</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Salary</span><span class="o">&gt;()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">apply</span><span class="o">(</span><span class="n">Salary</span> <span class="n">salary</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">salary</span><span class="o">.</span><span class="na">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">};</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When talking about being expressive in code, readability, and separating mechanics from meaning – we’ve made a nice improvement.  There are some mechanics in the first example, mixed in between the code that enforces the business rules.  The last example is short and sweet, and only contains the parts we really care about.  This really starts to become beneficial when you have to manipulate optional data more than once as it passes through the system.</p>
-
-<h3>JDK8</h3>
-
-<p>Some of our web services are running on JDK8, which introduces its own Optional class, first class functions, and lambda expressions.  This makes conforming to this rule much much easier.  Jackson also has a JDK8 module that understands Optional, so our representation/serialization classes can use them directly, and much of our code has no reason to use nulls whatsoever from end to end.</p>
-
-<h2>Wrapping up</h2>
-
-<p>We&rsquo;ve talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow&rsquo;s post, we&rsquo;ll dig a little deeper into <a href="/2015/05/design-principles-and-goals-being-expressive-in-code">being expressive in code</a>, and how we like to write our code line by line.</p>
+<p>Since putting this monitoring in place, we&rsquo;ve moved to newer freeIPA servers using replication to seamlessly migrate data from the old servers to the new.  This plugin has already served to identify a breakdown in our replication that was easily remedied because the nodes had not yet significantly diverged.  Other aspects of the health and performance of the IPA cluster are available via SNMP.</p>
 </div>
   
   
@@ -722,23 +306,23 @@ SalaryPredicates:</p>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="“Take a load off Annie. Take a load for free. Take a load off Annie. And you put the load right on me.” &#8211; Robbie Robertson Act I: The Players &hellip;">
+  <meta name="description" content="&#8220;Program testing can be used to show the presence of bugs, but never to show their absence!&#8221;&#8211;Edsger W. Dijkstra When we started out &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2013/05/varnish-in-five-acts/">Varnish in Five Acts</a></h1>
+      <h1 class="entry-title"><a href="/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/">Mutation Testing With PIT: A Step Beyond Normal Code Coverage</a></h1>
     
     
       <p class="meta">
@@ -127,85 +127,76 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2013-05-03T13:21:00-04:00" pubdate data-updated="true">May 3<span>rd</span>, 2013</time>
+<time datetime="2013-02-20T03:15:15-05:00" pubdate data-updated="true">Feb 20<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>“Take a load off Annie. Take a load for free. Take a load off Annie. And you put the load right on me.” &#8211; Robbie Robertson</p></blockquote>
+  <div class="entry-content"><blockquote><p>&#8220;Program testing can be used to show the presence of bugs, but never to show their absence!&#8221;</p><footer><strong>&#8211;Edsger W. Dijkstra</strong></footer></blockquote>
 
 
-<h2>Act I: The Players</h2>
+<p>When we started out building our <a href="http://www.cenedella.com/job-search/job-offer-guaranteed-signature/">Signature program</a>, we had a goal in mind &ndash; test the &lt;insert expletive of choice here&gt; out of it.  We also wanted to make sure that not only did we test it, but we tested it right.  Regular code line coverage tools like <a href="http://www.atlassian.com/software/clover/overview">Clover</a> are great, but typically only tell you that a line of code was executed &ndash; not necessarily that it was verified.  Many developers often see them as a way to determine what&rsquo;s been tested, but in reality they are better at<em> highlighting code that hasn&rsquo;t been tested at all</em>.</p>
 
-<p>At TheLadders, we have a number of entity services that clients access via HTTP. Some examples are the job service, the job application service and the topic of this post: the job seeker service. Each service manages the lifecycle of a core entity in our domain. On each request, the service gathers data from multiple data sources to build a complete entity and then serializes that entity to JSON. This is done for every request and is incredibly wasteful when you consider that most of these entities don’t change that often. This was a major bottleneck in our infrastructure. In the case of the job seeker service, the same entity can be requested multiple times per request from our consumer website.</p>
+<p>Our interest in mutation testing stemmed from a talk about how occasionally we see bad/ineffective tests, ones that give the impression of testing the code but in reality don&rsquo;t do a great job.  <a href="https://twitter.com/SeanTAllen">Sean T Allen</a> and I had apparently both already been looking into a new tool, because once the discussion came up we were already on the same page.  Enter <a href="http://pitest.org/">PIT</a>, a mutation testing tool under active development.  We decided to try it out in combination with Clover, and the results were:</p>
 
-<p>All this repeated, unnecessary entity object assembly and JSON serialization created scaling problems. Making matters worse, we periodically have batch processes that can increase service load by an order of magnitude. Caching is an easy win here. The question is how.</p>
+<p><img class="center" src="/images/tim_and_eric_mind_blown.gif" title="'Tim and Eric Mind Blown gif')" ></p>
 
-<p>Initial attempts to cache these entities were done inside the service JVMs, using familiar and popular JVM based caches like EHcache and calls out to memcache. Unfortunately, this left us operating at JVM speeds and the caches were competing with the service logic for memory and threads.</p>
+<h1></h1>
 
-<p>In addition, our service code was muddled with messy caching logic.  Making the code harder to reuse, and more annoyingly, changes just affecting caching forced us to re-release the entire service.  We didn’t like this mixing of concerns.</p>
+<h1>But first, what is mutation testing?</h1>
 
-<p>We thought we could do better if we used external read through caches. It&rsquo;s easy to slide them between existing clients and services. With caching outside the service, it get released only when their logic changes not because we’re tuning caching.</p>
+<p>For those unfamiliar with how mutation testing works, I&rsquo;ll offer a brief summary.  After your sources and tests are compiled and run, a mutation test framework like PIT will alter the program code and insert ‘mutations’, such as changing != to == or completely removing a line.  It will then run the tests that exercise that chunk of code again, with the expectation that at least one of them should now fail.  If your tests are well written, or more importantly, <em>complete</em>, then at least one assertion should have been broken by PIT’s change.  (For more, <a href="http://www.simple-talk.com/dotnet/.net-tools/mutation-testing/">Jeremy Jarrell’s introduction</a> (first 2 sections) sums it up pretty well)</p>
 
-<p>For reasons too numerous to cover in this post we chose <a href="https://www.varnish-cache.org/about">Varnish</a> as our read through cache.</p>
+<h1></h1>
 
-<hr />
+<h1>Your 100% coverage?  It’s a lie.</h1>
 
-<h2>Act II: The Architecture</h2>
+<p>You write a test &ndash; it&rsquo;s green and all is well.  But are you <em>certain</em> that it will fail if someone mistakenly alters the code?  “Yea, I have tons-o-coverage” you say?  Typical line coverage tools like Clover can lull you into a false sense of security by showing 100% coverage without really delivering on that promise.  And that’s probably fine &ndash; heck, a lot of teams/projects would be happy to break 90% overall line coverage (or 50%&hellip;or 20%).  But there are a few of us here that border on insane and try to push the envelope &ndash; more, more, more!</p>
 
-<p>When we introduced Varnish to our architecture, we wanted to make sure we were not adding a single point of failure. Simply put, if the cache layer goes down, our infrastructure should continue running. Performance might be degraded, but we should continue to be able to serve content to clients.</p>
+<h1>So what&rsquo;s so great/different about mutation testing?</h1>
 
-<p>The diagram below shows a typical setup. In a normal scenario, a client accesses Varnish via a load balancer. Varnish in turn farms out the work in round robin fashion to one of four job seeker service nodes. Should Varnish become unavailable, the load balancer stops sending traffic to Varnish and reroutes it to the four job seeker service nodes.</p>
+<h2>Testing your tests:</h2>
 
-<p><img class="center" src="/images/varnish-in-five-acts/varnish-flow.png"></p>
+<p>One of the most important long-term benefits of a test is not knowing that it passes, but rather knowing that it will fail if the code is broken.  When not TDDing, I tend to alter the code or comment out blocks and ensure that the test fails as expected.  Sometimes we write tests that don&rsquo;t fail correctly with the code they test: maybe because of a mistaken assumption, or maybe because of a slight oversight &ndash; it happens.  Mutation testing is an effective, automated way of enforcing that tests fail correctly.</p>
 
-<p>Of all our entity services, the job seeker services carries the highest median load. The graph below is the 1 minute request rate on 4 jobseeker service nodes over the 36 hour period before and after Varnish was turned on.</p>
+<h2>Code is verified:</h2>
 
-<p><img class="center" src="/images/varnish-in-five-acts/before-after.png"></p>
+<p>PIT provides a way of ensuring that you&rsquo;ve written complete tests that verify the results of executing a piece of code.  The core concept of mutation testing is a powerful one &ndash; if you botch a line of code, a test should break somewhere.  If a test doesn&rsquo;t break, it means your tests aren&rsquo;t complete, the test may be wrong, or the line of code just flat out isn&rsquo;t doing anything.  In one case, we discovered dead code that was identified by PIT when switching our storage model.</p>
 
-<hr />
+<p>Depending on how far you believe in test coverage in general and mutation testing itself, it can be a great ally.  We decided to aim high &ndash; test everything.  PIT was vital in ensuring that we were actually verifying each line of code that we set out to.</p>
 
-<h2>Act III: Cache Invalidation</h2>
+<h1></h1>
 
-<p>Cache invalidation is one of the 2 hard problems in computer science along with naming things and off by one errors.</p>
+<h1>An Example:</h1>
 
-<p>We cache job seeker entity representations until some point in the “far future”, which is great until something about that job seeker changes, then we must invalidate the cached entry. So, how do we do that?</p>
+<p>To illustrate an example of what PIT does, consider the below (very basic) class and test:</p>
 
-<p>Two ways.</p>
+<figure class='code'><figcaption><span>PersonFactory</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/PersonFactory.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactory</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Person</span> <span class="nf">createPerson</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">setLastName</span><span class="o">(</span><span class="s">&quot;Last&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">person</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<h3>Via Header:</h3>
 
-<p>All requests that change the state of a job seeker that are made via the service attach a header in the response called &ldquo;x-invalidates&rdquo; that looks something like:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>x-invalidates: /jobseekers/123</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Varnish, when it sees this header, turns the value into a content expiring regular expression. My team mate <a href="http://twitter.com/johnconnolly">@johnconnolly</a> learned about this general technique from <a href="https://twitter.com/kevburnsjr">Kevin Burns Jr.</a> at <a href="RESTFest">http://restfest.org</a> 2012.  I used Kevin’s post on the <a href="http://blog.kevburnsjr.com/tagged-cache-invalidation">subject</a> as a jumping off point for our implementation.</p>
-
-<h3>Via Magic:</h3>
-
-<p>Once upon a time, we had a database administrator named Gennady. Gennady wrote a <a href="http://www.dinodigusa.com/images/Magic1.gif">PHP script that reads MySQL’s binary logs</a>, looking for changes to a set of predefined tables. When it sees an update, it finds the primary key for the row and fires off an invalidation request. In our case, a purge of the cached jobseeker url in Varnish. This allows us to invalidate cached job seeker entities even when the update was performed via legacy code that interacts directly with the database rather than through the service.</p>
-
-<p>If you were to do this manually, it would look something like:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -X PURGE varnish-jobseeker/jobseekers/123</span></code></pre></td></tr></table></div></figure>
-
-
-<hr />
-
-<h2>Act IV: Configuration Spelunking</h2>
-
-<p>So, how did we do it? I’m going to break down our configuration into its parts and cover the general role each part plays. From here on out, I’m assuming you understand the basics of how Varnish works and how you configure it. Also, there is some repetition in our configuration that isn’t required, it just makes it easier for our configuration management tool, puppet, to create the final output.</p>
-
-<h3>Load Balancing</h3>
-
-<p>We have four service servers behind varnish so we create four backend entries and then set up a director to round robin between them. Then in vcl_recv, we set our director named &lsquo;nodes&rsquo; to be the backend that we will use to fetch content.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Person</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/main/java/com/theladders/Person.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -230,104 +221,35 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
 <span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend JS1 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS1&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">lastName</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFirstName</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>backend JS2 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS2&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setFirstName</span><span class="o">(</span><span class="n">String</span> <span class="n">firstName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">firstName</span> <span class="o">=</span> <span class="n">firstName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getLastName</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">lastName</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>backend JS3 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS3&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS4 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS4&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>director nodes round-robin <span class="o">{</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS1 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS2 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS3 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS4 ; <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  <span class="nb">set </span>req.backend <span class="o">=</span> nodes;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># store in cache only by url, not backend host</span>
-</span><span class='line'>sub vcl_hash <span class="o">{</span>
-</span><span class='line'>  hash_data<span class="o">(</span>req.url<span class="o">)</span>;
-</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="nb">hash</span><span class="o">)</span>;
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Degraded</h3>
-
-<p>Each backend is setup with a probe url that we use to check its health. If the probe url doesn&rsquo;t return at least one HTTP 200 response within a fifteen second period, we mark that backend as unhealthy.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend ... <span class="o">{</span>
-</span><span class='line'>   ...
-</span><span class='line'>
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLastName</span><span class="o">(</span><span class="n">String</span> <span class="n">lastName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">lastName</span> <span class="o">=</span> <span class="n">lastName</span><span class="o">;</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Varnish has the concept of a grace period, wherein, we can keep content alive in our cache past the TTL based on the health status of our backends. In our case, when the all backends are down, we keep cached items alive for an extra hour. During this time, we operate in a degraded status. Read requests for cached items will be handled while write requests will fail because there is no backend service to handle them.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>PersonFactoryTest</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -339,48 +261,43 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
-</span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># extra ttl for cached objects based on backend health</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>!req.backend.healthy<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 1h;
-</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 15s;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactoryTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonFactory</span><span class="o">().</span><span class="na">createPerson</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getFirstName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">lastName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getLastName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">,</span> <span class="n">firstName</span><span class="o">);</span>
+</span><span class='line'>    <span class="c1">// forgot test for last name</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Invalidation</h3>
+<p>Clover (and PIT) will say that the <em><strong>line</strong></em> coverage is 100%.  But at a close glance &ndash; how many untested pieces of code do you see?  PIT <em><strong>mutation</strong></em> coverage will point out that there are 2 &ndash; the call to person.setLastName(&ldquo;Last&rdquo;) and the getLastName() method.  Both were executed as part of the test, but neither are actually verified for correctness.</p>
 
-<p>We do two types of invalidation:</p>
+<h2>Clover Results:</h2>
 
-<ul>
-<li>invalidation based on the &lsquo;x-invalidates&rsquo; header that comes back with a response</li>
-<li>&lsquo;manual&rsquo; invalidation based on sending the HTTP PURGE verb to a url in the Varnish cache.</li>
-</ul>
+<h2><img src="/images/clover.png" alt="clover results" /></h2>
 
+<h2>PIT Results:</h2>
 
-<p>The ability to do a manual purge is limited to a small set of IP addresses that we validate against when a purge request is received.</p>
+<h2><img src="/images/pit-failure.png" alt="pit failure" /></h2>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<h2><img src="/images/person-factory.png" alt="PersonFactory class" /></h2>
+
+<p>(Person report excluded for brevity)</p>
+
+<p>You’ll notice that the setLastName method in the PersonFactory is highlighted in red, with an explanation below:
+removed call to com/theladders/Person::setLastName : SURVIVED</p>
+
+<p>What this means is that PIT altered the code and removed the call to setLastName() completely, ran the tests again, and they all still passed &ndash; meaning that the mutation survived.  You’ll also notice that it tried the same thing for setFirstName(), but it was successfully killed by our test (it failed, as it should).</p>
+
+<p>Once we add a test for last name, we’ll see that PIT will now report that all mutations are killed.  Essentially what it means, is that PIT couldn’t find a way to screw with the code without breaking a test.</p>
+
+<figure class='code'><figcaption><span>PersonFactoryTest</span><a href='https://github.com/TheLadders/pit-example/blob/master/src/test/java/com/theladders/PersonFactoryTest.java'>Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -392,387 +309,42 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>acl purge <span class="o">{</span>
-</span><span class='line'>  <span class="s2">&quot;localhost&quot;</span>;
-</span><span class='line'>  <span class="s2">&quot;10.10.10.10&quot;</span>;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span>client.ip ~ purge<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>       <span class="k">return</span><span class="o">(</span>lookup<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    error 405 <span class="s2">&quot;Not allowed.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The actual mechanics of doing the purge are fairly simple. If the url attempted to be purged exists, purge it and return a 200.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_hit <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 200 <span class="s2">&quot;Purged.&quot;</span>;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFactoryTest</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PersonFactory</span><span class="o">().</span><span class="na">createPerson</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getFirstName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">lastName</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getLastName</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;First&quot;</span><span class="o">,</span> <span class="n">firstName</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Last&quot;</span><span class="o">,</span> <span class="n">lastName</span><span class="o">);</span>
 </span><span class='line'>  <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If it doesn&rsquo;t, return a 404 response code:</p>
+<h2>PIT Results afterwards:</h2>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_miss <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 404 <span class="s2">&quot;Not in cache.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<h2><img src="/images/pit-success.png" alt="Pit success" /></h2>
 
+<p>This was a very trivial example, and PIT supports much more than what I&rsquo;ve shown you here.  As you may have noticed, I skipped over one of the killed mutations: if (x != null) null else throw new RuntimeException.  This is another type of fault that PIT will try to introduce for return objects.  The full list of mutations can be found <a href="http://pitest.org/quickstart/mutators/">here</a>.</p>
 
-<p>Update requests include invalidation-related headers. Every request we fetch has, inside of Varnish, its request url stored in a special x-url header. This will be used as the url to check the x-invalidates header against. As this header is purely for our internal use, we remove it before delivering items to a client:</p>
+<h1></h1>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
-</span><span class='line'>
-</span><span class='line'>  ...
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_deliver <span class="o">{</span>
-</span><span class='line'>  <span class="c"># clear internal cache invalidation header before sending to client</span>
-</span><span class='line'>  <span class="nb">unset </span>resp.http.x-url;
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<h1>Our Experience with PIT:</h1>
 
+<p>We started using it last year on a new project with some really great success.  As part of it, we were building a RESTful web service with Jersey.  It was a green field project with no legacy code &ndash; everything written from scratch except for small internal libraries.  We tested almost every meaningful thing we could about the server (web interfaces, security XML configs, null validation rules, etc).  It was very heavy on integration tests &ndash; some just verified all the business components working together and some deployed the server on embedded Jetty and hit the web endpoints.  Towards the end we were maintaining around 98% in both Clover and PIT (excluding Data Transfer Object classes), and ended up around 95%.</p>
 
-<p>Any &lsquo;successful&rsquo; PUT, POST, DELETE or PATCH response will have its x-invalidates header used as a regular expression to invalidate existing content whose x-url header matches the x-invalidates regex.</p>
+<p>While we also used Clover for basic code coverage, as we got our PIT mutation coverage up into the 90s I stopped paying much attention to Clover.  Our use of PIT was to ensure that we were actually testing and verifying all the parts of the code that we thought we were, and to find the places where we needed to fill in more tests or assertions.  We would add/modify tests so that each line of code we wrote (almost) was also backed by an assertion somewhere.  Essentially, &ldquo;Hey PIT, where do I need to add more tests and assertions?&rdquo;</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  ...
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># cache invalidation</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PUT&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;POST&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;DELETE&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;PATCH&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span>  <span class="o">(</span>beresp.status &gt;<span class="o">=</span> 200 <span class="o">&amp;&amp;</span> beresp.status &lt; 400<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>     ban<span class="o">(</span><span class="s2">&quot;obj.http.x-url ~ &quot;</span> + beresp.http.x-invalidates<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>This gave us extreme confidence in our tests &ndash; if the code was modified incorrectly (with some small exceptions), a test would break and we knew it.  The effects of that confidence were outstanding.  At TheLadders we place a lot of value in code quality and &ldquo;doing things right,&rdquo; so refactoring is a large part of our process.  It enabled us to refactor at will with little fear of breaking anything, which happened quite frequently in many different ways, especially as a new project growing from the ground up.</p>
 
+<p>The best example of a big win was a refactoring to shift how we stored and tracked state.  When we first started out, we were creating and updating rows in the database (update in place).  We decided to switch to an <a href="http://martinfowler.com/eaaDev/EventSourcing.html">Event Sourcing</a> approach &ndash; instead of storing/retrieving state in the database, we instead stored &lsquo;actions&rsquo; and inputs in the database and then rebuilt the state in memory from those actions.  This was a large change to how a lot of the internals operated, and would normally carry a big risk factor in breaking existing functionality.  In this case, that risk factor was minimal and hardly played a part in our decision.  Because of the confidence we had in our tests thanks to PIT (and the fact that the majority of them were high level integration tests), all we did was start switching over and making changes until the tests were green again, and we were done.  The tests were the ultimate source of how the server needed to act, and PIT helped ensure that those tests covered everything the server was expected to do.</p>
 
-<hr />
+<p>If you want to try it out yourself, the above example in code is available here: <a href="https://github.com/TheLadders/pit-example">https://github.com/TheLadders/pit-example</a></p>
 
-<h2>Act V: The final product</h2>
-
-<p>And finally, we put it all together into a complete file (note, we use Varnish 3, the semantics around ban/purge changed from v2 to v3):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>backend JS1 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS1&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS2 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS2&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS3 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS3&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>backend JS4 <span class="o">{</span>
-</span><span class='line'>  .host  <span class="o">=</span> <span class="s2">&quot;JS4&quot;</span>;
-</span><span class='line'>  .port  <span class="o">=</span> <span class="s2">&quot;8080&quot;</span>;
-</span><span class='line'>  .probe <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    .url <span class="o">=</span> <span class="s2">&quot;/donjohnson/pulse&quot;</span>;
-</span><span class='line'>    .interval <span class="o">=</span> 5s;
-</span><span class='line'>    .timeout <span class="o">=</span> 250ms;
-</span><span class='line'>    .window <span class="o">=</span> 3;
-</span><span class='line'>    .threshold <span class="o">=</span> 2;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>director nodes round-robin <span class="o">{</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS1 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS2 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS3 ; <span class="o">}</span>
-</span><span class='line'>  <span class="o">{</span> .backend <span class="o">=</span> JS4 ; <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># what machines can institute a &#39;manual&#39; purge</span>
-</span><span class='line'>acl purge <span class="o">{</span>
-</span><span class='line'>  <span class="s2">&quot;localhost&quot;</span>;
-</span><span class='line'>  <span class="s2">&quot;192.1.1.4&quot;</span>;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># store in cache only by url, not backend host</span>
-</span><span class='line'>sub vcl_hash <span class="o">{</span>
-</span><span class='line'>  hash_data<span class="o">(</span>req.url<span class="o">)</span>;
-</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="nb">hash</span><span class="o">)</span>;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_fetch <span class="o">{</span>
-</span><span class='line'>  <span class="c"># max time to keep an item in the cache past its ttl</span>
-</span><span class='line'>  <span class="c"># used in conjunction with code in vcl_recv to</span>
-</span><span class='line'>  <span class="c"># deal with &#39;sick&#39; backends</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.grace <span class="o">=</span> 1h;
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># cache invalidation</span>
-</span><span class='line'>  <span class="nb">set </span>beresp.http.x-url <span class="o">=</span> req.url;
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PUT&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;POST&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;DELETE&quot;</span> <span class="o">||</span> req.request <span class="o">==</span> <span class="s2">&quot;PATCH&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span>  <span class="o">(</span>beresp.status &gt;<span class="o">=</span> 200 <span class="o">&amp;&amp;</span> beresp.status &lt; 400<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>     ban<span class="o">(</span><span class="s2">&quot;obj.http.x-url ~ &quot;</span> + beresp.http.x-invalidates<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_recv <span class="o">{</span>
-</span><span class='line'>  <span class="nb">set </span>req.backend <span class="o">=</span> nodes;
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span>client.ip ~ purge<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>       <span class="k">return</span><span class="o">(</span>lookup<span class="o">)</span>;
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    error 405 <span class="s2">&quot;Not allowed.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># extra ttl for cached objects based on backend health</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>!req.backend.healthy<span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 1h;
-</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nb">set </span>req.grace <span class="o">=</span> 15s;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_deliver <span class="o">{</span>
-</span><span class='line'>  <span class="c"># clear internal cache invalidation header before sending to client</span>
-</span><span class='line'>  <span class="nb">unset </span>resp.http.x-url;
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_hit <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 200 <span class="s2">&quot;Purged.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>sub vcl_miss <span class="o">{</span>
-</span><span class='line'>  <span class="c"># &#39;manual&#39; purge</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span>req.request <span class="o">==</span> <span class="s2">&quot;PURGE&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    purge;
-</span><span class='line'>    error 404 <span class="s2">&quot;Not in cache.&quot;</span>;
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Hidden Track Bonus Act:</h2>
-
-<p><img class="center" src="/images/varnish-in-five-acts/varnish-all-the-things.jpg"></p>
-
-<p>Join the discussion over at <a href="https://news.ycombinator.com/item?id=5651874">Hacker News</a>.</p>
+<p>Join the discussion over at <a href="http://www.reddit.com/r/programming/comments/18w2ia/who_tests_the_tests_mutation_testing_with_pit/">reddit</a>.</p>
 </div>
   
   
@@ -801,23 +373,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

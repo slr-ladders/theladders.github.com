@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="Clean code always looks like it was written by someone who cares&#8211; Michael Feathers Welcome back to the last post in our series on our design &hellip;">
+  <meta name="description" content="For once in my life I&#8217;ve got something to say I wanna say it now for now is today A love has been given so why not enjoy So let&#8217;s all &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a></h1>
+      <h1 class="entry-title"><a href="/2015/02/conclave/">Conclave</a></h1>
     
     
       <p class="meta">
@@ -127,363 +127,60 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-05-22T12:26:00-04:00" pubdate data-updated="true">May 22<span>nd</span>, 2015</time>
+<time datetime="2015-02-13T13:13:00-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>Clean code always looks like it was written by someone who cares</p><footer><strong>&#8211; Michael Feathers</strong></footer></blockquote>
-
-
-<p>Welcome back to the last post in our series on our design goals and principles.  We&rsquo;ve talked about our <a href="/2015/05/design-principles-and-goals-high-level-architecture">High Level Architecture</a> and <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo">Our Trip Back to OO</a>, and now we&rsquo;re going to dig into how we write and compose our code, and how we try to be expressive in what our code says.</p>
-
-<h1>Don’t write code, write sentences that tell a story</h1>
-
-<p>You should have to think hard to write code, not read it.  One of the things we focus on a lot is how the code reads.  Is the code full of programmer terms like ‘build’ and ‘create’ or does it read like a fluent paragraph?  Some might consider it a small detail and fluffy, but it can directly impact how maintainable code is.  A lot of times we write code in ways that only programmers understand, and while we speak the language, it can still add a small mental overhead that really isn’t needed.</p>
-
-<p>JavaBeans is great as a naming convention if you’re relying on reflective frameworks to read properties out of data structures, but inappropriate for true domain models.</p>
-
-<p>Even the small things – this isn’t a direct example, but similar to what we run into a lot.  Why do we have to write:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="nf">buildJobseeker</span><span class="o">(</span><span class="n">premiumSubscription</span><span class="o">.</span><span class="na">getStatus</span><span class="o">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When you read it out loud, you get “return build Jobseeker premium Subscription get status.”  Huh?  Why can’t we write:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="nf">jobseekerWith</span><span class="o">(</span><span class="n">premiumSubscription</span><span class="o">.</span><span class="na">status</span><span class="o">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When you read that out loud, you get “return Jobseeker with premium Subscription status.”  Makes a little more sense – and anyone, developer or not, should be able to understand it just by reading words.</p>
-
-<p>We do this sort of thing on both a small and large scale &ndash; we name things for their calling context and intent.  We might rename something just so it reads better in the code that is calling it.  It’s important to note that we’re talking about our end application &ndash; code that one project owns and consumes &ndash; so we can make assumptions about how the code will be called and see it easily.  The same ideas don’t necessarily apply to things like reusable libraries.</p>
-
-<p>Some other examples from our code:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">currentUser</span><span class="o">.</span><span class="na">refer</span><span class="o">(</span><span class="n">someoneElse</span><span class="o">).</span><span class="na">forThe</span><span class="o">(</span><span class="n">post</span><span class="o">);</span>
-</span><span class='line'><span class="n">user</span><span class="o">.</span><span class="na">like</span><span class="o">(</span><span class="n">job</span><span class="o">);</span>
-</span><span class='line'><span class="n">user</span><span class="o">.</span><span class="na">unlike</span><span class="o">(</span><span class="n">job</span><span class="o">);</span>
-</span><span class='line'><span class="n">jobseeker</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">paymentHistory</span><span class="o">.</span><span class="na">includingOnly</span><span class="o">(</span><span class="n">selectedPaymentIds</span><span class="o">)).</span><span class="na">to</span><span class="o">(</span><span class="n">outputStream</span><span class="o">,</span> <span class="n">asPdf</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Separating mechanics from meaning</h1>
-
-<p>There are a lot of times we have to do things that are “mechanical” that don’t really have any inherent meaning to the task at hand, but are really just supporting code.  Things like constructing specific Date instances, interfacing with other library/framework components, or looping over collections.  This supporting code serves a purpose, but lacing it within the more expressive code of business logic only serves as clutter.  Separating mechanical code from business code leaves the important code cleaner and simpler, highlighting what’s really happening.</p>
-
-<p>A real world example for retrieving the jobs that a Jobseeker has applied to:</p>
-
-<p>Old Code:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">getAppliedJobsFor</span><span class="o">(</span><span class="kd">final</span> <span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">&gt;</span> <span class="n">applications</span> <span class="o">=</span> <span class="n">jobApplicationSystem</span><span class="o">.</span><span class="na">getApplicationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// Filter to only include succeeded applications</span>
-</span><span class='line'>  <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">&gt;</span> <span class="n">succeededApplications</span> <span class="o">=</span> <span class="n">Iterables</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">applications</span><span class="o">,</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">&gt;()</span>
-</span><span class='line'>  <span class="o">{</span>
-</span><span class='line'>        <span class="nd">@Override</span>
-</span><span class='line'>        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">apply</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="n">ProcessedApplication</span> <span class="n">application</span><span class="o">)</span>
-</span><span class='line'>        <span class="o">{</span>
-</span><span class='line'>          <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="na">succeeded</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>  <span class="o">});</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="k">return</span> <span class="n">Iterables</span><span class="o">.</span><span class="na">transform</span><span class="o">(</span><span class="n">succeededApplications</span><span class="o">,</span> <span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">ProcessedApplication</span><span class="o">,</span> <span class="n">JobRepresentation</span><span class="o">&gt;()</span>
-</span><span class='line'>      <span class="o">{</span>
-</span><span class='line'>        <span class="nd">@Override</span>
-</span><span class='line'>        <span class="kd">public</span> <span class="n">JobRepresentation</span> <span class="nf">apply</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="n">ProcessedApplication</span> <span class="n">application</span><span class="o">)</span>
-</span><span class='line'>        <span class="o">{</span>
-</span><span class='line'>          <span class="k">return</span> <span class="nf">get</span><span class="o">(</span><span class="n">application</span><span class="o">.</span><span class="na">getJobLocationId</span><span class="o">(),</span> <span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>   <span class="o">});</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">get</span><span class="o">(</span><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobLocationId</span><span class="o">&gt;</span> <span class="n">ids</span><span class="o">,</span>
-</span><span class='line'>                                      <span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">repository</span><span class="o">.</span><span class="na">getJobsFor</span><span class="o">(</span><span class="n">ids</span><span class="o">).</span><span class="na">toRepresentationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In 5 seconds – can you tell me what’s going on?  Probably not – there are a lot of mechanics clouding the way.  We have some meaningful things buried in anonymous functions and a lot of lines that are just compiler syntax.  We make a pretty liberal use of Google’s Guava library to implement functions and transforms, but when left to roam free in our application code they can wreak havoc.  With a few small changes: the addition of a ProcessedApplications wrapper class and a class just to create our Guava transform from ProcessedApplication to Job, we can make our high level application code much more expressive.</p>
-
-<p>What we ended up with:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">JobRepresentation</span><span class="o">&gt;</span> <span class="nf">getAppliedJobsFor</span><span class="o">(</span><span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>   <span class="n">ProcessedApplications</span> <span class="n">applications</span> <span class="o">=</span> <span class="n">jobApplicationSystem</span><span class="o">.</span><span class="na">getApplicationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'>   <span class="k">return</span> <span class="n">applications</span><span class="o">.</span><span class="na">thatAreSuccessful</span><span class="o">().</span><span class="na">transformed</span><span class="o">(</span><span class="n">toJobs</span><span class="o">()).</span><span class="na">toRepresentationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">private</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">ProcessedApplications</span><span class="o">,</span> <span class="n">Jobs</span><span class="o">&gt;</span> <span class="n">toJobs</span><span class="o">()</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>   <span class="k">return</span> <span class="n">processedApplicationsToJobs</span><span class="o">.</span><span class="na">toJobs</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now all the mechanics of looping over applications and creating Guava functions are hidden away in lower components, and we’re left with the quick makings of a sentence, “Return applications that are successful, transformed to jobs, to representations for the jobseeker.”  We could probably have gone one step further to:</p>
-
-<p>“Return applications that are successful, transformed to job representations for the jobseeker”</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">applications</span><span class="o">.</span><span class="na">thatAreSuccessful</span><span class="o">().</span><span class="na">transformed</span><span class="o">(</span><span class="n">toJobRepresentationsFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Speaking the domain language in code</h1>
-
-<p>One of the things I like to do when looking at code is to ask where I would expect to find something.  “What happens when ABC does XYZ?”  “Where do I start looking for code related to ABC?”  A lot of times these are questions you either have to already know the answer to, hunt for, or ask someone who knows the system.  We’re gunning for a better answer &ndash; start by looking for class ABC and a method called XYZ.</p>
-
-<p>So asking the questions – “What happens when a Jobseeker upgrades” and “Where do I start looking for code related to upgrades?”  Did anyone immediately say to themselves, “well it would be in UpgradeService or UpgradeManager?”  It’s a common paradigm, and one we’ve used extensively in the past.</p>
-
-<p>Sometimes we have to take a step back and think about how we’re modeling and interacting.  An example is our transition from a stateless service for completing upgrades to domain models that complete the upgrade and reflect a language we can relate to.   Originally, there was an UpgradeService that had a method accepting a Jobseeker, ProductOption, and PaymentMethod.  It then went on to organize the interactions of these together to complete the upgrade.  This left the higher level application(client of the domain) code less expressive.</p>
-
-<p>UpgradeWorkflow (Use Case):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Jobseeker</span> <span class="n">jobseeker</span> <span class="o">=</span> <span class="n">allJobseekers</span><span class="o">.</span><span class="na">jobseekerWith</span><span class="o">(</span><span class="n">jobseekerId</span><span class="o">);</span>
-</span><span class='line'><span class="n">NewCreditCard</span> <span class="n">card</span> <span class="o">=</span> <span class="n">creditCard</span><span class="o">(</span><span class="n">newCreditCardRepresentation</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'><span class="n">ProductOption</span> <span class="n">productOption</span> <span class="o">=</span> <span class="n">allProductOptions</span><span class="o">.</span><span class="na">optionFor</span><span class="o">(</span><span class="n">productOptionId</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">upgradeService</span><span class="o">.</span><span class="na">upgrade</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">productOption</span><span class="o">,</span> <span class="n">creditCard</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>UpgradeService:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">UpgradeReceipt</span> <span class="nf">upgrade</span><span class="o">(</span><span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">,</span>
-</span><span class='line'>                              <span class="n">ProductOption</span> <span class="n">productOption</span><span class="o">,</span>
-</span><span class='line'>                              <span class="n">PaymentMethod</span> <span class="n">paymentMethod</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">Receipt</span> <span class="n">receipt</span> <span class="o">=</span> <span class="n">makePayment</span><span class="o">(</span><span class="n">productOption</span><span class="o">,</span> <span class="n">paymentMethod</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">Subscription</span> <span class="n">subscription</span> <span class="o">=</span> <span class="n">upgrade</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">productOption</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nf">upgradeReceiptOf</span><span class="o">(</span><span class="n">subscription</span><span class="o">,</span> <span class="n">receipt</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">private</span> <span class="n">Receipt</span> <span class="nf">makePayment</span><span class="o">(</span><span class="n">ProductOption</span> <span class="n">productOption</span><span class="o">,</span>
-</span><span class='line'>                              <span class="n">PaymentMethod</span> <span class="n">paymentMethod</span><span class="o">,</span>
-</span><span class='line'>                              <span class="n">Jobseeker</span> <span class="n">jobseeker</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">Payment</span> <span class="n">payment</span> <span class="o">=</span> <span class="n">upgradeOptionFactory</span><span class="o">.</span><span class="na">optionFor</span><span class="o">(</span><span class="n">productOption</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">).</span><span class="na">asPayment</span><span class="o">();</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">payment</span><span class="o">.</span><span class="na">makeWith</span><span class="o">(</span><span class="n">paymentMethod</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After some refactoring to allow the models to complete the work on their own, we were still left with a question – what does the interaction look like?</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">productOption</span><span class="o">.</span><span class="na">upgradeToWith</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">creditCard</span><span class="o">);</span>  <span class="c1">// ?</span>
-</span><span class='line'><span class="n">productOption</span><span class="o">.</span><span class="na">upgradeFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">).</span><span class="na">payingWith</span><span class="o">(</span><span class="n">creditCard</span><span class="o">);</span> <span class="c1">// ?</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Taking a step back, the important question is – how would we have a conversation about this?  How would a Product Manager explain this use case?  They would probably say “the Jobseeker is upgrading to the selected product option, and paying by credit card.”  So that’s what the code looks like – a sentence (or close to it) that says just that.  So in the end, the application code looks like:</p>
-
-<p>UpgradeWorkflow (Use Case):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Jobseeker</span> <span class="n">jobseeker</span> <span class="o">=</span> <span class="n">allJobseekers</span><span class="o">.</span><span class="na">jobseekerWith</span><span class="o">(</span><span class="n">jobseekerId</span><span class="o">);</span>
-</span><span class='line'><span class="n">NewCreditCard</span> <span class="n">card</span> <span class="o">=</span> <span class="n">creditCard</span><span class="o">(</span><span class="n">newCreditCardRepresentation</span><span class="o">,</span> <span class="n">jobseeker</span><span class="o">);</span>
-</span><span class='line'><span class="n">ProductOption</span> <span class="n">productOption</span> <span class="o">=</span> <span class="n">allProductOptions</span><span class="o">.</span><span class="na">optionFor</span><span class="o">(</span><span class="n">productOptionId</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">jobseeker</span><span class="o">.</span><span class="na">upgradingTo</span><span class="o">(</span><span class="n">productOption</span><span class="o">).</span><span class="na">payBy</span><span class="o">(</span><span class="n">creditCard</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>upgradingTo returns an Upgrade with a payBy method that has meaningful steps within it:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">UpgradeReceipt</span> <span class="nf">payBy</span><span class="o">(</span><span class="n">CreditCard</span> <span class="n">card</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">charge</span><span class="o">(</span><span class="n">card</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">upgradeSubscription</span><span class="o">();</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nf">upgradeReceipt</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So back to our questions:</p>
-
-<p>What happens when a Jobseeker upgrades?  Open the Jobseeker class and find the method for upgrading.</p>
-
-<p>Where do I start looking for code related to upgrades?”  Open the Upgrade class.</p>
-
-<h1>First class collections</h1>
-
-<p>Rather than passing around Collection<Model>, we frequently create meaningful classes to encapsulate the collection.  This provides a natural home for many operations like sorting, transforming, filtering, etc.  This reduces clutter in calling code and makes it more expressive (noticing a pattern yet?), hiding away the mechanical details of iterating over collections in order to do something.</p>
-
-<p>If we take a look at an earlier example, we have a Users class that handles things like filtering and sorting:</p>
-
-<p>some methods from our Users class:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Users</span> <span class="nf">sorted</span><span class="o">(</span><span class="n">Comparator</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">comparator</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">sorted</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="n">users</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">sorted</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">comparator</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Users</span><span class="o">(</span><span class="n">sorted</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="n">Users</span> <span class="nf">without</span><span class="o">(</span><span class="n">Users</span> <span class="n">otherUsers</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nf">without</span><span class="o">(</span><span class="n">otherUsers</span><span class="o">.</span><span class="na">users</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="n">Users</span> <span class="nf">without</span><span class="o">(</span><span class="n">User</span><span class="o">...</span> <span class="n">otherUsers</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nf">without</span><span class="o">(</span><span class="n">asList</span><span class="o">(</span><span class="n">otherUsers</span><span class="o">));</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">private</span> <span class="n">Users</span> <span class="nf">without</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">otherUsers</span><span class="o">)</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">Collection</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">trimmedDown</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashSet</span><span class="o">&lt;&gt;(</span><span class="n">users</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">trimmedDown</span><span class="o">.</span><span class="na">removeAll</span><span class="o">(</span><span class="n">otherUsers</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="k">new</span> <span class="nf">Users</span><span class="o">(</span><span class="n">trimmedDown</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>our SearchWorkflow:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Users</span> <span class="n">matchingUsers</span> <span class="o">=</span> <span class="n">allUsers</span><span class="o">.</span><span class="na">matching</span><span class="o">(</span><span class="n">query</span><span class="o">).</span><span class="na">without</span><span class="o">(</span><span class="n">currentUser</span><span class="o">).</span><span class="na">sorted</span><span class="o">(</span><span class="n">by</span><span class="o">(</span><span class="n">Name</span><span class="o">.</span><span class="na">lastThenFirst</span><span class="o">()));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>to do the same thing with regular collections, our calling code would probably look something more like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Iterable</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">matchingUsers</span> <span class="o">=</span> <span class="n">allUsers</span><span class="o">.</span><span class="na">matching</span><span class="o">(</span><span class="n">query</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">withoutCurrentUser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
-</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="n">User</span> <span class="n">user</span> <span class="o">:</span> <span class="n">matchingUsers</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(!</span><span class="n">user</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">currentUser</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">withoutCurrentUser</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Collections</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">withoutCurrentUser</span><span class="o">,</span> <span class="n">by</span><span class="o">(</span><span class="n">Name</span><span class="o">.</span><span class="na">lastThenFirst</span><span class="o">()));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and who wants to read that??  By using first class collections, we can write more declarative high level code that almost reads like English.</p>
-
-<h1>In Closing</h1>
-
-<p>Code that reads well and overall quality are things that we highly value.  We want our code to express itself to the next developer that has to come and make changes &ndash; and that’s at the heart of our principles: change.  If code never changed, we wouldn’t need any of these values.  But that’s the point of software &ndash; it’s soft. And that&rsquo;s what this series is really about &ndash; high level architecture, OO principles, expressive code &ndash; all working together to embrace change and make it easier, because that’s where the value really is.</p>
+  <div class="entry-content"><blockquote><p>For once in my life I&#8217;ve got something to say<br/> I wanna say it now for now is today<br/> A love has been given so why not enjoy<br/> So let&#8217;s all grab and let&#8217;s all enjoy</p><footer><strong>&#8211; Sham 69 &#8220;If The Kids Are United&#8221;</strong></footer></blockquote>
+
+
+<h2>If We All Stand Together It Will Just Be A Start</h2>
+
+<p>Our engineering culture at TheLadders celebrates curiosity, teamwork and knowledge sharing.  The very nature of the loosely-coupled systems that we&rsquo;re building leads to a tendency for our teams to become isolated from each other.  We look to Friday Conclave to combat our isolation and stimulate our collective intellectual curiosity.</p>
+
+<p>What is Friday Conclave you ask?  It&rsquo;s a chance for our engineers to learn something outside of their day-to-day work.  It&rsquo;s an opportunity for us to reconnect as a larger team.  It&rsquo;s a venue for us to share our intellectual curiosity with our colleagues.  Occasionally, it&rsquo;s a means for us to share domain knowledge and keep everyone in the loop on each group&rsquo;s direction and progress.</p>
+
+<h2>Freedom Is Given, Speak How You Feel</h2>
+
+<p>The format of Friday Conclave isn&rsquo;t set in stone, but the sessions tend to fall into one of the following categories:</p>
+
+<ul>
+<li>focused talk</li>
+<li>lightning talks</li>
+<li>very special guest</li>
+<li>video with discussion</li>
+<li>round table</li>
+</ul>
+
+
+<h3>Focused Talks</h3>
+
+<p>Our longer talks are often the result of someone learning something in the course of doing their job, and then sharing it with the rest of the team.  The talks generally last 45 minutes to an hour and include a question and answer period at the end. Recently an engineer told the story of a bug that he found and fixed that involved a complex interaction between our caching system and one of our business rules. In the process of preparing for the talk he learned even more about the system as he worked out how to explain the issue to people who may not have been familiar with the parts involved.  Past talks have included an overview of HTTP by <a href="/ourteam/kylewinter">Kyle Winter</a> and a preview of an upcoming <a href="https://twitter.com/paperswelovenyc">Papers We Love NYC</a> talk on the <a href="https://github.com/papers-we-love/papers-we-love/blob/master/garbage_collection/incremental_mature_garbage_collection_using_the_train_algorithm.pdf?raw=true">Train Algorithm</a> by <a href="/ourteam/andrewturley">Andrew Turley</a>.</p>
+
+<p>Some of our focused talks have nothing to do with people&rsquo;s current work.  Our engineering team comes from an astonishingly wide variety of backgrounds and team members routinely draw on their prior experience or research as conclave topics.  <a href="http://www.linkedin.com/in/shanioffen">Shani Offen</a> has spoken to the team about Dimensionality Reduction, Singular Value Decompositions, Eigenvectors, and Principal Component Analysis and <a href="/ourteam/wamiqahmed">Wamiq Ahmed</a> shared his <a href="http://www.ncbi.nlm.nih.gov/pubmed/23060342">NIH research</a> into the Classification of Bacterial Contamination.</p>
+
+<h3>Lightning Talks</h3>
+
+<p>Lightning talks are ten minute talks about any topic. We&rsquo;ve had people present on topics as ranging from great figures in the history of science, and the evolution of soccer defensive formations, to esoteric programming languages, and Hindu guilt. As with the focused talks, lightning talks vary greatly in their style and format. Sometimes an attempt is made to bring the topic of discussion back around to software engineering, but more often than not they serve as windows into the way our fellow engineers think and the things they hold dear.</p>
+
+<h3>Very Special Guests</h3>
+
+<p>From time to time we bring in guest presenters &mdash; engineers from outside the company who talk about their experience and expertise. <a href="http://whilefalse.blogspot.com/">Camille Fournier</a> of <a href="https://www.renttherunway.com/rtr_home">Rent the Runway</a> spoke to us about <a href="http://zookeeper.apache.org/">Zookeeper</a>, and <a href="https://twitter.com/zeeshanlakhani">Zeeshan Lakhani</a> gave a presentation on how he and his coworkers have used property-based testing in <a href="http://clojure.org">Clojure</a>. These are great ways to meet other engineers and it introduces us to skills and practices with which we may not be familiar.</p>
+
+<h3>Videos with Discussion</h3>
+
+<p>When we discover a talk that we feel is relevant to our work, we&rsquo;ll occasionally watch the video together and discuss as a group.  This is particularly applicable when someone returns from a conference and one of the presentations really stuck with them.  Past examples include Jeff Dean&rsquo;s talk from Ricon West 2013, <a href="https://www.youtube.com/watch?v=C_PxVdQmfpk">The Tail at Scale: Achieving Rapid Response Times in Large Online Services</a> and Donald Reinertsen&rsquo;s talk from Lean Software and Systems Conference 2012, <a href="http://vimeo.com/45947817">Decentralizing Control: How Aligned Initiative Conquers Uncertainty</a>.</p>
+
+<h3>Round Table</h3>
+
+<p>Sometimes we don&rsquo;t have an agenda. This isn&rsquo;t a bad thing. We still sit down and talk. If people are feeling particularly reticent we may start by going around and asking everyone to say something about one thing they worked on that week. Other times someone will come in with a story, a complaint, a question, or an issue that needs addressing. Early last year a few of us were trying to figure out how to deal with content caching on our new website. Since ops, platform, and the website team were all sitting there together we decided to hash out the details. Three hours later we emerged with a plan.</p>
+
+<h2>Understand Them and They&rsquo;ll Understand You</h2>
+
+<p>Friday Conclave is an excellent manifestation of the engineering culture here at TheLadders.  It provides us a forum to discuss how we build our products, explore new ideas, share points of view, learn about new and &ldquo;new-to-us&rdquo; technologies, and engage face-to-face rather than keyboard-to-keyboard.  We always welcome guest presenters and participants.  If you&rsquo;d like to attend or present at one of our Friday Conclaves in the future, let us know <a href="https://twitter.com/theladdersdev">@TheLaddersDev</a>.</p>
 </div>
   
   
@@ -510,23 +207,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="For once in my life I&#8217;ve got something to say I wanna say it now for now is today A love has been given so why not enjoy So let&#8217;s all &hellip;">
+  <meta name="description" content="If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it&#8211;Toni Morrison Once upon a time &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,7 +111,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/02/conclave/">Conclave</a></h1>
+      <h1 class="entry-title"><a href="/2013/12/a-brewing-storm/">A Brewing Storm</a></h1>
     
     
       <p class="meta">
@@ -127,60 +127,33 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-02-13T13:13:00-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2015</time>
+<time datetime="2013-12-19T11:45:00-05:00" pubdate data-updated="true">Dec 19<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>For once in my life I&#8217;ve got something to say<br/> I wanna say it now for now is today<br/> A love has been given so why not enjoy<br/> So let&#8217;s all grab and let&#8217;s all enjoy</p><footer><strong>&#8211; Sham 69 &#8220;If The Kids Are United&#8221;</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>If there&#8217;s a book that you want to read, but it hasn&#8217;t been written yet, then you must write it</p><footer><strong>&#8211;Toni Morrison</strong></footer></blockquote>
 
 
-<h2>If We All Stand Together It Will Just Be A Start</h2>
+<p>Once upon a time there was a script. Each morning it sent new jobs to our job seeking customers. It was simple and the data it operated on was relatively small.  As the months turned into years this script grew in complexity and the data grew in size.  And more scripts came to the party and they had data of their own and these new scripts beget data for other scripts, and this small group of scripts extracted and transformed, processed and prepared, working tirelessly every night.</p>
 
-<p>Our engineering culture at TheLadders celebrates curiosity, teamwork and knowledge sharing.  The very nature of the loosely-coupled systems that we&rsquo;re building leads to a tendency for our teams to become isolated from each other.  We look to Friday Conclave to combat our isolation and stimulate our collective intellectual curiosity.</p>
+<p>Some worked alone while others fed each other, all growing increasingly more complex.  Occasionally at first and more frequently over time, the scripts started to interfere with each other by competing for resources or not finishing in time for a child script to consume it’s parents data, or worst of all, deadlocking for no apparent reason.</p>
 
-<p>What is Friday Conclave you ask?  It&rsquo;s a chance for our engineers to learn something outside of their day-to-day work.  It&rsquo;s an opportunity for us to reconnect as a larger team.  It&rsquo;s a venue for us to share our intellectual curiosity with our colleagues.  Occasionally, it&rsquo;s a means for us to share domain knowledge and keep everyone in the loop on each group&rsquo;s direction and progress.</p>
+<p>Let’s bring some order we said and used cron to wrangle them at first, then moving to more complex “enterprise” scheduling systems to try and tame the beast, and keep the scripts from clobbering each other or grinding themselves to a crawl.</p>
 
-<h2>Freedom Is Given, Speak How You Feel</h2>
+<p>But the data grew and grew and with it came longer and longer run times.  At this same time our script was getting slower, our users’ expectations and our own ambitions grew.  Could we alert a job seeker the minute a new relevant job entered our system?  Could we alert an employer as soon as job seeker they were interested in updated their profile?</p>
 
-<p>The format of Friday Conclave isn&rsquo;t set in stone, but the sessions tend to fall into one of the following categories:</p>
+<p>The network of interactions/activity/entities we wanted to grow, monitor and react to and then extract value from was exploding in complexity.  You can picture all of our job seekers, employers and jobs as nodes in a graph, and imagine our teams are furiously trying to connect them in new and interesting ways.  They are using machine learning to light up edges between these nodes, indicating which jobs a particular job seeker might be interested in and which job seekers an employer might like.  Or clustering these entities into similar groups.</p>
 
-<ul>
-<li>focused talk</li>
-<li>lightning talks</li>
-<li>very special guest</li>
-<li>video with discussion</li>
-<li>round table</li>
-</ul>
+<p>Doing all of this between 12am and 6am was getting hard. Hadoop was an option, but processing speed alone wasn’t just the issue.  Some things we wanted to do had to be done in real time, not batch.  A user isn’t going to wait until the nightly run for us to calculate what jobs are appropriate for them.  In addtion, as TheLadders moves into mobile and speed becomes more and more a concern we want the Graph of our Ecosystem to be as current as possible not something that gets updated once a day.</p>
 
+<p>There comes this thing. Storm. It fits into our infrastructure; working nicely with RabbitMQ and interop’ing well with our existing code base.</p>
 
-<h3>Focused Talks</h3>
+<p>However, Storm is young and fresh out of Twitter.  Getting it to work, quickly and reliably can be painful as can figuring out the best practices to manage it.  All of this took us some time and some hard lessons had to be learnt.  A lot of late nights and head scratching, time spent hanging out in irc channels, reading blog posts, watching conference talks and just plain ole trial and error and occassionally grabbing Nathan Marz when he was speaking to ask “How do we deal with X?” brought us to our current place.</p>
 
-<p>Our longer talks are often the result of someone learning something in the course of doing their job, and then sharing it with the rest of the team.  The talks generally last 45 minutes to an hour and include a question and answer period at the end. Recently an engineer told the story of a bug that he found and fixed that involved a complex interaction between our caching system and one of our business rules. In the process of preparing for the talk he learned even more about the system as he worked out how to explain the issue to people who may not have been familiar with the parts involved.  Past talks have included an overview of HTTP by <a href="/ourteam/kylewinter">Kyle Winter</a> and a preview of an upcoming <a href="https://twitter.com/paperswelovenyc">Papers We Love NYC</a> talk on the <a href="https://github.com/papers-we-love/papers-we-love/blob/master/garbage_collection/incremental_mature_garbage_collection_using_the_train_algorithm.pdf?raw=true">Train Algorithm</a> by <a href="/ourteam/andrewturley">Andrew Turley</a>.</p>
-
-<p>Some of our focused talks have nothing to do with people&rsquo;s current work.  Our engineering team comes from an astonishingly wide variety of backgrounds and team members routinely draw on their prior experience or research as conclave topics.  <a href="http://www.linkedin.com/in/shanioffen">Shani Offen</a> has spoken to the team about Dimensionality Reduction, Singular Value Decompositions, Eigenvectors, and Principal Component Analysis and <a href="/ourteam/wamiqahmed">Wamiq Ahmed</a> shared his <a href="http://www.ncbi.nlm.nih.gov/pubmed/23060342">NIH research</a> into the Classification of Bacterial Contamination.</p>
-
-<h3>Lightning Talks</h3>
-
-<p>Lightning talks are ten minute talks about any topic. We&rsquo;ve had people present on topics as ranging from great figures in the history of science, and the evolution of soccer defensive formations, to esoteric programming languages, and Hindu guilt. As with the focused talks, lightning talks vary greatly in their style and format. Sometimes an attempt is made to bring the topic of discussion back around to software engineering, but more often than not they serve as windows into the way our fellow engineers think and the things they hold dear.</p>
-
-<h3>Very Special Guests</h3>
-
-<p>From time to time we bring in guest presenters &mdash; engineers from outside the company who talk about their experience and expertise. <a href="http://whilefalse.blogspot.com/">Camille Fournier</a> of <a href="https://www.renttherunway.com/rtr_home">Rent the Runway</a> spoke to us about <a href="http://zookeeper.apache.org/">Zookeeper</a>, and <a href="https://twitter.com/zeeshanlakhani">Zeeshan Lakhani</a> gave a presentation on how he and his coworkers have used property-based testing in <a href="http://clojure.org">Clojure</a>. These are great ways to meet other engineers and it introduces us to skills and practices with which we may not be familiar.</p>
-
-<h3>Videos with Discussion</h3>
-
-<p>When we discover a talk that we feel is relevant to our work, we&rsquo;ll occasionally watch the video together and discuss as a group.  This is particularly applicable when someone returns from a conference and one of the presentations really stuck with them.  Past examples include Jeff Dean&rsquo;s talk from Ricon West 2013, <a href="https://www.youtube.com/watch?v=C_PxVdQmfpk">The Tail at Scale: Achieving Rapid Response Times in Large Online Services</a> and Donald Reinertsen&rsquo;s talk from Lean Software and Systems Conference 2012, <a href="http://vimeo.com/45947817">Decentralizing Control: How Aligned Initiative Conquers Uncertainty</a>.</p>
-
-<h3>Round Table</h3>
-
-<p>Sometimes we don&rsquo;t have an agenda. This isn&rsquo;t a bad thing. We still sit down and talk. If people are feeling particularly reticent we may start by going around and asking everyone to say something about one thing they worked on that week. Other times someone will come in with a story, a complaint, a question, or an issue that needs addressing. Early last year a few of us were trying to figure out how to deal with content caching on our new website. Since ops, platform, and the website team were all sitting there together we decided to hash out the details. Three hours later we emerged with a plan.</p>
-
-<h2>Understand Them and They&rsquo;ll Understand You</h2>
-
-<p>Friday Conclave is an excellent manifestation of the engineering culture here at TheLadders.  It provides us a forum to discuss how we build our products, explore new ideas, share points of view, learn about new and &ldquo;new-to-us&rdquo; technologies, and engage face-to-face rather than keyboard-to-keyboard.  We always welcome guest presenters and participants.  If you&rsquo;d like to attend or present at one of our Friday Conclaves in the future, let us know <a href="https://twitter.com/theladdersdev">@TheLaddersDev</a>.</p>
+<p>Today Storm runs most of the backend at TheLadders, keeping that graph of our ecosystem fresh so our experience teams can ship great new features to our customers.  And we hope you can find a use for Storm and maybe get there quicker than we did.  Manning publications reached out to us and I’m incredibly excited and very proud to announce that three of our top engineers, Sean Allen, Matt Jankowski and Peter Pathirana produced a book, Storm Applied, a book designed to help you leverage some of the hard earned knowledge we’ve acquired here at TheLadders. Storm Applied will be available in the <a href="http://www.manning.com/sallen/">Manning Early Access Program</a> any day now.  We hope you find it useful and we look forward to your feedback on the book.</p>
 </div>
   
   
@@ -209,23 +182,23 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+        <a href="/2015/02/conclave/">Conclave</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+        <a href="/2015/01/not-measles/">MMR is not Measles, Mumps, and Rubella</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+        <a href="/2014/11/pipes-tubes-and-email/">Pipes, Tubes, and Email</a>
       </li>
     
       <li class="post">
-        <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
+        <a href="/2014/10/speeding-up-r/">Speeding Up R</a>
       </li>
     
       <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
+        <a href="/2014/07/thunder-and-lightning/">Thunder and Lightning</a>
       </li>
     
   </ul>
