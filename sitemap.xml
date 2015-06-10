@@ -2,284 +2,284 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://dev.theladders.com/2013/01/new-beginnings/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/02/onboarding/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://dev.theladders.com/2013/02/mutation-testing-with-pit-a-step-beyond-normal-code-coverage/
         </loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://dev.theladders.com/2013/03/riders-on-the-storm-take-a-long-holiday-let-your-children-play/
         </loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/03/eric-evans-is-coming-to-theladders/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/03/trouble-with-googles-immutableset/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/03/theladders-on-boarding-a-retrospective/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/04/getting-some-clojure-nrepl-in-a-spring-app/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/05/varnish-in-five-acts/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/05/the-evolution-of-qa-at-theladders/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/07/denormalize-the-datas-for-great-good/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/08/were-hosting-erlang-factory-lite/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://dev.theladders.com/2013/10/responsive-design-keeping-our-thick-client-skinny/
         </loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2013/12/a-brewing-storm/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/07/monitoring-rabbitmq-at-theladders/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/07/thunder-and-lightning/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/10/speeding-up-r/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2014/11/pipes-tubes-and-email/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/01/not-measles/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/02/conclave/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/03/casperjs-the-friendly-testing-framework/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/04/writing-better-api-tests/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/05/working-in-harmony-es6-in-a-nutshell/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://dev.theladders.com/2015/05/design-principles-and-goals-high-level-architecture/
         </loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://dev.theladders.com/2015/05/design-principles-and-goals-a-trip-back-to-oo/
         </loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/2015/06/announcing-our-youtube-channel/</loc>
-        <lastmod>2015-06-10T18:14:56-04:00</lastmod>
+        <lastmod>2015-06-10T18:25:53-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/patrickdelfert/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/khoachau/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/manishbellani/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/joedeluise/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/susanneabdelrahman/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/peter/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/andrewturley/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/jeremyblock/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/charlesmorris/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/lindagonzalez/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/ksandine/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/kathleenyanolatos/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/chrisschillinger/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/francobarbeite/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/johnmumm/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/zhenjin/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/donaldhiggins/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/ericfeder/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/leonliao/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/eoinoconnor/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/omarolmedo/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/thomasdilemmo/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/amandapickering/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/pinakjain/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/jaygaonkar/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/avitaltzubeli/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/markshildkret/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/wamiqahmed/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/shankarmishra/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/jonruttenberg/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/austinbennett/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/dmitrimikhailov/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/thomassymborski/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/isaacsteele/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/adamwatters/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/mattjankowski/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/ourteam/josemedina/</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/</loc>
-        <lastmod>2015-06-10T18:14:56-04:00</lastmod>
+        <lastmod>2015-06-10T18:25:53-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/404.html</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/blog/archives/</loc>
-        <lastmod>2015-06-10T18:14:56-04:00</lastmod>
+        <lastmod>2015-06-10T18:25:53-04:00</lastmod>
     </url>
     <url>
         <loc>http://dev.theladders.com/robots.txt</loc>
-        <lastmod>2015-06-10T18:14:35-04:00</lastmod>
+        <lastmod>2015-06-10T18:24:37-04:00</lastmod>
     </url>
 </urlset>
