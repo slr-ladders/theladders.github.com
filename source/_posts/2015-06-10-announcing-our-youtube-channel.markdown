@@ -4,7 +4,7 @@ layout: post
 title: "Announcing Our YouTube Channel"
 date: 2015-06-10 17:34
 comments: true
-categories: How we work 
+categories: [How we work] 
 published: true
 ---
 
