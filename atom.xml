@@ -4,7 +4,7 @@
   <title><![CDATA[TheLadders Engineering Stories]]></title>
   <link href="http://dev.theladders.com/atom.xml" rel="self"/>
   <link href="http://dev.theladders.com/"/>
-  <updated>2015-06-06T21:59:43-04:00</updated>
+  <updated>2015-06-10T18:16:34-04:00</updated>
   <id>http://dev.theladders.com/</id>
   <author>
     <name><![CDATA[TheLadders Engineering]]></name>
@@ -12,6 +12,25 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Announcing Our YouTube Channel]]></title>
+    <link href="http://dev.theladders.com/2015/06/announcing-our-youtube-channel/"/>
+    <updated>2015-06-10T17:34:00-04:00</updated>
+    <id>http://dev.theladders.com/2015/06/announcing-our-youtube-channel</id>
+    <content type="html"><![CDATA[<blockquote><p>In the future, everyone will be world-famous for 15 minutes.</p><footer><strong>&#8211;Andy Warhol</strong></footer></blockquote>
+
+
+<p>At TheLadders, we try to support our engineers in their continued education
+in every way we can. One way we do that is with our <a href="http://dev.theladders.com/2015/02/conclave/">technology conclaves</a> which we host every Friday afternoon. They&rsquo;re an opportunity for our engineers to learn something outside of their day-to-day work. Past topics have included everything from an introduction to data science and how compilers work to a deep dive into HTTP and how to prove anything (Not all of our talks are strictly technical.)</p>
+
+<p>While we have had many people from outside of the company attend our conclaves, we always wanted to open it up even further. We understand it&rsquo;s hard for most people to get out of work to attend a talk at another company&rsquo;s office. That&rsquo;s why we&rsquo;ve started filming these talks and posting them to YouTube. We hope you enjoy them as much as we do.</p>
+
+<p>Our first video is a lightning talk called <a href="https://www.youtube.com/watch?v=14OcQHxSODQ">&ldquo;A Mostly True Story about Memory&rdquo;</a> presented by <a href="http://dev.theladders.com/ourteam/andrewturley/">Andrew Turley</a>, one of our software architects (and manager of our Platform team.) In the video, Andy explains how memory works, all while wearing an amazing cat t-shirt.</p>
+
+<p>We&rsquo;re going to post more of these talks at the weeks go by so <a href="http://www.twitter.com/TheLaddersDev">follow us</a> on Twitter or subscribe to our <a href="https://www.youtube.com/channel/UC0BhGK1ctsyDdMmE8MecYhQ">YouTube channel</a> to stay in the loop about new videos.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Design Principles and Goals (Part 2) - A Trip Back to OO]]></title>
@@ -4120,140 +4139,6 @@ nrepl</code>, I can interact with the running server like so:</p>
 <p>You may have heard of Rich Hickey’s <a href="http://blip.tv/clojure/hammock-driven-development-4475586">Hammock Driven Development</a>, the idea that spending time away from your code produces unexpected benefits. In the same vein, I&rsquo;ll call what we did for these two weeks Garbage Driven Development. What do I mean when I say garbage? The code written while practicing GDD is never going into production. It’ll never really do anything beyond providing a learning experience and proving a point you’d like to make. You don’t feel pressure to make sure the code fits within a particular context, that it’s easily readable by others, or that it’ll be maintainable going forward. In the end, the code may be quite eloquent or look like garbage, but it doesn&rsquo;t really matter. Try that idea you’ve always thought about but never had time to implement. Buck best practices to see if you can find better ones. When you’re done, it’s garbage. Developers would be well served to routinely make time to focus less on product and more on process.</p>
 
 <p>Most of all, this process woke me up from the monotony of just pushing out code and inspired me to learn and pursue more of my own side projects. I&rsquo;ve wanted to read more, explore new languages, and try new ways of doing things. It was an excellent way to frame the start of a new chapter in my life as an engineer.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Trouble with Google's ImmutableSet]]></title>
-    <link href="http://dev.theladders.com/2013/03/trouble-with-googles-immutableset/"/>
-    <updated>2013-03-12T06:10:10-04:00</updated>
-    <id>http://dev.theladders.com/2013/03/trouble-with-googles-immutableset</id>
-    <content type="html"><![CDATA[<p><em>Note: this post was originally published March, 12, 2012.  We&rsquo;re bringing it back from the dead because we love zombies and happen to really like it.</em></p>
-
-<blockquote><p>When the going gets weird, the weird turn pro.</p><footer><strong>&#8211;Hunter S. Thompson</strong></footer></blockquote>
-
-
-<p>One feature we offer here at TheLadders is the ability for job seekers to &ldquo;follow&rdquo; recruiters, sort of how Twitter users can follow other Twitter users. Recruiters can then broadcast information, like announcements about new openings, to their followers.</p>
-
-<p>At start-up, as well as at set times during the night, caches are loaded that contain mappings between followable recruiters and the job seekers who follow them.
-Recently we noticed that the time to create one of these caches was gradually increasing. There&rsquo;s a cache that maps recruiters to job seekers, called the &ldquo;followers cache,&rdquo; which originally took a few minutes to build. We found that the time it was taking to build was steadily increasing over the course of just a few weeks to 30 minutes or more. This wasn&rsquo;t immediately apparent to us because the problem only manifested in production, and not in the day-to-day QA environment used by developers.</p>
-
-<p>Below you can see the times taken to create the cache (in minutes) on four different nodes:</p>
-
-<!-- more -->
-
-
-<p><a href="http://dev.theladders.com/images/cache-creation-slowdown1.png"><img class="center" src="http://dev.theladders.com/images/cache-creation-slowdown1.png" width="300" height="171" title="Cache creation slowdown chart" ></a></p>
-
-<p>You&rsquo;ll notice the jump on 1/16 from a gradual increase to a more rapid increase. That day a new release went out that included an increase in the size of a related cache- one that contains all job seekers who have permission to follow recruiters. Intersections of that cache with another are then used to build the followers cache.</p>
-
-<p>At first we thought that the slowdown was a function of the increased cache size. Maybe pulling more data from the database to fill up the larger cache was the culprit. But from the logs we found that wasn&rsquo;t the case. In fact, we found that CPU usage was spiking to 100% while the cache was being built. This was in contrast to the QA machines, where CPU did not spike at all during the process. Further analysis determined the code was spending the vast majority of its time calculating the intersections of caches to produce the followers cache. The code is something along these lines:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">recruiterId</span> <span class="o">:</span> <span class="n">followersForRecruitersCache</span><span class="o">.</span><span class="na">keySet</span><span class="o">())</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">Set</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Sets</span><span class="o">.</span><span class="na">intersection</span><span class="o">(</span><span class="n">followersForRecruitersCache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">recruiterId</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">canFollowRecruitersCache</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">followersCache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">recruiterId</span><span class="o">,</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">(</span><span class="n">s</span><span class="o">));</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(The method Set.intersection() is from Google Collections.) So was the problem that we had so much more data in production than in our QA environment, and many more iterations were being spent calculating set intersections? We also found another interesting bit of information. The following code, used to build the canFollowRecruitersCache, a simple set of integer IDs, was also taking longer in production than in QA:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImmutableSet</span><span class="o">.</span><span class="na">Builder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">ImmutableSet</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
-</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="n">Integer</span> <span class="n">id</span> <span class="o">:</span> <span class="n">userPrivilegeSystem</span><span class="o">.</span><span class="na">getAllJobseekersWhoCanFollowRecruiters</span><span class="o">())</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>  <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="n">canFollowRecruitersCache</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">build</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Actually, all the slowness was in the call to ImmutableSet.Builder.build(), also from Google Collections. In fact, we have a larger canFollowRecruitersCache in QA than in production due to the amount of test data in the QA database. So the problem must be in the data itself and its interaction with ImmutableSet. (For the source code for the ImmutableSet, see <a href="http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java">http://code.google.com/p/google-collections/source/browse/trunk/src/com/google/common/collect/ImmutableSet.java</a>.)</p>
-
-<p>Taking a closer look, the distribution of IDs in canFollowRecruitersCache in QA looks like this (X-axis is the array index, Y-axis is the ID):</p>
-
-<p><a href="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-QA.png"><img class="center" src="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-QA.png" width="300" height="176" title="&#34;canFollowRecruitersCache ID Distribution in QA&#34;" alt="&#34;canFollowRecruitersCache ID Distribution in QA&#34;"></a></p>
-
-<p>The standard deviation of this set of IDs is 12,266,077.</p>
-
-<p>The distribution of IDs in canFollowRecruitersCache in production looks like this:</p>
-
-<p><a href="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-production.png"><img class="center" src="http://dev.theladders.com/images/canFollowRecruitersCache-ID-distribution-in-production.png" width="300" height="173" title="&#34;canFollowRecruiterCache ID distribution in production&#34;" alt="&#34;canFollowRecruiterCache ID distribution in production&#34;"></a></p>
-
-<p>The standard deviation of this set of IDs is 642,039.</p>
-
-<p>Opening up the code in ImmutableSet, we find that it uses a linear array of buckets, and when a collision occurs it probes each bucket until it finds an empty one, and puts the element there. It uses a secondary hash function, called smear(), to index into the array. Presumably this is used to augment whatever hash is already supplied by the element to be inserted. Unfortunately this isn&rsquo;t enough to overcome the distribution of IDs in our production data. Since Java a Integer&rsquo;s hash code is just its value, the efficiency of the ImmutableSet ends up being subject to the distribution of the IDs. The number of collisions that occur with production data when building the set is a huge 3,217,789,124, but with our somewhat larger QA dataset, only 3,199,502. If we read in the same production data as Strings instead of Integers, however, the number of collisions drops dramatically, and production performance is equivalent to QA&rsquo;s.</p>
-
-<p>Both our QA and production data cause the same size of array of buckets of 1,048,576 to be used internally by ImmutableSet. Rendering this array into a 1024 x 1024 square, and color-coding by number of collisions at that index, we can have a better idea of what&rsquo;s happening.</p>
-
-<p>The colors in the graphics below have the following meaning:</p>
-
-<table style="border:1px solid black;border-collapse:collapse;margin:auto;">
-  <tbody>
-    <tr>
-      <th style="border:2px solid black;padding:10px;">collision count</th>
-      <th style="border:2px solid black;padding:10px;text-align:right">color</th>
-    </tr>
-    <tr>  
-      <td style="border:1px solid black;padding:10px;">0 (no element)</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">white</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">0 (has element)</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">black</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 10</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">magenta</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 100</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">blue</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 1000</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 10000</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">green</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">&lt; 25000</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">orange</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid black;padding:10px;">25000+</td>
-      <td style="border:1px solid black;padding:10px;text-align:right">red</td>
-    </tr>
-  </tbody>
-</table>
-
-
-<p>Thus the array produced for QA data looks like this:</p>
-
-<p><a href="http://dev.theladders.com/images/ImmutableSet-collisions-in-QA.png"><img class="center" src="http://dev.theladders.com/images/ImmutableSet-collisions-in-QA.png" width="300" height="300" title="&#34;ImmutableSet collisions in QA&#34;" alt="&#34;ImmutableSet collisions in QA&#34;"></a></p>
-
-<p>Whereas the array produced for production data looks like this:</p>
-
-<p><a href="http://dev.theladders.com/images/ImmutableSet-collisions-in-production.png"><img class="center" src="http://dev.theladders.com/images/ImmutableSet-collisions-in-production.png" width="300" height="300" title="&#34;ImmutableSet collisions in production&#34;" alt="&#34;ImmutableSet collisions in production&#34;"></a></p>
-
-<p>The same algorithm is used to implement the set&#8217;s contains() method, so operations such as intersections are also extremely slow with this data. A simple change to Java&rsquo;s built-in HashSet fixes the problem.</p>
-
-<p><a href="http://www.reddit.com/r/programming/comments/1a5by8/trouble_wi%20%20%20%20th_googles_immutableset/">Join the discussion on reddit</a>.</p>
 ]]></content>
   </entry>
   
