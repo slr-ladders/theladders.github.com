@@ -9,7 +9,7 @@
   <meta name="author" content="TheLadders Engineering">
 
   
-  <meta name="description" content="If you&#8217;re building for the future, you need to keep your foundations strong&#8211;Robin Longstride Rebuilding for the Future A few years ago, &hellip;">
+  <meta name="description" content="Being abstract is something profoundly different from being vague&#8230; The purpose of abstraction is not to be vague, but to create a new semantic &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,7 +112,7 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a></h1>
+      <h1 class="entry-title"><a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - a Trip Back to OO</a></h1>
     
     
       <p class="meta">
@@ -128,220 +128,38 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
   
 
 
-<time datetime="2015-05-20T15:47:00-04:00" pubdate data-updated="true">May 20<span>th</span>, 2015</time>
+<time datetime="2015-05-21T12:02:00-04:00" pubdate data-updated="true">May 21<span>st</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><blockquote><p>If you&#8217;re building for the future, you need to keep your foundations strong</p><footer><strong>&#8211;Robin Longstride</strong></footer></blockquote>
+  <div class="entry-content"><blockquote><p>Being abstract is something profoundly different from being vague&#8230; The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise.</p><footer><strong>&#8211; Edsger Dijkstra</strong></footer></blockquote>
 
 
-<h1>Rebuilding for the Future</h1>
+<p>Welcome to part two of our series on the design principles and goals behind our newer customer facing web services.  In <a href="/2015/05/design-principles-and-goals-high-level-architecture">Part 1</a> we covered our <a href="/2015/05/design-principles-and-goals-high-level-architecture/">High Level Archicture</a> and talked about how domain models are the heart of our systems.  We&rsquo;ll pick up there, and go into some more detail in how we build those models, how they focus on behavior, and how we serialize them for the API endpoints.</p>
 
-<p>A few years ago, we began rebuilding the member experience on theladders.com from almost the ground up.  It was previously a typical Spring MVC/JSP request based application, but it was decided that we would start over with a different client/server model.  The end result is a Single Page Application &ndash; a JavaScript thick(er) client and a RESTful web service.  It went fully live in September of 2012 (which means this post is long overdue), and set the stage for how we would build our customer facing web services to come.  The architecture, design goals, and principles we’ve held in rebuilding our server also came to light in the web services we build for our mobile applications, and have matured and come full circle since the rebuild was first launched.  We’re going to post a small series over the next few days sharing some of those details.</p>
+<h1>Getting Back to OO roots</h1>
 
-<h3>A look at the past</h3>
+<p>It’s no great secret that today’s world is full of procedural Java code and engineers that have been taught that encapsulation means having getters and setters to hide properties (hey&hellip;I used to be one of em once upon a time).</p>
 
-<p>As we’ve built our new servers, we’ve kept in mind our existing code bases and some of the pain points we felt there.  Our legacy code had fallen prey to many of the typical symptoms that long living code bases fall into: business logic in JSPs, logic scattered throughout the application requiring <a href="https://sourcemaking.com/refactoring/shotgun-surgery">shotgun surgery</a> to fix, difficulty trying new business models, dependency nightmares.  Just looking up the data for a user required a massive dependency tree, in large part due to the lookup class also mixing in unrelated functionality for performing actions for many different use cases.  Broad sweeping projects were frequently estimated on the scale of months, and our code was fighting back against change.  We wanted to paint a better picture for the future, so these pain points were at the forefront of our minds as we wrote new code.</p>
+<p>In the past we’ve blogged about our onboarding process, which involves an <a href="https://github.com/TheLadders/object-calisthenics">Object Calisthenics exercise</a> and <a href="https://github.com/TheLadders/solid-exercises">Uncle Bob’s SOLID videos</a>.  What good would all that be if we left it at exercises and discussions?  We put a lot of that to work in our newer customer facing web services.</p>
 
-<h3>General Approach</h3>
+<h2>Use Polymorphic classes instead of conditionals</h2>
 
-<p>Our approach has been heavily influenced by Domain Driven Design and Robert Martin’s <a href="http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod">SOLID principles</a>.  We wanted to build an application that would be accepting of change (and in fact embrace it) and be maintainable into the future.  At the top of the list are things like readability, expressive code, extensive test coverage, flexible domain code, and separation of concerns like web/API vs. business rules.  Much of what we will discuss isn’t new or of our own creation, but has been around for a while, just waiting to be put to use.  We won&rsquo;t get into all the nitty gritty details, but hopefully give a good explanation of the principles that guide us and why we value them.</p>
+<p>Rather than relying on conditionals and asking data related questions of our models, we try to rely more on interfaces and subtypes for behavior and “tell don’t ask.”  Hidden “type checks” are the worst offenders, and usually a prime candidate for polymorphic models that expose better meaning.  What do I mean by a hidden type check?  Things like customer.isGoldLevelMember(), vehicle.hasFourWheels(), person.isChild().  Those are really asking about what “type” of thing we’re talking about.  We’ll get into more about exposing meaning over type checks in the “Making implicit concepts explicit” section.  Along with polymorphism comes the good ole…</p>
 
-<p>As a technical team, we frequently watch Uncle Bob’s Clean Code episodes, covering a range of topics from things like class and method design/implementation, to high level concepts like application architecture and component/module/library design.  We’ve specifically pulled the SOLID principles into our <a href="http://dev.theladders.com/2013/02/onboarding/">onboarding bootcamp</a>, as they provide a great foundation for object oriented design.  We wanted to keep these principles at heart when moving forward with our new member site.</p>
+<h2>Visitor Pattern</h2>
 
-<h3>Client and Server Overview</h3>
+<p>This is something that pops up quite a bit throughout our use cases.  We often have mixed collections of an abstraction, where each item may be a different subclass.  Perhaps a collection of activity between you and a Recruiter, or interesting notifications for you to see.<br/>
+Most of the time, this boils down to just creating different representations of each object to serialize and send back to the client, so we’ve taken to calling them Presenters.</p>
 
-<p>Our client is a Single Page Application leveraging Backbone.js.  There are only a few HTML pages rendered by the server, one of which loads up the client application.  I mentioned that we have a thick(er) client, because I wouldn’t quite call it a full blown thick client.  Making requests to the server is still central to the client working, but it is a stateful GUI in its own right, handling problems like caching, history, and emulating a local “session.”</p>
+<p>The visitor pattern has been around for a long time, and allows us to let the compiler do the dirty work of telling us where we need to make code changes when adding a new type.</p>
 
-<p>The server is a stateless RESTful web service, utilizing Jersey as our web layer framework, Spring for Dependency Injection, and a variety of things for data access (we read/write data from different kinds of stores).  The bulk of our business rules and data processing lives here, with business decisions typically communicated to the client via Hypermedia links.  It frequently talks to other “core domain” web services and applies processing on top, so we typically refer to it as an orchestration service.  It was written in Java 7, which brought up several challenges in trying to conform to our principles that we’ll cover later on.</p>
+<p>The textbook example of a Visitor relies directly on compiler type checks, something like:</p>
 
-<hr />
-
-<h2>High Level Architecture</h2>
-
-<p>We’ll start with a high level view of our general application architecture.  It’s a typical N-tier application, where we view the business tier as being further subdivided in half.  We’ll call the three major layers Presentation, Business, and Storage, with the Business Layer also distinguishing between Application and Domain.  Presentation usually refers to a layer dealing with UI concerns, but in the case of a RESTful service it’s our web/API layer.</p>
-
-<p><img class="center" src="/images/new-lw-design/nlw-application-architecture.png" title="'High Level Architecture'" ></p>
-
-<p><strong>Presentation</strong></p>
-
-<p>Key Components</p>
-
-<ul>
-<li>Resource
-
-<ul>
-<li>The web/presentation component. We use Jersey, so we’ve taken to calling them Resources.  Spring MVC would call them Controllers.  These should handle pulling/pushing data from/to a request/response, possibly user facing validation, etc.  This component (and related friends) is the only place that web framework imports may be used, such as Jersey classes.  And that’s it &ndash; ideally methods on these components are one liners calling out to a Workflow.  Any logic not dealing with web specifics should live in the workflow/domain/service components.</li>
-</ul>
-</li>
-<li>Representation
-
-<ul>
-<li>The web layer’s version of the model.  It “represents” the JSON contract between the client and server, which is handled by JAXB/Jackson.  Technically this crosses into the business tier as well, as it’s there that these are typically instantiated and then returned to the Resource.  It is acting as both a DTO across the web/application boundary and the presentation model.  While this is not a pure separation of concerns, it’s a tradeoff that we’re willing to make in order to keep things simple.</li>
-</ul>
-</li>
-</ul>
-
-
-<p><strong>Business</strong></p>
-
-<p>Key Components</p>
-
-<ul>
-<li>Workflow
-
-<ul>
-<li>Also called Application Layer, Use Case, or Service Facade &ndash; this represents the entry point of a business task/use-case. Most of the time, these should not directly implement solutions, but rather be a high level coordinator of other objects (it can be viewed as a facade over finer grained models/services). This is a great candidate for a business level acceptance/integration test.  A workflow shouldn’t be reused by any other business components.  Reusing them from other resources is okay if the use-case is really the same. Should never be used by lower components. These ultimately answer to their use-case.</li>
-</ul>
-</li>
-<li>Domain Models
-
-<ul>
-<li>The heart of our application.  When we say Domain Model, we don’t mean a class with a bunch of getters and setters.  Quite the opposite &ndash; we shun getters and setters in these classes, and make exceptions where practical.  These classes hold most of the logic and decisions of our application.  Instead of exposing getters and being about data, they expose meaningful methods about behavior.</li>
-</ul>
-</li>
-<li>Services (Domain or Infrastructure)
-
-<ul>
-<li>These are meant to be highly reusable components &ndash; building blocks for other parts of the system. They are meant to encapsulate logic/actions that don&rsquo;t necessarily belong in the domain, or to any single domain model. These ultimately answer to re-usability and/or the domain.</li>
-</ul>
-</li>
-</ul>
-
-
-<p><strong>Storage</strong></p>
-
-<p>Key Components</p>
-
-<ul>
-<li>Repository (typically called AllSomethings)
-
-<ul>
-<li>Represents a store for an entity (an &lsquo;aggregate root&rsquo; in DDD terms). The store could be whatever (relational DB, file, in memory, backed by a RESTful web service). This may handle reads/writes/queries directly and/or delegate them to internal members (like if it needed 2 DAOs to create an entity). Think of it as a slightly higher level concept of a DAO. The repository might execute SQL queries itself, it might coordinate another DAO or 2 to execute SQL queries, or it might not even use a database at all &ndash; maybe it hits another web service. What&rsquo;s important about a repository is what it represents &ndash; a store for a particular model.  Repositories are really viewed as a collection of models that happens to persist between restarts.  An object returned from a Repository should be fully instantiated with everything it needs.</li>
-<li>We follow the “collection of models” mentality when naming repositories and their methods as well.  Where you might typically see something like jobseekerDao.insert(jobseeker), we would write either allJobseekers.add(jobseeker) or jobseeker.addTo(allJobseekers).</li>
-<li>The naming convention of AllSomethings allows for some really interesting method names that read more naturally in high level code, like our workflow for searching users:
-
-<ul>
-<li>Users matchingUsers = allUsers.matching(query).except(currentUser).sorted(by(Name.lastThenFirst()));</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>DAO
-
-<ul>
-<li>Pretty much anything else dealing with reading/writing data that doesn’t represent a store for a model.</li>
-</ul>
-</li>
-</ul>
-
-
-<h2>Model things with…Models</h2>
-
-<p>Many software engineers are familiar with the Controller/Service/DAO pattern, complete with a “model” that travels between the layers.  A lot of times, it may just be Controller/DAO.  If you’re lucky, you may even have been on a project that split the Service tier into Use Case services and building block services.  And if you were really lucky, you might have even had different models at different layers when things didn&rsquo;t fit quite right.  Unfortunately, that’s usually not the case.  More than likely, the “model” is a JavaBean that is full of getters and setters, and void of business logic – leaving the rules up to the services.  That&rsquo;s not to say that these things are wrong, there are certainly cases where they are beneficial &ndash; it&rsquo;s just not for us.  There is rarely ever a golden &ldquo;right&rdquo; way, there are only different options with tradeoffs.</p>
-
-<p>In our new systems, we’re using the models as the heart of our design.  They own the rules, the domain, and the logic.  That doesn’t mean that we don’t have stateless service classes – we do – but they play a much different role.  Instead of a Controller/Service/DAO pattern, we end up with something more like Controller/Use Case/Repository, with the typical steps being:</p>
-
-<ol>
-<li>   Controller reads (unmarshals) the request, and hands it off to the Use Case</li>
-<li>   The Use Case either creates a model via a factory, or looks one up from a repository</li>
-<li>   The Use Case tells the model to do something</li>
-</ol>
-
-
-<p>An example is how we unsubscribe a subscription.  There is no manager or service like</p>
-
-<pre><code>subscriptionService.unsubscribe(jobseekerId, exitSurvey.unsubscribeReason());
-</code></pre>
-
-<p>Instead, inside the Use Case we get a Subscription model, and tell it to unsubscribe:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Subscription subscription = allSubscriptions.subscriptionFor(jobseekerId);
-</span><span class='line'>subscription.unsubscribeWith(exitSurvey.unsubscribeReason());</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It might not seem like much, but now we have stateful models that use our terms – we talk about “Subscriptions” in meetings, not a “Subscription Service.”  It also gives us a better home to determine things like – what happens when we try to unsubscribe a Basic Subscription?  What happens when we try to unsubscribe a Premium subscription?  If we only had a SubscriptionService, we’d probably be looking for a switch statement in there somewhere, something like isPremium or isBasic.  Instead, we have 2 different Subscription model implementations – BasicSubscription and PremiumSubscription, each which house their own rules for what should happen in their particular case.</p>
-
-<p>This was a fairly simple example, but we can also take a look at some of the methods on one of our User models:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>  public Connection connectWith(User anotherUser)
-</span><span class='line'>  public void accept(Connection connection)
-</span><span class='line'>  public void ignore(Connection connection)
-</span><span class='line'>  public void disconnect(Connection connection)
-</span><span class='line'>  public void reconnect(Connection connection)
-</span><span class='line'>  public NewMessage send(NewMessageRepresentation message)
-</span><span class='line'>  public void receive(NewMessage newMessage)
-</span><span class='line'>  public void like(Job job)
-</span><span class='line'>  public void unlike(Job job)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>These methods are all about the User doing something rather than just returning data to a caller.  Sending a message looks like:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>@Component
-</span><span class='line'>public class SendMessageWorkflow
-</span><span class='line'>{
-</span><span class='line'>  @Inject
-</span><span class='line'>  private AllUsers allUsers;
-</span><span class='line'>
-</span><span class='line'>  public void send(NewMessageRepresentation message,
-</span><span class='line'>                   UserId currentUserId,
-</span><span class='line'>                   UserId recipientId)
-</span><span class='line'>  {
-</span><span class='line'>    User currentUser = allUsers.findBy(currentUserId);
-</span><span class='line'>    User anotherUser = allUsers.findBy(recipientId);
-</span><span class='line'>
-</span><span class='line'>    currentUser.send(message).to(anotherUser);
-</span><span class='line'>  }
-</span><span class='line'>
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Enabling domain models with dependencies</h2>
-
-<p>This is a topic of debate within the scope of models that “do things” rather than anemic models.  We’ve decided to go down the route of having models that contain their dependencies, enabling them to complete their tasks on their own, with method arguments only requiring things that are related to the domain.</p>
-
-<p>This is similar to the approach that many frameworks like Rails/Grails take, you can just call model.save().  While the basic crud operations are nice to have completely encapsulated within the model, the advantage comes in higher level concepts.  We can write code like user.like(job) or currentUser.connectWith(anotherUser).</p>
-
-<h3>Mapping models to storage</h3>
-
-<p>Because our models are behavior driven (and often polymorphic), they frequently don’t map to storage frameworks very well.  We’re ok with that &ndash; most of the time we’ll have a separate set of storage layer classes that are more suitable for that type of thing.  Those classes might have public final variables or a bunch of getters/setters on them: they’re meant to expose their data, it’s their purpose.  Our domain models should be free from having to worry about the persistence layer.  A question we like to ask a lot is: Database?  What database?  Who said anything about a database?  And who said it was relational?</p>
-
-<p>We want our application code to make sense regardless of whether or not there’s a database.  We read data from a variety of different stores: relational DB tables, key/value stores like Riak/Couchbase/Memcached, other web services, etc.  In some applications, we have a “standalone” mode where everything is just held in memory.  We like to avoid having the storage layer mechanism leaking out and affecting our other code &ndash; we want to be able to swap different implementations in/out at will, with minimal impact.</p>
-
-<p>It&rsquo;s common to find something similar to:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -360,60 +178,38 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public interface AllSomethings
-</span><span class='line'>{
-</span><span class='line'>  void add(Something something):
-</span><span class='line'>  void remove(Something something);
-</span><span class='line'>  Somethings createdBy(UserId userId);
-</span><span class='line'>  Somethings postedBefore(Date date);
-</span><span class='line'>}
-</span><span class='line'> 
-</span><span class='line'>@Repository
-</span><span class='line'>@Profile("standalone")
-</span><span class='line'>public class AllSomethingsInMemory implements AllSomethings
-</span><span class='line'>{
-</span><span class='line'>  private Set&lt;Something&gt; somethings;
-</span><span class='line'>  ...
-</span><span class='line'>}
-</span><span class='line'> 
-</span><span class='line'>@Repository
-</span><span class='line'>@Profile("default")
-</span><span class='line'>public class AllSomethingsInMySql implements AllSomethings
-</span><span class='line'>{
-</span><span class='line'>  @Inject
-</span><span class='line'>  private SomethingsSql sql;
-</span><span class='line'>  ...
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ShapeVisitor</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="nf">visit</span><span class="o">(</span><span class="n">Circle</span> <span class="n">circle</span><span class="o">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="nf">visit</span><span class="o">(</span><span class="n">Square</span> <span class="n">square</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">VisitableShape</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="nf">accept</span><span class="o">(</span><span class="n">ShapeVisitor</span> <span class="n">visitor</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Circle</span> <span class="kd">implements</span> <span class="n">VisitableShape</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">accept</span><span class="o">(</span><span class="n">ShapeVisitor</span> <span class="n">visitor</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="n">visitor</span><span class="o">.</span><span class="na">visit</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Presenting models</h3>
-
-<p>This is a RESTful web API, so at some point we&rsquo;ve got to expose data.  But we said we&rsquo;re anti-getters on our domain models, so how do we do it?  One of the responsibilities of a model is not to expose each property individual, but rather present itself in some fashion.  Many times this is just a represention() or toRepresentation() method that returns the presentation layer class, and sometimes we introduce an interface if we want to decouple the model from the presentation class or response being sent back.  We&rsquo;ll dig a little more into our Presenter interfaces in our next post.</p>
-
-<h2>Typical Usage Scenario</h2>
-
-<p>The handling of a GET request typically looks like this:</p>
-
-<ul>
-<li>The request comes in and gets picked up by a Jersey resource.  This handles the unmarshalling of any data, request parameter extraction, and/or retrieval of the “current user” identification if necessary.  It then immediately passes control to a Workflow for the specific use case at hand.</li>
-<li>The Workflow looks up one or more models from the Repositories</li>
-<li>The Workflow coordinates the model(s) to complete the task at hand</li>
-<li>A Representation is generated (sometimes by a model, sometimes by the Workflow) and returned to the Resource</li>
-<li>The Resource adds any necessary hypermedia links and returns the representation to be marshaled.
-
-<ul>
-<li>Technically we use a Jersey Resource filter to add the links after returning from our Resource class, but it’s still ultimately viewed as a responsibility of the Resource</li>
-</ul>
-</li>
-</ul>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">VisitableShape</span> <span class="n">shape</span> <span class="o">=</span> <span class="err">…</span>
+</span><span class='line'><span class="n">shape</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">visitor</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>A lot of times we take this a little bit further, and our Visitor will also be a data contract of what’s expected for each case, and also return something.  In the case of displaying someone’s activity feed, we have something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -448,48 +244,457 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
 <span class='line-number'>33</span>
 <span class='line-number'>34</span>
 <span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>@Component
-</span><span class='line'>@Produces(MediaType.APPLICATION_JSON)
-</span><span class='line'>@Path(“path/to/matches”)
-</span><span class='line'>@Scope(Scopes.REQUEST)
-</span><span class='line'>public class JobMatchResource
-</span><span class='line'>{
-</span><span class='line'>  @Inject
-</span><span class='line'>  private JobMatchesWorkflow jobMatchesWorkflow;
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">profileSaveOn</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>  @GET
-</span><span class='line'>  public JobRepresentations getMatches(@For JobseekerId jobseekerId)
-</span><span class='line'>  {
-</span><span class='line'>    return jobMatchesWorkflow.matchesFor(jobseekerId);
-</span><span class='line'>  }
-</span><span class='line'>}
+</span><span class='line'>  <span class="n">T</span> <span class="nf">profileViewOn</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>@Component
-</span><span class='line'>public class JobMatchesWorkflow
-</span><span class='line'>{
-</span><span class='line'>  @Inject
-</span><span class='line'>  private Recommender recommender;
-</span><span class='line'>  @Inject
-</span><span class='line'>  private AllJobs     allJobs;
-</span><span class='line'>  @Inject
-</span><span class='line'>  private AllJobseekers allJobseekers;
+</span><span class='line'>  <span class="n">T</span> <span class="nf">jobApplyRating</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">JobApplyRatingType</span> <span class="n">type</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">DateTime</span> <span class="n">jobApplyDate</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">JobSummary</span> <span class="n">jobSummary</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>  public JobRepresentations matchesFor(JobseekerId jobseekerId)
-</span><span class='line'>  {
-</span><span class='line'>    JobIds recommendedJobIds = recommender.jobMatchesFor(jobseekerId);
-</span><span class='line'>    Jobs jobs = allJobs.forThe(recommendedJobIds);
-</span><span class='line'>    Jobseeker jobseeker = allJobseekers.jobseekerWith(jobseekerId);
+</span><span class='line'>  <span class="n">T</span> <span class="nf">hiringAlert</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">JobSummary</span> <span class="n">jobSummary</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">message</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    return jobs.thatArentBad().toRepresentationsFor(jobseeker);
-</span><span class='line'>  }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">directMessage</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">,</span>
+</span><span class='line'>                  <span class="n">String</span> <span class="n">message</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">resumeDownload</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">resumeShare</span><span class="o">(</span><span class="n">DateTime</span> <span class="n">eventDate</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">RecruiterEvent</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="err">…</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">presentedWith</span><span class="o">(</span><span class="n">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">presenter</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ResumeDownload</span> <span class="kd">extends</span> <span class="n">RecruiterEvent</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">presentedWith</span><span class="o">(</span><span class="n">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">presenter</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">resumeDownload</span><span class="o">(</span><span class="n">eventDate</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<hr />
+<p>So if we add a new type of activity, we add another method to our Presenter, and the compiler tells us all the places we need to account for, no guesswork!  We’ve also created a data contract between our models and concrete presenters, so that we can maintain data encapsulation in our models and be explicit about what data is needed for each type of activity.</p>
+
+<h3>Presenters for business rules</h3>
+
+<p>We also frequently use a flavor of the visitor pattern to enforce business rules, even if we may not have explicit types for each case.  While not your textbook implementation, it still takes advantage of double dispatch to realize different scenarios (rather than types).</p>
+
+<p>So what might that look like?  We have an interface that represents the possible states of a Recruiter that we care about:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">validRecruiter</span><span class="o">(</span><span class="n">RecruiterData</span> <span class="n">recruiterData</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">invalidRecruiter</span><span class="o">(</span><span class="n">RecruiterData</span> <span class="n">recruiterData</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>RecruiterData is just a Data Transfer Object that contains the recruiter’s data.  This Presenter interface allows us to contain the rules for what “valid” means within the Recruiter class itself, while allowing(and forcing) applications to consider what happens when a Recruiter is invalid.</p>
+
+<p>Recruiter:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">presentedWith</span><span class="o">(</span><span class="n">Presenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">presenter</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">isVisible</span><span class="o">())</span>
+</span><span class='line'>    <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">validRecruiter</span><span class="o">(</span><span class="n">asData</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">invalidRecruiter</span><span class="o">(</span><span class="n">asData</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isVisible</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">subscription</span><span class="o">.</span><span class="na">allowsRecruiterToBeVisible</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">profile</span><span class="o">.</span><span class="na">isVisible</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This allows our Recruiter class to be more about behavior and enforcing our business rules, and less about what data properties a recruiter has.</p>
+
+<h3>Presenters for hiding dependencies</h3>
+
+<p>This same concept is how we keep Jersey isolated to the web components.  Our business tier depends on a JobPresenter interface, and the Jersey resource passes in an implementation that happens to use Jersey classes:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">JobPresenter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">success</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">T</span> <span class="nf">forbidden</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JerseyJobPresenter</span> <span class="kd">implements</span> <span class="n">JobPresenter</span><span class="o">&lt;</span><span class="n">Response</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Response</span> <span class="nf">success</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nf">buildResponse</span><span class="o">(</span><span class="n">Response</span><span class="o">.</span><span class="na">Status</span><span class="o">.</span><span class="na">OK</span><span class="o">,</span> <span class="n">jobRepresentation</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Response</span> <span class="nf">forbidden</span><span class="o">(</span><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nf">buildResponse</span><span class="o">(</span><span class="n">Response</span><span class="o">.</span><span class="na">Status</span><span class="o">.</span><span class="na">FORBIDDEN</span><span class="o">,</span> <span class="n">paywallFor</span><span class="o">(</span><span class="n">jobRepresentation</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>we then have code in the Workflow that looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">JobRepresentation</span> <span class="n">jobRepresentation</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">representationFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">PayWall</span><span class="o">.</span><span class="na">isHitFor</span><span class="o">(</span><span class="n">jobseeker</span><span class="o">,</span> <span class="n">job</span><span class="o">))</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">forbidden</span><span class="o">(</span><span class="n">jobRepresentation</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="n">presenter</span><span class="o">.</span><span class="na">success</span><span class="o">(</span><span class="n">jobRepresentation</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Enums</h2>
+
+<p>Ahh enums.  Yes enums get their own special little blurb, because enums are special.  Enums let you do bad bad things, without you ever noticing.  The problem with enums is&hellip;us.   Developers tend to allow the entire application to know that a class is an enum, and pepper instance checks throughout it.  This ends up leaking more information then it needs to, and can make it hard to switch a class from being an enum to a real class.  Our rule is that only two kinds of places should know that it’s an enum at all &ndash; the enum itself, and the classes that pick an enum value.</p>
+
+<h3>No public type checking</h3>
+
+<p>The fact that a class is an enum should be an implementation detail, not a contract.  It also makes it hard to add new enum values, and violates the Open Closed Principle.  Therefore, the only class that should compare enum instance equality is the enum class.  That means that other classes should not do something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">Status</span><span class="o">.</span><span class="na">APPROVED</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="c1">// do something</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>but instead ask the enum the question directly via status.isApproved(), or even better tell it to do something (tell don&rsquo;t ask).</p>
+
+<p>Two enum checks is a sign that there’s a more meaningful concept hiding there</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">day</span> <span class="o">==</span> <span class="n">Day</span><span class="o">.</span><span class="na">SATURDAY</span> <span class="o">||</span> <span class="n">day</span> <span class="o">==</span> <span class="n">Day</span><span class="o">.</span><span class="na">SUNDAY</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="c1">// do something</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the above is hiding a very important concept, something like day.isOnTheWeekend();</p>
+
+<p>Who says enums have to be void of logic?  Logic belongs where it belongs, regardless of whether the class is a typical class or an enum.  Enums should be viewed as just a way to restrict input values, and possibly make the internal implementation of the class easier.  Here’s an example of one of our enums:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">enum</span> <span class="n">ProfileStatus</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>  <span class="n">NO_PROFILE</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">INCOMPLETE</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">PENDING</span><span class="o">(</span><span class="mi">2</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">DECLINED</span><span class="o">(</span><span class="mi">3</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">PERMANENTLY_DECLINED</span><span class="o">(</span><span class="mi">4</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">APPROVED</span><span class="o">(</span><span class="mi">5</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">DELETED</span><span class="o">(</span><span class="mi">6</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">SUSPENDED</span><span class="o">(</span><span class="mi">7</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">PENDING_ESCALATED</span><span class="o">(</span><span class="mi">8</span><span class="o">),</span>
+</span><span class='line'>  <span class="n">REMOVED</span><span class="o">(</span><span class="mi">9</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">ProfileStatus</span><span class="o">&gt;</span> <span class="n">CAN_BE_EXPEDITED</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">INCOMPLETE</span><span class="o">,</span>
+</span><span class='line'>                                                                                  <span class="n">PENDING</span><span class="o">,</span>
+</span><span class='line'>                                                                                  <span class="n">PENDING_ESCALATED</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span>                              <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="nf">ProfileStatus</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isApproved</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">APPROVED</span> <span class="o">==</span> <span class="k">this</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isExpeditedBy</span><span class="o">(</span><span class="n">ProfileStatus</span> <span class="n">expeditedProfileStatus</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nf">canBeExpedited</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">expeditedProfileStatus</span><span class="o">.</span><span class="na">isApproved</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">canBeExpedited</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">CAN_BE_EXPEDITED</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once upon a time the INCOMPLETE, PENDING, and PENDING_ESCALATED were checked against with == by another class, and it was hard to figure out what was really going on.  Now we’ve introduced names for what that grouping is &ndash; something that can be expedited &ndash; and contained that within this class.  This leaves the calling code more expressive:</p>
+
+<p>Profile:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">statusAllowsVisibility</span><span class="o">()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">profileStatus</span><span class="o">.</span><span class="na">isApproved</span><span class="o">()</span> <span class="o">||</span> <span class="n">profileStatus</span><span class="o">.</span><span class="na">isExpeditedBy</span><span class="o">(</span><span class="n">expeditedProfileStatus</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Making implicit concepts explicit</h2>
+
+<p>One of the things that became hard to manage in our old system is the difference between Basic and Premium accounts.  We were switching on basic/premium for almost everything that acted differently in each scenario, which becomes a problem in many ways:</p>
+
+<p>If we want to add another type (which we did, called Freemium), we now have to go find all those conditional statements and add another part to handle Freemium accounts.</p>
+
+<p>Meaning – What does it mean to have a Basic, Premium, or Freemium account?  In order to answer that in our old system, you have to go find the 100s of conditionals that do something different in each case.  The meaning was held implicitly in the code that called methods like isBasic(), crippling our ability to meaningfully describe the difference between the accounts.</p>
+
+<p>The answer?  Model the <strong>behavior</strong> of each type of account, and make the meaning <strong>explicit</strong>.  Instead of</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">If</span> <span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">isBasic</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">..</span> <span class="n">can</span><span class="err">’</span><span class="n">t</span> <span class="n">apply</span> <span class="o">..</span>
+</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">..</span> <span class="n">can</span> <span class="n">apply</span> <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>just ask the question of a polymorphic object – can they apply?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">permissions</span><span class="o">.</span><span class="na">canApply</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">..</span> <span class="n">can</span> <span class="n">apply</span> <span class="o">..</span>
+</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">..</span> <span class="n">can</span><span class="err">’</span><span class="n">t</span> <span class="n">apply</span> <span class="o">..</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">BasicPermissions</span>
+</span><span class='line'><span class="nf">canApply</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'><span class="n">canUpgrade</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">PremiumPermissions</span>
+</span><span class='line'><span class="nf">canApply</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'><span class="n">canUpgrade</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span> <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This encapsulates the meaning of Basic vs. Premium in type specific models, and also alleviates problems that the Open Closed Principle highlights.  Determining whether or not users can apply to a job has now become an explicit part of our domain model.  If we need to add another type (like Freemium), all we have to do is create a new FreemiumPermissions class and <em><strong>describe what it means</strong></em> to be Freemium.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">FreemiumPermissions</span>
+</span><span class='line'><span class="nf">canApply</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nf">numberOfApplicationsThisWeek</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">canUpgrade</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span> <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We have an explicit rule that we are only allowed to ask if a user is basic/premium/freemium/etc for two reasons:</p>
+
+<ul>
+<li>copy and branding, since it might say the word “Basic” or “Premium”</li>
+<li>a factory is creating a polymorphic model</li>
+</ul>
+
+
+<p>other than that, we must ask a behavioral question instead.</p>
+
+<h2>Return null, get shot</h2>
+
+<p>One of our rules in the new code is to never publicly return or pass null to another class.  Never.  You can try, but people are clumsy&hellip;stairs are slippery&hellip;accidents are bound to happen.  Null can be used in classes internally and must be accounted for at system boundaries, but is considered a true error anywhere else.  These are also the only places that defensive null checks are considered appropriate.   So how do we accomplish that?  We stole code.</p>
+
+<h3>Call me Maybe</h3>
+
+<p>We created our our Maybe class, based off of Nat Pryce’s <a href="https://github.com/npryce/maybe-java.">https://github.com/npryce/maybe-java.</a> Maybe is similar to Scala’s Option and Java 8’s Optional.  Anywhere we expose a value that is optional and could be null, we expose a Maybe.  This clearly demarcates when and where a value may or may not be present, and forces us to be more explicit about what happens if it’s not there.</p>
+
+<p>The Null Object pattern is also valuable, but is really only useful for behavioral classes that can provide sensible implementations for methods.  It doesn’t work as well for data driven classes – what do you return if someone calls firstName() or id() for Recruiter data that doesn’t exist?  That’s when Maybe becomes a better choice.</p>
+
+<p>So in light of returning things that might not exist, either return a Maybe, Null Object, or throw an exception.  Keep null checking at the system boundaries, and we never have to wonder where along the line something is or isn’t null.</p>
+
+<p>Example for jobseeker salary:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Salary</span> <span class="n">salary</span> <span class="o">=</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">getSalary</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">salary</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="n">salary</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+compared to</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">getSalary</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">)).</span><span class="na">otherwise</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or even better:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">return</span> <span class="n">serviceJobseeker</span><span class="o">.</span><span class="na">salary</span><span class="o">(</span><span class="n">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">)).</span><span class="na">otherwise</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+There is a tradeoff though, particularly for Java 7 and below &ndash; we have to create a Google Guava function, which is ugly.  We&rsquo;re willing to accept this little bit of ugliness and tuck it away at the bottom of the class, or in its own class itself (much less of a problem in Java 8).
+SalaryPredicates:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Salary</span><span class="o">&gt;</span> <span class="nf">isBelow</span><span class="o">(</span><span class="kd">final</span> <span class="kt">int</span> <span class="n">limit</span><span class="o">)</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'> <span class="k">return</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">Salary</span><span class="o">&gt;()</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">apply</span><span class="o">(</span><span class="n">Salary</span> <span class="n">salary</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">salary</span><span class="o">.</span><span class="na">isBelow</span><span class="o">(</span><span class="n">limit</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">};</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When talking about being expressive in code, readability, and separating mechanics from meaning – we’ve made a nice improvement.  There are some mechanics in the first example, mixed in between the code that enforces the business rules.  The last example is short and sweet, and only contains the parts we really care about.  This really starts to become beneficial when you have to manipulate optional data more than once as it passes through the system.</p>
+
+<h3>JDK8</h3>
+
+<p>Some of our web services are running on JDK8, which introduces its own Optional class, first class functions, and lambda expressions.  This makes conforming to this rule much much easier.  Jackson also has a JDK8 module that understands Optional, so our representation/serialization classes can use them directly, and much of our code has no reason to use nulls whatsoever from end to end.</p>
 
 <h2>Wrapping up</h2>
 
-<p>That about sums up some of our high level philosophies, architecture, and control flow.  We’ve set up an environment where layer responsibilities are clearly separated, the workflow steps of completing a task are managed in one place and separate from the details of how those steps are carried out, and placed our domain models at the heart of our system.  Our next post will share some details of <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo">Our Trip Back to OO</a> and how we implement the logic behind those steps.</p>
+<p>We&rsquo;ve talked a little bit about how we use polymorphism and OO fundamentals to enforce the rules of our system, and how we can model behavior and meaning in order to be more extensible and accepting of change.  Relying on abstraction for important parts of our system is central in our code, and in strong object oriented design in general.  In tomorrow&rsquo;s post, we&rsquo;ll dig a little deeper into being expressive in code, and how we like to write our code line by line.</p>
 </div>
   
   
@@ -522,6 +727,10 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
       </li>
     
       <li class="post">
+        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
       </li>
     
@@ -531,10 +740,6 @@ var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
     
       <li class="post">
         <a href="/2015/05/working-in-harmony-es6-in-a-nutshell/">Working in Harmony: ES6 in a nutshell</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/04/writing-better-api-tests/">Writing better API tests</a>
       </li>
     
   </ul>
