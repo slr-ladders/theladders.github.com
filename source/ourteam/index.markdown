@@ -9,8 +9,6 @@ footer: false
 ****
 {% include ourteam/wamiqahmed.markdown %}
 ****
-{% include ourteam/francobarbeite.markdown %}
-****
 {% include ourteam/manishbellani.markdown %}
 ****
 {% include ourteam/austinbennett.markdown %}
@@ -38,8 +36,6 @@ footer: false
 {% include ourteam/mattjankowski.markdown %}
 ****
 {% include ourteam/zhenjin.markdown %}
-****
-{% include ourteam/leonliao.markdown %}
 ****
 {% include ourteam/josemedina.markdown %}
 ****
