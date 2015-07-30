@@ -24,10 +24,10 @@ We wanted to cover all of our visual states. This meant we needed to make creati
 We wanted to make sure these tests were automated and reproducible. They needed to integrate into our development, QA and release process. Developers shouldn’t have to worry about remembering to run tests. We’ve written about how we accomplish this before with our friendly testing framework.
 
 We wanted to minimize dependencies on services or data outside of our code. Tests shouldn’t force developers to jump through additional hoops in order for the tests to run. We can’t let internal network or DB issues stop development. And we can’t let code and data get out of sync for automated tests.
-
-
+  
+  
 ****
-
+  
 # Our Solution
 
 ## URL Parameters 
@@ -48,7 +48,7 @@ Parameters generally limit their options to meaningful data densities. E.G. “f
 
 To force a layout where we have only limited data for a page, the company URL would look something like:
 ```
-https://qa-1/companies/company-name/?*mockData=true*&*detailLevel=sparse*&*salaryPoints=none*&*similarCompanies=minimal*
+https://qa-1/companies/company-name/?mockData=true&detailLevel=sparse&salaryPoints=none&similarCompanies=minimal
 ```
 
 And results in a page which looks like:
@@ -56,7 +56,7 @@ And results in a page which looks like:
 
 And to force a layout with lots of details and available data:
 ```
-https://qa-1/companies/company-name/?*mockData=true*&*detailLevel=verbose*&*salaryPoints=full*&*similarCompanies=extra*
+https://qa-1/companies/company-name/?mockData=true&detailLevel=verbose&salaryPoints=full&similarCompanies=extra
 ```
 
 Resulting in a page like:
@@ -123,10 +123,10 @@ Example mock data generation code:
     }
   }
 ```
-
-
+  
+  
 ****
-
+  
 # Gotchas
 
 There are a few things to look out for with this approach. The first is to make sure the mock data generated is the same every time you run the test. This is as simple as seeding your random number generators and making sure to create them fresh for every request batch. If you don’t seed your random number generator you’ll get different results ever time, and if you don’t create a new seeded generator for each request batch the order of your tests will change what data is actually generated.
@@ -134,10 +134,10 @@ There are a few things to look out for with this approach. The first is to make 
 With all of this great UI test coverage it’s important not to neglect the code which actually queries the real data stores. Now that most tests never have to hit the data stores, it’s especially important to cover the data query code with their own unit and integration tests.
 
 And finally we’ve found it’s best to have as many query switches as you have stateful elements on your page. This makes it easy to compose and maintain any number of tests from the individual mock data pieces. Most of our mock data generation is extended by our technical QA to help cover all of the UI states. It also lets us easily test components in isolation where necessary.
-
-
+  
+  
 ****
-
+  
 # Conclusion
 
 This approach to testing our visual states with mock data has proven invaluable as we build out more and more information-centric pages. I hope this approach finds a useful place in your arsenal of testing strategies on your current or future projects.
