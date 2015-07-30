@@ -48,7 +48,7 @@ Parameters generally limit their options to meaningful data densities. E.G. “f
 
 To force a layout where we have only limited data for a page, the company URL would look something like:
 ```
-https://qa-1/companies/company-name/?mockData=true&detailLevel=sparse&salaryPoints=none&similarCompanies=minimal
+https://qa-1/companies/company-name/?*mockData=true*&*detailLevel=sparse*&*salaryPoints=none*&*similarCompanies=minimal*
 ```
 
 And results in a page which looks like:
@@ -56,7 +56,7 @@ And results in a page which looks like:
 
 And to force a layout with lots of details and available data:
 ```
-https://qa-1/companies/company-name/?mockData=true&detailLevel=verbose&salaryPoints=full&similarCompanies=extra
+https://qa-1/companies/company-name/?*mockData=true*&*detailLevel=verbose*&*salaryPoints=full*&*similarCompanies=extra*
 ```
 
 Resulting in a page like:
