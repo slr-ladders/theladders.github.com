@@ -4,7 +4,7 @@ layout: post
 title: "Visual State Testing With Mock Data"
 date: 2015-07-31 10:00
 comments: true
-categories: Testing, Architecture
+categories: Testing Architecture
 published: false
 ---
 {% blockquote --James Bach %}
@@ -13,7 +13,7 @@ Testing is organized skepticism.
 
 # The problem
 
-{% img right /images/visual-state-testing-with-mock-data/companies-production-small.jpg Companies Pages %}
+[{% img right /images/visual-state-testing-with-mock-data/companies-production-small.jpg Companies Pages %}](https://www.theladders.com/companies/TheLadders/)
 
 Here at TheLadders we’ve been working on building new pages designed to provide job seekers access to data we’ve been able to collect over the years in new and interesting ways. These pages are static in design, but the amount of data available for each page can vary widely. This means we have a wide range of visual states for every element on these pages. Compounding the problem are occasional elements which impact the layout of their neighbors depending on their own state. All this brought us to a very clear need to test these visual states in an automated way.
 
@@ -26,6 +26,8 @@ We wanted to make sure these tests were automated and reproducible. They needed 
 We wanted to minimize dependencies on services or data outside of our code. Tests shouldn’t force developers to jump through additional hoops in order for the tests to run. We can’t let internal network or DB issues stop development. And we can’t let code and data get out of sync for automated tests.
 
 
+****
+
 # Our Solution
 
 ## URL Parameters 
@@ -34,7 +36,7 @@ To meet all of these requirements we use a set of optional URL parameters to for
 
 #### Example URLs:
 
-For our [companies pages](https://www.theladders.com/companies/search/){:target="_blank"}, we expose the following parameters:
+For our companies pages, we expose the following parameters:
 ```
 mockData : should the server return real or mock data?
 detailLevel : controls the mock basic details data (description, location, details, etc)
@@ -50,7 +52,7 @@ https://qa-1/companies/company-name/?mockData=true&detailLevel=sparse&salaryPoin
 ```
 
 And results in a page which looks like:
-[{% img center /images/visual-state-testing-with-mock-data/sparse-mock-data-small.jpg Sparse Data %}](/images/visual-state-testing-with-mock-data/sparse-mock-data.jpg){:target="_blank"}
+[{% img center /images/visual-state-testing-with-mock-data/sparse-mock-data-small.jpg Sparse Data %}](/images/visual-state-testing-with-mock-data/sparse-mock-data.jpg)
 
 And to force a layout with lots of details and available data:
 ```
@@ -58,7 +60,7 @@ https://qa-1/companies/company-name/?mockData=true&detailLevel=verbose&salaryPoi
 ```
 
 Resulting in a page like:
-[{% img center /images/visual-state-testing-with-mock-data/full-mock-data-small.jpg Sparse Data %}](/images/visual-state-testing-with-mock-data/full-mock-data.jpg){:target="_blank"}
+[{% img center /images/visual-state-testing-with-mock-data/full-mock-data-small.jpg Sparse Data %}](/images/visual-state-testing-with-mock-data/full-mock-data.jpg)
 
 In order to test as much of the stack as we can and increase our test coverage for free, these parameters are passed all the way to the point in the code where we query our data stores, at which point the code simply has to check the flags to determine which data store, real or mock, to retrieve data from. This also means that the only code which has to change is the data retrieval code. No other server code and no client code has to worry about where the data is coming from. As long as it’s in the same format, they handle it just like real data from our data stores.
 
@@ -122,6 +124,9 @@ Example mock data generation code:
   }
 ```
 
+
+****
+
 # Gotchas
 
 There are a few things to look out for with this approach. The first is to make sure the mock data generated is the same every time you run the test. This is as simple as seeding your random number generators and making sure to create them fresh for every request batch. If you don’t seed your random number generator you’ll get different results ever time, and if you don’t create a new seeded generator for each request batch the order of your tests will change what data is actually generated.
@@ -130,6 +135,8 @@ With all of this great UI test coverage it’s important not to neglect the code
 
 And finally we’ve found it’s best to have as many query switches as you have stateful elements on your page. This makes it easy to compose and maintain any number of tests from the individual mock data pieces. Most of our mock data generation is extended by our technical QA to help cover all of the UI states. It also lets us easily test components in isolation where necessary.
 
+
+****
 
 # Conclusion
 
