@@ -5,7 +5,7 @@ title: "Visual State Testing With Mock Data"
 date: 2015-08-03 08:00
 comments: true
 categories: Testing Architecture
-published: false
+published: true
 ---
 {% blockquote --James Bach %}
 Testing is organized skepticism.
