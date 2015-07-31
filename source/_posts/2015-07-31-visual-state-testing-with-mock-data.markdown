@@ -21,10 +21,9 @@ Here at TheLadders we’ve been working on building new pages designed to provid
 
 We wanted to cover all of our visual states. This meant we needed to make creating state combinations easy. Covering all of our states lets us add new elements to existing pages without worrying about breaking existing layouts. It also lets us modify shared styles and scripts without worrying about breaking layouts already using them.
 
-We wanted to make sure these tests were automated and reproducible. They needed to integrate into our development, QA and release processes. Developers shouldn’t have to worry about remembering to run tests. We’ve written about how we accomplish this before with our friendly testing framework.
+We wanted to make sure these tests were automated and reproducible. They needed to integrate into our development, QA and release processes. Developers shouldn’t have to worry about remembering to run tests. We’ve written about how we accomplish this before with our [friendly testing framework](http://dev.theladders.com/2015/03/casperjs-the-friendly-testing-framework/).
 
 We wanted to minimize dependencies on services or data outside of our code. Tests shouldn’t force developers to jump through additional hoops in order for the tests to run. We can’t let internal network or DB issues stop development. And we can’t let code and data get out of sync for automated tests.
-<br/>
 <br/>
 ****
 <br/>
@@ -66,13 +65,13 @@ In order to test as much of the stack as we can and increase our test coverage f
 
 ## The Mock Data
 
-Once we had defined how we were going to request mock data, we had to decide how to define it. The brute force approach of forcing developers to hand-code all desired variations wasn’t acceptable. This would have been a burden on developers and the end result would have been brittle. Any future updates to the data models would have forced developers to go back and update all of the previously defined mock data.
+Once we defined how we were going to request mock data, we had to decide how to provide it. The brute force approach of forcing developers to hand-code all desired variations wasn’t acceptable. This would have been a burden on developers and the end result would have been brittle. Any future updates to the data models would have forced developers to go back and update all of the previously defined mock data.
 
 Our approach is to randomly generate all mock data. This way developers only have to define a generation function once per data point and then simply generate as many instances of those data points as are requested. This makes it much easier to cover all data states and eliminates hand coded data as long as you provide re-usable utility methods for string fields like names and titles.
 
 ## The Code
 
-For these newer pages our server code is written entirely in Scala with Spring bindings.
+Our server code is written entirely in Scala with Spring bindings.
 
 Example entry point code:
 ``` scala Example entry point code
@@ -124,7 +123,6 @@ Example mock data generation code:
   }
 ```
 <br/>
-<br/>
 ****
 <br/>
 # Gotchas
@@ -136,7 +134,6 @@ With all of this great UI test coverage it’s important not to neglect the code
 The flags and settings for mock data are specified at the entry points, but they’re not used until much further down the call chain. This can lead to mock-related code sprinkled throughout the code path if you’re not careful. In our current implementation we capture the mock flags in our entry points and store them in a single object which is passed to all data retrieval methods. This has been a nice simple approach for us which contains the flags to a single object. Each data-store gateway does still need to know how to provide mock or real data based on those flags, but keeping the mock data generation code centralized to one object per-page helps re-centralize the problem.
 
 And finally we’ve found it’s best to have as many query switches as you have stateful elements on your page. This makes it easy to compose and maintain any number of tests from the individual mock data pieces. Most of our mock data generation is extended by our technical QA to help cover all of the UI states. It also lets us easily test components in isolation where necessary.
-<br/>
 <br/>
 ****
 <br/>
