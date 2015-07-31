@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Visual State Testing With Mock Data - TheLadders Engineering Stories</title>
+  <meta name="author" content="TheLadders Engineering">
+
+  
+  <meta name="description" content="Testing is organized skepticism.&#8211;James Bach The problem Here at TheLadders we’ve been working on building new pages designed to provide job &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://dev.theladders.com/2015/08/visual-state-testing-with-mock-data/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="TheLadders Engineering Stories" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+var _sf_async_config={uid:14481,domain:"dev.theladders.com"};
+(function(){
+ function loadChartbeat() {
+   window._sf_endpt=(new Date()).getTime();
+   var e = document.createElement('script');
+   e.setAttribute('language', 'javascript');
+   e.setAttribute('type', 'text/javascript');
+   e.setAttribute('src',
+      (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+      "js/chartbeat.js");
+   document.body.appendChild(e);
+ }
+ var oldonload = window.onload;
+ window.onload = (typeof window.onload != 'function') ?
+    loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+ 
+</script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15937967-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+	<nav class="main-navigation" role="navigation">
+		<div class="container">
+			<ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:dev.theladders.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/ourteam">Our Team</a></li>
+  <li><a href="http://careers.theladders.com">We're Hiring</a></li>
+</ul>
+
+
+		</div>
+	</nav>
+	<header class="main-header" role="banner"><div class="container">
+	<figure class="logo">
+		<a href="/"><img src="/images/skippy_lightbulb.png" alt="TheLadders' Engineering Blog"/></a>
+	</figure>
+	<hgroup>
+		<h1 class="title"><a href="/">TheLadders Engineering Stories</a></h1>
+		
+		<h2 class="subtitle">This is how we work.</h2>
+		
+	</hgroup>
+</div>
+
+</header>
+	<main id="main" class="main">
+		<div class="content">
+		  <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Visual State Testing With Mock Data</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-03T08:00:00-04:00" pubdate data-updated="true">Aug 3<span>rd</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>Testing is organized skepticism.</p><footer><strong>&#8211;James Bach</strong></footer></blockquote>
+
+
+<h1>The problem</h1>
+
+<p><a href="https://www.theladders.com/companies/TheLadders/"><img class="right" src="/images/visual-state-testing-with-mock-data/companies-production-small.jpg" title="Companies Pages" ></a></p>
+
+<p>Here at TheLadders we’ve been working on building new pages designed to provide job seekers access to data we’ve been able to collect over the years in new and interesting ways. These pages are static in design, but the amount of data available for each page can vary widely. This means we have a wide range of visual states for every element on these pages. Compounding the problem are occasional elements which impact the layout of their neighbors depending on their own state. All this brought us to a very clear need to test these visual states in an automated way.</p>
+
+<h2>Requirements</h2>
+
+<p>We wanted to cover all of our visual states. This meant we needed to make creating state combinations easy. Covering all of our states lets us add new elements to existing pages without worrying about breaking existing layouts. It also lets us modify shared styles and scripts without worrying about breaking layouts already using them.</p>
+
+<p>We wanted to make sure these tests were automated and reproducible. They needed to integrate into our development, QA and release processes. Developers shouldn’t have to worry about remembering to run tests. We’ve written about how we accomplish this before with our <a href="http://dev.theladders.com/2015/03/casperjs-the-friendly-testing-framework/">friendly testing framework</a>.</p>
+
+<p>We wanted to minimize dependencies on services or data outside of our code. Tests shouldn’t force developers to jump through additional hoops in order for the tests to run. We can’t let internal network or DB issues stop development. And we can’t let code and data get out of sync for automated tests.</p>
+
+<br/>
+
+
+<hr />
+
+<br/>
+
+
+<h1>Our Solution</h1>
+
+<h2>URL Parameters</h2>
+
+<p>To meet all of these requirements we use a set of optional URL parameters to force our server to generate mock data to exercise all of the UI elements on a given page. This lets us quickly define full page tests with different combinations of parameters to generate any and all possible states. These parameters are only respected in local and QA environments to keep our production site clean.</p>
+
+<h4>Example URLs:</h4>
+
+<p>For our companies pages, we expose the following parameters:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mockData : should the server return real or mock data?
+</span><span class='line'>detailLevel : controls the mock basic details data (description, location, details, etc)
+</span><span class='line'>salaryPoints : controls how many mock salary points to return
+</span><span class='line'>similarCompanies : controls how many mock similar company entries to return</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Parameters generally limit their options to meaningful data densities. E.G. “full”, “minimal”, “empty”. This decouples the test code from the page layout details.</p>
+
+<p>To force a layout where we have only limited data for a page, the company URL would look something like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://qa-1/companies/company-name/?mockData=true&detailLevel=sparse&salaryPoints=none&similarCompanies=minimal</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And results in a page which looks like:
+<a href="/images/visual-state-testing-with-mock-data/sparse-mock-data.jpg"><img class="center" src="/images/visual-state-testing-with-mock-data/sparse-mock-data-small.jpg" title="Sparse Data" ></a></p>
+
+<p>And to force a layout with lots of details and available data:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://qa-1/companies/company-name/?mockData=true&detailLevel=verbose&salaryPoints=full&similarCompanies=extra</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Resulting in a page like:
+<a href="/images/visual-state-testing-with-mock-data/full-mock-data.jpg"><img class="center" src="/images/visual-state-testing-with-mock-data/full-mock-data-small.jpg" title="Sparse Data" ></a></p>
+
+<p>In order to test as much of the stack as we can and increase our test coverage for free, these parameters are passed all the way to the point in the code where we query our data stores, at which point the code simply has to check the flags to determine which data store, real or mock, to retrieve data from. This also means that the only code which has to change is the data retrieval code. No other server code and no client code has to worry about where the data is coming from. As long as it’s in the same format, they handle it just like real data from our data stores.</p>
+
+<h2>The Mock Data</h2>
+
+<p>Once we defined how we were going to request mock data, we had to decide how to provide it. The brute force approach of forcing developers to hand-code all desired variations wasn’t acceptable. This would have been a burden on developers and the end result would have been brittle. Any future updates to the data models would have forced developers to go back and update all of the previously defined mock data.</p>
+
+<p>Our approach is to randomly generate all mock data. This way developers only have to define a generation function once per data point and then simply generate as many instances of those data points as are requested. This makes it much easier to cover all data states and eliminates hand coded data as long as you provide re-usable utility methods for string fields like names and titles.</p>
+
+<h2>The Code</h2>
+
+<p>Our server code is written entirely in Scala with Spring bindings.</p>
+
+<p>Example entry point code:</p>
+
+<figure class='code'><figcaption><span>Example entry point code</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="nc">Array</span><span class="o">(</span><span class="s">&quot;/companies/{companyName}&quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">companyPage</span><span class="o">(</span><span class="nd">@PathVariable</span> <span class="n">companyName</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+</span><span class='line'>                  <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">defaultValue</span> <span class="k">=</span> <span class="s">&quot;false&quot;</span><span class="o">)</span> <span class="n">useMockData</span><span class="k">:</span> <span class="kt">Boolean</span><span class="o">,</span>
+</span><span class='line'>                  <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">defaultValue</span> <span class="k">=</span> <span class="s">&quot;full&quot;</span><span class="o">)</span> <span class="n">mockDetailLevel</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+</span><span class='line'>                  <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">defaultValue</span> <span class="k">=</span> <span class="s">&quot;full&quot;</span><span class="o">)</span> <span class="n">mockSalaryPoints</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+</span><span class='line'>                  <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">defaultValue</span> <span class="k">=</span> <span class="s">&quot;full&quot;</span><span class="o">)</span> <span class="n">mockSimilarCompanies</span><span class="k">:</span> <span class="kt">String</span> <span class="o">)</span><span class="k">:</span> <span class="kt">Any</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">val</span> <span class="n">request</span> <span class="k">=</span> <span class="nc">CompanyRequest</span><span class="o">(</span><span class="n">companyName</span><span class="o">,</span>
+</span><span class='line'>                                 <span class="n">useMockData</span> <span class="o">&amp;&amp;</span> <span class="nc">Environment</span><span class="o">.</span><span class="n">current</span> <span class="o">!=</span> <span class="nc">Prod</span><span class="o">,</span>
+</span><span class='line'>                                 <span class="n">mockDetailLevel</span><span class="o">,</span>
+</span><span class='line'>                                 <span class="n">mockSalaryPoints</span><span class="o">,</span>
+</span><span class='line'>                                 <span class="n">mockSimilarCompanies</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">val</span> <span class="n">result</span> <span class="k">=</span> <span class="n">doCompanyQuery</span><span class="o">(</span><span class="n">request</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">buildView</span><span class="o">(</span><span class="n">result</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Example data query code:</p>
+
+<figure class='code'><figcaption><span>Example data query code</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">def</span> <span class="n">querySimilarCompanies</span><span class="o">(</span><span class="n">request</span><span class="k">:</span> <span class="kt">CompanyRequest</span><span class="o">)</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">SimilarCompany</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="n">useMockData</span><span class="o">)</span> <span class="nc">MockData</span><span class="o">.</span><span class="n">similarCompanies</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="n">mockSimilarCompanies</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">else</span> <span class="n">realSearchGateway</span><span class="o">.</span><span class="n">similarCompanies</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="n">companyName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="n">similarCompanies</span><span class="o">(</span><span class="n">switch</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">SimilarCompany</span><span class="o">]</span> <span class="k">=</span> <span class="k">match</span> <span class="n">switch</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;minimal&quot;</span>  <span class="k">=&gt;</span> <span class="n">buildSimilarCompanies</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;full&quot;</span>     <span class="k">=&gt;</span> <span class="n">buildSimilarCompanies</span><span class="o">(</span><span class="mi">24</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;extra&quot;</span>    <span class="k">=&gt;</span> <span class="n">buildSimilarCompanies</span><span class="o">(</span><span class="mi">100</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="k">_</span> <span class="o">|</span> <span class="s">&quot;none&quot;</span> <span class="k">=&gt;</span> <span class="nc">Seq</span><span class="o">.</span><span class="n">empty</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Example mock data generation code:</p>
+
+<figure class='code'><figcaption><span>Example mock data generation code</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">private</span> <span class="k">final</span> <span class="k">val</span> <span class="nc">BUILD_SIMILAR_SEED</span> <span class="k">=</span> <span class="mi">9284756</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="n">buildSimilarCompanies</span><span class="o">(</span><span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">SimilarCompany</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">rng</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Random</span><span class="o">(</span><span class="nc">BUILD_SIMILAR_SEED</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">i</span> <span class="k">&lt;-</span> <span class="mi">1</span> <span class="n">to</span> <span class="n">count</span><span class="o">)</span> <span class="k">yield</span> <span class="o">{</span>
+</span><span class='line'>      <span class="nc">SimilarCompany</span><span class="o">(</span><span class="n">name</span> <span class="k">=</span> <span class="n">getRandomCompanyName</span><span class="o">(</span><span class="n">rng</span><span class="o">),</span>
+</span><span class='line'>                     <span class="n">similarity</span> <span class="k">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">nextFloat</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">openJobs</span> <span class="k">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">nextInt</span><span class="o">(</span><span class="mi">50</span><span class="o">))</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<br/>
+
+
+<hr />
+
+<br/>
+
+
+<h1>Gotchas</h1>
+
+<p>There are a few things to look out for with this approach. The first is to make sure the mock data generated is the same every time you run the test. This is as simple as seeding your random number generators and making sure to create them fresh for every request batch. If you don’t seed your random number generator you’ll get different results ever time, and if you don’t create a new seeded generator for each request batch the order of your tests will change what data is actually generated.</p>
+
+<p>With all of this great UI test coverage it’s important not to neglect the code which actually queries the real data stores. Now that most tests never have to hit the data stores, it’s especially important to cover the data query code with their own unit and integration tests.</p>
+
+<p>The flags and settings for mock data are specified at the entry points, but they’re not used until much further down the call chain. This can lead to mock-related code sprinkled throughout the code path if you’re not careful. In our current implementation we capture the mock flags in our entry points and store them in a single object which is passed to all data retrieval methods. This has been a nice simple approach for us which contains the flags to a single object. Each data-store gateway does still need to know how to provide mock or real data based on those flags, but keeping the mock data generation code centralized to one object per-page helps re-centralize the problem.</p>
+
+<p>And finally we’ve found it’s best to have as many query switches as you have stateful elements on your page. This makes it easy to compose and maintain any number of tests from the individual mock data pieces. Most of our mock data generation is extended by our technical QA to help cover all of the UI states. It also lets us easily test components in isolation where necessary.</p>
+
+<br/>
+
+
+<hr />
+
+<br/>
+
+
+<h1>Conclusion</h1>
+
+<p>This approach to testing our visual states with mock data has proven invaluable as we build out more and more information-centric pages. I hope this approach finds a useful place in your arsenal of testing strategies on your current or future projects.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+
+
+  <span class="byline author vcard">Posted by
+    
+      <span class="fn"><a href="/ourteam/chrisschillinger">Chris Schillinger</a></span>
+    
+  </span>
+
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-03T08:00:00-04:00" pubdate data-updated="true">Aug 3<span>rd</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/architecture/'>Architecture</a>, <a class='category' href='/categories/testing/'>Testing</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dev.theladders.com/2015/08/visual-state-testing-with-mock-data/" data-via="TheLaddersDev" data-counturl="http://dev.theladders.com/2015/08/visual-state-testing-with-mock-data/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2015/06/announcing-our-youtube-channel/" title="Previous Post: Announcing Our YouTube Channel">&laquo; Announcing Our YouTube Channel</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+		</div>
+	</main>
+	<aside class="sidebar">
+		
+		<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/08/visual-state-testing-with-mock-data/">Visual State Testing With Mock Data</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/06/announcing-our-youtube-channel/">Announcing Our YouTube Channel</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/design-principles-and-goals-being-expressive-in-code/">Design Principles and Goals (Part 3) - Being Expressive in Code</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/design-principles-and-goals-a-trip-back-to-oo/">Design Principles and Goals (Part 2) - A Trip Back to OO</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/05/design-principles-and-goals-high-level-architecture/">Design Principles and Goals (Part 1) - High Level Architecture</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/TheLadders">@TheLadders</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'TheLadders',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+		
+	</aside>
+	<footer class="footer" role="contentinfo"><div class="container">
+	<p>
+		Copyright &copy; 2015 - TheLadders Engineering -
+		<span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+	</p>
+</div>
+
+</footer>
+	
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
