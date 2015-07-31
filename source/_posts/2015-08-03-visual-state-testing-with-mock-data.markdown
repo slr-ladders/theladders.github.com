@@ -2,7 +2,7 @@
 author: Chris Schillinger
 layout: post
 title: "Visual State Testing With Mock Data"
-date: 2015-07-31 10:00
+date: 2015-08-03 08:00
 comments: true
 categories: Testing Architecture
 published: false
