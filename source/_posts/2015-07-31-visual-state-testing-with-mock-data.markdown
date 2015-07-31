@@ -21,13 +21,13 @@ Here at TheLadders we’ve been working on building new pages designed to provid
 
 We wanted to cover all of our visual states. This meant we needed to make creating state combinations easy. Covering all of our states lets us add new elements to existing pages without worrying about breaking existing layouts. It also lets us modify shared styles and scripts without worrying about breaking layouts already using them.
 
-We wanted to make sure these tests were automated and reproducible. They needed to integrate into our development, QA and release process. Developers shouldn’t have to worry about remembering to run tests. We’ve written about how we accomplish this before with our friendly testing framework.
+We wanted to make sure these tests were automated and reproducible. They needed to integrate into our development, QA and release processes. Developers shouldn’t have to worry about remembering to run tests. We’ve written about how we accomplish this before with our friendly testing framework.
 
 We wanted to minimize dependencies on services or data outside of our code. Tests shouldn’t force developers to jump through additional hoops in order for the tests to run. We can’t let internal network or DB issues stop development. And we can’t let code and data get out of sync for automated tests.
-  
-  
+<br/>
+<br/>
 ****
-  
+<br/>
 # Our Solution
 
 ## URL Parameters 
@@ -123,21 +123,23 @@ Example mock data generation code:
     }
   }
 ```
-  
-  
+<br/>
+<br/>
 ****
-  
+<br/>
 # Gotchas
 
 There are a few things to look out for with this approach. The first is to make sure the mock data generated is the same every time you run the test. This is as simple as seeding your random number generators and making sure to create them fresh for every request batch. If you don’t seed your random number generator you’ll get different results ever time, and if you don’t create a new seeded generator for each request batch the order of your tests will change what data is actually generated.
 
 With all of this great UI test coverage it’s important not to neglect the code which actually queries the real data stores. Now that most tests never have to hit the data stores, it’s especially important to cover the data query code with their own unit and integration tests.
 
+The flags and settings for mock data are specified at the entry points, but they’re not used until much further down the call chain. This can lead to mock-related code sprinkled throughout the code path if you’re not careful. In our current implementation we capture the mock flags in our entry points and store them in a single object which is passed to all data retrieval methods. This has been a nice simple approach for us which contains the flags to a single object. Each data-store gateway does still need to know how to provide mock or real data based on those flags, but keeping the mock data generation code centralized to one object per-page helps re-centralize the problem.
+
 And finally we’ve found it’s best to have as many query switches as you have stateful elements on your page. This makes it easy to compose and maintain any number of tests from the individual mock data pieces. Most of our mock data generation is extended by our technical QA to help cover all of the UI states. It also lets us easily test components in isolation where necessary.
-  
-  
+<br/>
+<br/>
 ****
-  
+<br/>
 # Conclusion
 
 This approach to testing our visual states with mock data has proven invaluable as we build out more and more information-centric pages. I hope this approach finds a useful place in your arsenal of testing strategies on your current or future projects.
